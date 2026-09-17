@@ -35,6 +35,7 @@
 <body>
 <div class="app">
   <div class="title">『암호화폐 마이닝』</div>
+  <div id="saveStatus" role="status" style="font-size:10px;text-align:center;line-height:1.5;margin-bottom:8px">3초마다 자동 저장 · 같은 기기/브라우저에서 이어하기</div>
   <section class="pixel-panel hud">
     <div class="wallet-row"><div class="btc-group"><div class="btc-icon">₿</div><div class="money" id="moneyText">0</div></div><div class="sec">+<span id="secText">1.0</span> / sec</div></div>
     <div class="fever" id="feverText">◆ BTC FEVER | CHARGING ◆</div>
@@ -94,6 +95,84 @@ let uidCounter=1;
 function createGpuItem(modelId){return{uid:"gpu_"+(uidCounter++),modelId,temp:30}}
 function freshState(){const starter=createGpuItem(0);return{money:0,fork:0,totalClicks:0,totalMined:0,running:true,overclock:false,fever:false,feverTime:0,feverCooldown:20,items:[starter],rack:[starter.uid,null,null,null,null,null,null,null],pendingSlot:null,inventoryEquipUid:null,forkUnlocked:new Set(["root"]),selectedFork:"root"}}
 let state=freshState();
+
+/* Versioned local save. UI selections are deliberately transient. */
+const SAVE_KEY = "cryptoMiningSave_v1";
+let saveBlocked = false;
+function saveStatus(message) {
+  document.getElementById("saveStatus").textContent = message;
+}
+function saveGame() {
+  if (saveBlocked) return false;
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      ...state, version: 1, savedAt: Date.now(),
+      forkUnlocked: [...state.forkUnlocked], uidCounter,
+      pendingSlot: null, inventoryEquipUid: null
+    }));
+    saveStatus("자동 저장 완료 · 같은 기기/브라우저에서 이어하기");
+    return true;
+  } catch (error) {
+    saveStatus("저장 실패 · 브라우저 저장 공간/권한을 확인하세요");
+    return false;
+  }
+}
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== "object" || (data.version !== undefined && data.version !== 1))
+      throw new Error("Unsupported save");
+    if (!Array.isArray(data.items) || !data.items.length || !Array.isArray(data.rack))
+      throw new Error("Invalid inventory");
+    const ids = new Set();
+    const items = data.items.map(item => {
+      if (!item || typeof item.uid !== "string" || !/^gpu_[1-9]\d*$/.test(item.uid) ||
+          !Number.isSafeInteger(Number(item.uid.slice(4))) || Number(item.uid.slice(4)) >= Number.MAX_SAFE_INTEGER ||
+          ids.has(item.uid) || !Number.isInteger(item.modelId) || !GPU_LIST[item.modelId] ||
+          !Number.isFinite(item.temp)) throw new Error("Invalid GPU");
+      ids.add(item.uid);
+      return {uid:item.uid, modelId:item.modelId, temp:Math.max(25, Math.min(100, item.temp))};
+    });
+    const used = new Set();
+    const rack = Array.from({length:8}, (_, i) => {
+      const uid = data.rack[i];
+      if (!ids.has(uid) || used.has(uid)) return null;
+      used.add(uid);
+      return uid;
+    });
+    const unlocked = new Set(["root"]);
+    const requested = new Set(Array.isArray(data.forkUnlocked) ? data.forkUnlocked : []);
+    for (const [id, node] of Object.entries(FORK_NODES))
+      if (requested.has(id) && (!node.requirement || unlocked.has(node.requirement))) unlocked.add(id);
+    const number = (key, fallback=0) => Number.isFinite(data[key]) && data[key] >= 0 ? data[key] : fallback;
+    const feverTime = Math.min(25, Math.floor(number("feverTime")));
+    const restored = {
+      money:number("money"), fork:number("fork"), totalClicks:Math.floor(number("totalClicks")),
+      totalMined:number("totalMined"), running:data.running !== false,
+      overclock:data.overclock === true, fever:data.fever === true && feverTime > 0,
+      feverTime, feverCooldown:Math.min(35, Math.floor(number("feverCooldown",20))),
+      items, rack, forkUnlocked:unlocked,
+      selectedFork:Object.hasOwn(FORK_NODES, data.selectedFork) ? data.selectedFork : "root",
+      pendingSlot:null, inventoryEquipUid:null
+    };
+    let nextUid = 1;
+    for (const item of items) nextUid = Math.max(nextUid, Number(item.uid.slice(4))+1);
+    uidCounter = Math.max(nextUid, Number.isSafeInteger(data.uidCounter) && data.uidCounter > 0 ? data.uidCounter : 1);
+    state = restored;
+    if (equippedItems().some(item => item.temp >= 100)) state.running = false;
+    el.gameOver.classList.toggle("show", !state.running);
+    saveStatus("저장된 게임을 불러왔습니다 · 3초마다 자동 저장");
+    return true;
+  } catch (error) {
+    // Preserve unreadable saves instead of overwriting them with a fresh game.
+    saveBlocked = true;
+    saveStatus("저장 데이터를 읽지 못했습니다 · 기존 데이터 보존 중");
+    return false;
+  }
+}
+
 const el={moneyText:document.getElementById("moneyText"),secText:document.getElementById("secText"),ethText:document.getElementById("ethText"),forkText:document.getElementById("forkText"),feverText:document.getElementById("feverText"),tempText:document.getElementById("tempText"),powerText:document.getElementById("powerText"),electricityText:document.getElementById("electricityText"),rackGrid:document.getElementById("rackGrid"),robotText:document.getElementById("robotText"),currentGpuText:document.getElementById("currentGpuText"),currentStatsText:document.getElementById("currentStatsText"),nextGpuText:document.getElementById("nextGpuText"),nextBoostText:document.getElementById("nextBoostText"),ownedMoneyText:document.getElementById("ownedMoneyText"),gpuCostText:document.getElementById("gpuCostText"),upgradeBtn:document.getElementById("upgradeBtn"),gpuBtn:document.getElementById("gpuBtn"),invBtn:document.getElementById("invBtn"),ocBtn:document.getElementById("ocBtn"),coolBtn:document.getElementById("coolBtn"),shopBtn:document.getElementById("shopBtn"),forkBtn:document.getElementById("forkBtn"),menuPopup:document.getElementById("menuPopup"),popupTitle:document.getElementById("popupTitle"),popupContent:document.getElementById("popupContent"),popupClose:document.getElementById("popupClose"),toast:document.getElementById("toast"),gameOver:document.getElementById("gameOver"),restartBtn:document.getElementById("restartBtn")};
 function formatNumber(n){return Math.floor(n).toLocaleString("ko-KR")}function format1(n){return Number(n).toFixed(1)}function itemByUid(uid){return state.items.find(i=>i.uid===uid)||null}function modelOf(item){return item?GPU_LIST[item.modelId]:null}function rackIndexOf(uid){return state.rack.indexOf(uid)}function isEquipped(uid){return rackIndexOf(uid)!==-1}function equippedItems(){return state.rack.map(itemByUid).filter(Boolean)}function primaryItem(){return itemByUid(state.rack[0])}function nextModelFor(item){return item&&GPU_LIST[item.modelId+1]?GPU_LIST[item.modelId+1]:null}function hasFork(id){return state.forkUnlocked.has(id)}
 function clickMultiplier(){let m=1;if(hasFork("click"))m*=1.25;if(state.overclock)m*=hasFork("oc")?1.45:1.25;if(state.fever)m*=hasFork("fever")?3:2;return m}function autoMultiplier(){let m=1;if(hasFork("auto"))m*=1.30;if(state.overclock)m*=hasFork("oc")?1.45:1.25;if(state.fever)m*=hasFork("fever")?3:2;return m}function heatMultiplier(){return hasFork("cooling")?.8:1}function forkMultiplier(){return hasFork("fork")?2:1}
@@ -108,7 +187,7 @@ function createFloat(x,y,amount){const d=document.createElement("div");d.classNa
 function autoMine(){if(!state.running)return;const eq=equippedItems();for(const item of eq){const m=modelOf(item);const gain=m.auto*autoMultiplier();state.money+=gain;state.totalMined+=gain;let heat=(.50+m.id*.11)*heatMultiplier();if(state.overclock)heat*=1.4;item.temp+=heat;if(hasFork("cooling"))item.temp=Math.max(25,item.temp-.10)}for(const item of state.items){if(!isEquipped(item.uid))item.temp=Math.max(25,item.temp-.35)}checkGameOver();updateUI()}
 function feverTick(){if(!state.running)return;if(state.fever){state.feverTime--;if(state.feverTime<=0){state.fever=false;state.feverCooldown=35;showToast("BTC FEVER 종료")}}else{state.feverCooldown--;if(state.feverCooldown<=0){state.fever=true;state.feverTime=hasFork("fever")?25:20;showToast(hasFork("fever")?"🔥 BTC FEVER ×3!":"🔥 BTC FEVER ×2!")}}updateFeverUI()}
 function coolGPU(){const eq=equippedItems();if(!eq.length){showToast("장착된 GPU가 없습니다.");return}const amount=16+Math.floor(Math.random()*8)+(hasFork("cooling")?5:0);eq.forEach(i=>i.temp=Math.max(25,i.temp-amount));el.robotText.textContent="💬 랙 전체 냉각 완료! -"+amount+"°C";showToast("❄️ ALL GPU -"+amount+"°C");updateUI()}
-function toggleOverclock(){state.overclock=!state.overclock;if(state.overclock){equippedItems().forEach(i=>i.temp+=4*heatMultiplier());showToast(hasFork("oc")?"🚀 STABLE OC +45%":"📈 OVERCLOCK +25%") }else showToast("📉 OVERCLOCK OFF");updateUI();openPopup("oc")}
+function toggleOverclock(){state.overclock=!state.overclock;if(state.overclock){equippedItems().forEach(i=>i.temp+=4*heatMultiplier());showToast(hasFork("oc")?"🚀 STABLE OC +45%":"📈 OVERCLOCK +25%") }else showToast("📉 OVERCLOCK OFF");checkGameOver();updateUI();openPopup("oc")}
 function upgradePrimary(){const item=primaryItem();if(!item){showToast("1번 슬롯에 GPU를 장착하세요.");return}const m=modelOf(item),next=nextModelFor(item);if(!next){showToast("최종 GPU입니다.");return}if(state.money<m.upgradeCost){showToast("₿"+formatNumber(m.upgradeCost-state.money)+" 부족합니다.");return}state.money-=m.upgradeCost;item.modelId++;item.temp=Math.max(30,item.temp-8);state.fork+=(10+item.modelId*5)*forkMultiplier();showToast("⚡ "+next.name+" 업그레이드 완료!");el.robotText.textContent="💬 PRIMARY GPU가 "+next.name+"(으)로 업그레이드되었습니다.";updateUI()}
 function buyGpu(modelId){const m=GPU_LIST[modelId];if(state.money<m.price){showToast("₿"+formatNumber(m.price-state.money)+" 부족합니다.");return}state.money-=m.price;const item=createGpuItem(modelId);state.items.push(item);if(state.pendingSlot!==null&&state.rack[state.pendingSlot]===null){state.rack[state.pendingSlot]=item.uid;showToast("🖥️ "+m.name+" 구매 + 슬롯 "+(state.pendingSlot+1)+" 장착");state.pendingSlot=null}else showToast("🎒 "+m.name+" 구매! 인벤토리에 보관했습니다.");state.fork+=(5+modelId*2)*forkMultiplier();updateUI();openPopup("shop")}
 function startEquip(uid){state.inventoryEquipUid=uid;openPopup("inventory")}
@@ -123,15 +202,28 @@ if(type==="oc"){setActiveNav(el.ocBtn);el.popupTitle.textContent="📈 OVERCLOCK
 if(type==="cool"){setActiveNav(el.coolBtn);el.popupTitle.textContent="❄️ COOLING SYSTEM";const hot=hottestTemp(),c=hot>=85?'#ff6570':hot>=65?'#ffd064':'#5ce5ff';el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">RACK TEMPERATURE</div><div class="popup-main" style="font-size:22px;color:${c}">🌡️ ${Math.floor(hot)}°C</div><div class="temp-bar"><div class="temp-fill" style="width:${Math.min(hot,100)}%;background:${c}"></div></div><div class="popup-text" style="margin-top:10px">장착 GPU ${equippedItems().length}개를 동시에 냉각합니다.<br>100°C에 도달한 GPU가 하나라도 있으면 파산합니다.</div></div><button class="popup-btn blue" data-action="cool">❄️ [ 랙 전체 냉각 ]</button>`}
 if(type==="shop"){setActiveNav(el.shopBtn);el.popupTitle.textContent="🛒 HARDWARE SHOP";const target=state.pendingSlot!==null?`구매한 GPU는 SLOT ${state.pendingSlot+1}에 바로 장착됩니다.`:"구매한 GPU는 인벤토리에 보관됩니다.";el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">SHOP MODE</div><div class="popup-main">${state.pendingSlot!==null?'SLOT '+(state.pendingSlot+1)+' 장착 구매':'INVENTORY 구매'}</div><div class="popup-text">${target}<br>보유 ₿${formatNumber(state.money)}</div></div><div class="card-list">${GPU_LIST.map(m=>`<div class="item-card"><div class="item-icon">🖥️</div><div><div class="item-name">${m.name}</div><div class="item-stats">CLICK ₿${formatNumber(m.click)} · AUTO ₿${format1(m.auto)}/s<br>${format1(m.hash)} H/s · ${m.power}W<br>PRICE ₿${formatNumber(m.price)}</div></div><button class="small-btn" data-action="buyGpu" data-model="${m.id}" ${state.money<m.price?'disabled':''}>구매</button></div>`).join("")}</div>`}
 if(type==="fork"){setActiveNav(el.forkBtn);el.popupTitle.textContent="🔱 FORK UPGRADE TREE";renderForkTree()}}
-function renderForkTree(){const selected=FORK_NODES[state.selectedFork],selectedStatus=forkNodeStatus(state.selectedFork);let buttonHTML;if(selectedStatus==="unlocked")buttonHTML=`<button class="popup-btn" disabled>✅ [ UNLOCKED ]</button>`;else if(selectedStatus==="locked")buttonHTML=`<button class="popup-btn" disabled>🔒 [ 선행 노드 필요 ]</button>`;else buttonHTML=`<button class="popup-btn purple" data-action="buyFork" data-fork-id="${state.selectedFork}" ${state.fork<selected.cost?'disabled':''}>${state.fork>=selected.cost?'🔱 [ 업그레이드 해금 ]':'🔒 [ FORK 부족 ]'}</button>`;const statusClass=id=>forkNodeStatus(id)+(state.selectedFork===id?" selected":"");const lineClass=(a,b)=>hasFork(a)&&hasFork(b)?"tree-line unlocked":"tree-line";el.popupContent.innerHTML=`<div class="fork-header"><span>FORK NETWORK</span><span class="fork-points">🔱 ${formatNumber(state.fork)}</span></div><div class="tree-scroll"><div class="tech-tree"><div class="${lineClass('root','cooling')}" style="width:112px;left:119px;top:177px;transform:rotate(-137deg)"></div><div class="${lineClass('root','click')}" style="width:112px;left:174px;top:227px;transform:rotate(137deg)"></div><div class="${lineClass('root','auto')}" style="width:112px;left:216px;top:177px;transform:rotate(-43deg)"></div><div class="${lineClass('root','oc')}" style="width:112px;left:216px;top:227px;transform:rotate(43deg)"></div><div class="${lineClass('auto','fork')}" style="width:117px;left:269px;top:108px;transform:rotate(-157deg)"></div><div class="${lineClass('click','fever')}" style="width:112px;left:119px;top:304px;transform:rotate(22deg)"></div><div class="tech-node ${statusClass('root')}" id="node-root" data-fork-node="root">❤️<div class="node-cost">CORE</div></div><div class="tech-node ${statusClass('cooling')}" id="node-cooling" data-fork-node="cooling">🛡️<div class="node-cost">25</div></div><div class="tech-node ${statusClass('click')}" id="node-click" data-fork-node="click">⚡<div class="node-cost">35</div></div><div class="tech-node ${statusClass('auto')}" id="node-auto" data-fork-node="auto">🤖<div class="node-cost">45</div></div><div class="tech-node ${statusClass('oc')}" id="node-oc" data-fork-node="oc">🚀<div class="node-cost">70</div></div><div class="tech-node ${statusClass('fork')}" id="node-fork" data-fork-node="fork">🔱<div class="node-cost">90</div></div><div class="tech-node ${statusClass('fever')}" id="node-fever" data-fork-node="fever">🔥<div class="node-cost">120</div></div></div></div><div class="tree-details"><div class="tree-detail-name">${selected.icon} ${selected.name}</div><div class="tree-detail-desc">${selected.desc}</div><div class="tree-detail-cost">COST : 🔱 ${selected.cost}</div></div>${buttonHTML}`}
+function renderForkLines(lineClass){
+  const positions={root:[195,206],cooling:[97,115],click:[97,299],auto:[293,115],oc:[293,299],fork:[195,57],fever:[195,355]};
+  return Object.entries(FORK_NODES).filter(([,node])=>node.requirement).map(([id,node])=>{
+    const [x,y]=positions[node.requirement], [tx,ty]=positions[id];
+    return `<div class="${lineClass(node.requirement,id)}" style="width:${Math.hypot(tx-x,ty-y)}px;left:${x}px;top:${y}px;transform:rotate(${Math.atan2(ty-y,tx-x)*180/Math.PI}deg)"></div>`;
+  }).join("");
+}
+function renderForkTree(){const selected=FORK_NODES[state.selectedFork],selectedStatus=forkNodeStatus(state.selectedFork);let buttonHTML;if(selectedStatus==="unlocked")buttonHTML=`<button class="popup-btn" disabled>✅ [ UNLOCKED ]</button>`;else if(selectedStatus==="locked")buttonHTML=`<button class="popup-btn" disabled>🔒 [ 선행 노드 필요 ]</button>`;else buttonHTML=`<button class="popup-btn purple" data-action="buyFork" data-fork-id="${state.selectedFork}" ${state.fork<selected.cost?'disabled':''}>${state.fork>=selected.cost?'🔱 [ 업그레이드 해금 ]':'🔒 [ FORK 부족 ]'}</button>`;const statusClass=id=>forkNodeStatus(id)+(state.selectedFork===id?" selected":"");const lineClass=(a,b)=>hasFork(a)&&hasFork(b)?"tree-line unlocked":"tree-line";el.popupContent.innerHTML=`<div class="fork-header"><span>FORK NETWORK</span><span class="fork-points">🔱 ${formatNumber(state.fork)}</span></div><div class="tree-scroll"><div class="tech-tree">${renderForkLines(lineClass)}<div class="tech-node ${statusClass('root')}" id="node-root" data-fork-node="root">❤️<div class="node-cost">CORE</div></div><div class="tech-node ${statusClass('cooling')}" id="node-cooling" data-fork-node="cooling">🛡️<div class="node-cost">25</div></div><div class="tech-node ${statusClass('click')}" id="node-click" data-fork-node="click">⚡<div class="node-cost">35</div></div><div class="tech-node ${statusClass('auto')}" id="node-auto" data-fork-node="auto">🤖<div class="node-cost">45</div></div><div class="tech-node ${statusClass('oc')}" id="node-oc" data-fork-node="oc">🚀<div class="node-cost">70</div></div><div class="tech-node ${statusClass('fork')}" id="node-fork" data-fork-node="fork">🔱<div class="node-cost">90</div></div><div class="tech-node ${statusClass('fever')}" id="node-fever" data-fork-node="fever">🔥<div class="node-cost">120</div></div></div></div><div class="tree-details"><div class="tree-detail-name">${selected.icon} ${selected.name}</div><div class="tree-detail-desc">${selected.desc}</div><div class="tree-detail-cost">COST : 🔱 ${selected.cost}</div></div>${buttonHTML}`}
 function closePopup(){el.menuPopup.classList.remove("show");state.pendingSlot=null;state.inventoryEquipUid=null;document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));el.gpuBtn.classList.add("active")}
-function checkGameOver(){if(hottestTemp()<100)return;state.running=false;closePopup();el.gameOver.classList.add("show")}
-function restartGame(){state=freshState();el.gameOver.classList.remove("show");el.robotText.textContent="💬 시스템 재부팅 완료! 다시 채굴하세요.";updateUI()}
+function checkGameOver(){if(hottestTemp()<100)return;state.running=false;closePopup();el.gameOver.classList.add("show");saveGame()}
+function restartGame(){uidCounter=1;state=freshState();el.gameOver.classList.remove("show");el.robotText.textContent="💬 시스템 재부팅 완료! 다시 채굴하세요.";updateUI();saveGame()}
 let toastTimer;function showToast(text){clearTimeout(toastTimer);el.toast.textContent=text;el.toast.classList.add("show");toastTimer=setTimeout(()=>el.toast.classList.remove("show"),1600)}
 el.rackGrid.addEventListener("click",event=>{const gpu=event.target.closest("[data-gpu-uid]");if(gpu){mineGpu(gpu.dataset.gpuUid,event);return}const empty=event.target.closest("[data-empty-slot]");if(empty){state.pendingSlot=Number(empty.dataset.emptySlot);openPopup("shop")}});
 el.popupContent.addEventListener("click",event=>{const forkNode=event.target.closest("[data-fork-node]");if(forkNode){state.selectedFork=forkNode.dataset.forkNode;renderForkTree();return}const b=event.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;if(a==="cool"){coolGPU();openPopup("cool")}if(a==="oc")toggleOverclock();if(a==="buyGpu")buyGpu(Number(b.dataset.model));if(a==="startEquip")startEquip(b.dataset.uid);if(a==="equipSlot")equipToSlot(b.dataset.uid,Number(b.dataset.slot));if(a==="cancelEquip"){state.inventoryEquipUid=null;openPopup("inventory")}if(a==="unequip")unequip(b.dataset.uid);if(a==="shopForSlot"){state.pendingSlot=Number(b.dataset.slot);openPopup("shop")}if(a==="buyFork")buyForkUpgrade(b.dataset.forkId)});
 el.upgradeBtn.addEventListener("click",upgradePrimary);el.gpuBtn.addEventListener("click",()=>openPopup("gpu"));el.invBtn.addEventListener("click",()=>openPopup("inventory"));el.ocBtn.addEventListener("click",()=>openPopup("oc"));el.coolBtn.addEventListener("click",()=>openPopup("cool"));el.shopBtn.addEventListener("click",()=>{state.pendingSlot=null;openPopup("shop")});el.forkBtn.addEventListener("click",()=>openPopup("fork"));el.popupClose.addEventListener("click",closePopup);el.menuPopup.addEventListener("click",e=>{if(e.target===el.menuPopup)closePopup()});el.restartBtn.addEventListener("click",restartGame);
-setInterval(autoMine,1000);setInterval(feverTick,1000);updateUI();
+loadGame();
+setInterval(autoMine,1000);setInterval(feverTick,1000);
+setInterval(saveGame,3000);
+window.addEventListener("beforeunload",saveGame);
+window.addEventListener("pagehide",saveGame);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveGame()});
+updateUI();
 </script>
 </body>
 </html>
