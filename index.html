@@ -56,7 +56,6 @@
 <body>
 <div class="app">
   <div id="gameDateTime" style="font-size:11px;line-height:1.7;text-align:left;color:#dce5f7"></div>
-  <div class="popup-info" style="margin:5px 0 9px"><div class="popup-title-small">📰 게임 뉴스 · 가상 소식</div><div id="gameNews" class="popup-text"></div><div id="newsEffect" style="font-size:10px;color:#9aa7c5;margin-top:5px"></div></div>
   <div class="title">『암호화폐 마이닝』</div>
   <div id="saveStatus" role="status" style="font-size:10px;text-align:center;line-height:1.5;margin-bottom:8px">3초마다 자동 저장 · 같은 기기/브라우저에서 이어하기</div>
   <section class="pixel-panel hud">
@@ -157,18 +156,21 @@ const GAME_NEWS=[
  {title:"투자자들이 다음 소식을 기다리고 있습니다.",bias:0,label:"중립"}
 ];
 const NEWS_INTERVAL=30000;
+function randomNewsDelay(){return 20000+Math.floor(Math.random()*40001)}
 let gameNews={index:5,time:Date.now()};
+let nextNewsAt=Date.now()+randomNewsDelay();
 function updateGameInfo(){
  document.getElementById("gameDateTime").textContent=new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",weekday:"short",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date())+" · 한국 시간";
  const now=Date.now();
- if(now-gameNews.time>=NEWS_INTERVAL){
+ if(now>=nextNewsAt&&state.running&&!el.menuPopup.classList.contains("show")){
    const offset=1+Math.floor(Math.random()*(GAME_NEWS.length-1));
    gameNews={index:(gameNews.index+offset)%GAME_NEWS.length,time:now};
+   nextNewsAt=now+randomNewsDelay();
+   openPopup("news");
+   saveGame();
  }
- const news=GAME_NEWS[gameNews.index];
- document.getElementById("gameNews").textContent="["+news.label+"] "+news.title;
- document.getElementById("newsEffect").textContent=(news.bias>0?"상승 확률 강화":news.bias<0?"하락 확률 강화":"시세 영향 없음")+" · 다음 뉴스 "+Math.max(0,Math.ceil((NEWS_INTERVAL-(now-gameNews.time))/1000))+"초";
 }
+
 function newsBias(){return Date.now()-gameNews.time<NEWS_INTERVAL?GAME_NEWS[gameNews.index].bias:0}
 
 const MARKET_INTERVAL=5000;
@@ -355,6 +357,12 @@ function sellCoins(all=false){
 }
 function setActiveNav(button){document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));button.classList.add("active")}
 function openPopup(type){if(!state.running)return;el.menuPopup.classList.add("show");const primary=primaryItem(),pm=modelOf(primary);if(type==="gpu"){setActiveNav(el.gpuBtn);el.popupTitle.textContent="🖥️ GPU MANAGER";const slots=state.rack.map((uid,i)=>{const item=itemByUid(uid),m=modelOf(item);return`<div class="popup-info"><div class="popup-title-small">SLOT ${i+1}</div>${item?`<div class="popup-main">${m.name}</div><div class="popup-text">TEMP ${Math.floor(item.temp)}°C<br>CLICK 코인 ${formatNumber(m.click*clickMultiplier())}<br>AUTO 코인 ${format1(m.auto*autoMultiplier())}/sec</div><button class="popup-btn red" data-action="unequip" data-uid="${item.uid}">[ 인벤토리로 이동 ]</button>`:`<div class="popup-main">EMPTY</div><button class="popup-btn blue" data-action="shopForSlot" data-slot="${i}">[ GPU 추가하기 ]</button>`}</div>`}).join("");el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">RIG STATUS</div><div class="popup-main">${equippedItems().length}/8 GPU ONLINE</div><div class="popup-text">TOTAL HASH ${format1(totalHash())} H/s<br>AUTO 코인 ${format1(totalAuto())}/sec<br>POWER ${totalPower()}W</div></div><button class="popup-btn" id="primaryUpgradeBtn" data-action="upgradePrimary"></button><div class="popup-text" style="margin:8px 0">1번 슬롯 GPU를 업그레이드합니다.</div>${slots}`;updatePrimaryUpgrade()}
+if(type==="news"){
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+ const news=GAME_NEWS[gameNews.index];
+ el.popupTitle.textContent="📰 속보";
+ el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">게임 속 가상 뉴스</div><div class="popup-main">${news.label==="호재"?"📈":news.label==="악재"?"📉":"📰"} ${news.label}</div><div class="popup-text" style="font-size:16px;margin:12px 0">${news.title}</div><div class="popup-text">${news.bias>0?"앞으로 30초 동안 시세가 상승할 가능성이 커집니다.":news.bias<0?"앞으로 30초 동안 시세가 하락할 가능성이 커집니다.":"이번 뉴스는 시세에 영향을 주지 않습니다."}<br>뉴스가 떠 있는 동안에도 채굴과 시세는 계속 움직입니다.</div></div><button class="popup-btn blue" data-action="dismissNews">[ 확인 ]</button>`;
+}
 if(type==="trade"){
  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
  el.popupTitle.textContent="🖥️ 코인 거래소";
@@ -397,7 +405,7 @@ function checkGameOver(){if(hottestTemp()<100)return;state.running=false;closePo
 function restartGame(){const progress={rebirths:state.rebirths,fork:state.fork,forkUnlocked:new Set(state.forkUnlocked),legacyFork:state.legacyFork};uidCounter=1;state={...freshState(),...progress};el.gameOver.classList.remove("show");el.robotText.textContent="💬 시스템 재부팅 완료! 다시 채굴하세요.";updateUI();saveGame()}
 let toastTimer;function showToast(text){clearTimeout(toastTimer);el.toast.textContent=text;el.toast.classList.add("show");toastTimer=setTimeout(()=>el.toast.classList.remove("show"),1600)}
 el.rackGrid.addEventListener("click",event=>{const gpu=event.target.closest("[data-gpu-uid]");if(gpu){mineGpu(gpu.dataset.gpuUid,event);return}const empty=event.target.closest("[data-empty-slot]");if(empty){state.pendingSlot=Number(empty.dataset.emptySlot);openPopup("shop")}});
-el.popupContent.addEventListener("click",event=>{const forkNode=event.target.closest("[data-fork-node]");if(forkNode){state.selectedFork=forkNode.dataset.forkNode;renderForkTree();return}const b=event.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;if(a==="sellCoins")sellCoins();if(a==="sellAll")sellCoins(true);if(a==="upgradePrimary"){upgradePrimary();openPopup("gpu")}if(a==="rebirth")rebirthGame();if(a==="buyCooler")buyCooler();if(a==="cool"){coolGPU();openPopup("cool")}if(a==="oc")toggleOverclock();if(a==="buyGpu")buyGpu(Number(b.dataset.model));if(a==="startEquip")startEquip(b.dataset.uid);if(a==="equipSlot")equipToSlot(b.dataset.uid,Number(b.dataset.slot));if(a==="cancelEquip"){state.inventoryEquipUid=null;openPopup("inventory")}if(a==="unequip")unequip(b.dataset.uid);if(a==="shopForSlot"){state.pendingSlot=Number(b.dataset.slot);openPopup("shop")}if(a==="buyFork")buyForkUpgrade(b.dataset.forkId)});
+el.popupContent.addEventListener("click",event=>{const forkNode=event.target.closest("[data-fork-node]");if(forkNode){state.selectedFork=forkNode.dataset.forkNode;renderForkTree();return}const b=event.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;if(a==="dismissNews")closePopup();if(a==="sellCoins")sellCoins();if(a==="sellAll")sellCoins(true);if(a==="upgradePrimary"){upgradePrimary();openPopup("gpu")}if(a==="rebirth")rebirthGame();if(a==="buyCooler")buyCooler();if(a==="cool"){coolGPU();openPopup("cool")}if(a==="oc")toggleOverclock();if(a==="buyGpu")buyGpu(Number(b.dataset.model));if(a==="startEquip")startEquip(b.dataset.uid);if(a==="equipSlot")equipToSlot(b.dataset.uid,Number(b.dataset.slot));if(a==="cancelEquip"){state.inventoryEquipUid=null;openPopup("inventory")}if(a==="unequip")unequip(b.dataset.uid);if(a==="shopForSlot"){state.pendingSlot=Number(b.dataset.slot);openPopup("shop")}if(a==="buyFork")buyForkUpgrade(b.dataset.forkId)});
 el.gpuBtn.addEventListener("click",()=>openPopup("gpu"));el.invBtn.addEventListener("click",()=>openPopup("inventory"));el.ocBtn.addEventListener("click",()=>openPopup("oc"));el.coolBtn.addEventListener("click",()=>openPopup("cool"));el.shopBtn.addEventListener("click",()=>{state.pendingSlot=null;openPopup("shop")});el.forkBtn.addEventListener("click",()=>openPopup("fork"));el.popupClose.addEventListener("click",closePopup);el.menuPopup.addEventListener("click",e=>{if(e.target===el.menuPopup)closePopup()});el.restartBtn.addEventListener("click",restartGame);
 document.getElementById("tradeComputer").addEventListener("click",()=>openPopup("trade"));
 loadGame();
