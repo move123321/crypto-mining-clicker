@@ -57,7 +57,6 @@
 <div class="app">
   <div id="gameDateTime" style="font-size:11px;line-height:1.7;text-align:left;color:#dce5f7"></div>
   <div class="title">『암호화폐 마이닝』</div>
-  <div id="saveStatus" role="status" style="font-size:10px;text-align:center;line-height:1.5;margin-bottom:8px">3초마다 자동 저장 · 같은 기기/브라우저에서 이어하기</div>
   <section class="pixel-panel hud">
     <div class="wallet-row"><div class="btc-group"><div class="btc-icon">₿</div><div class="money" id="moneyText">0</div></div><div class="sec">+<span id="secText">1.0</span> / sec</div></div>
     <div class="fever" id="feverText">◆ BTC FEVER | CHARGING ◆</div>
@@ -223,7 +222,8 @@ function renderMarketChart(){
 const SAVE_KEY = "cryptoMiningSave_v1";
 let saveBlocked = false;
 function saveStatus(message) {
-  document.getElementById("saveStatus").textContent = message;
+  // Keep routine saves silent; report only actionable save failures.
+  if (/실패|못했습니다/.test(message)) showToast(message);
 }
 function saveGame() {
   if (saveBlocked) return false;
