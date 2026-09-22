@@ -454,6 +454,22 @@ namespace CryptoMining
         static void Boot()
         {
             if(GameManager.I!=null)return;
+
+            // Keep the project fully 2D, but create a simple orthographic camera so
+            // Unity's Game view does not show "No cameras rendering" behind the UI.
+            if(Camera.main==null)
+            {
+                GameObject camGo=new GameObject("Main Camera");
+                Camera cam=camGo.AddComponent<Camera>();
+                camGo.tag="MainCamera";
+                cam.orthographic=true;
+                cam.orthographicSize=5f;
+                cam.clearFlags=CameraClearFlags.SolidColor;
+                cam.backgroundColor=new Color(.082f,.102f,.173f,1f);
+                cam.transform.position=new Vector3(0,0,-10);
+                UnityEngine.Object.DontDestroyOnLoad(camGo);
+            }
+
             GameObject root=new GameObject("CryptoMiningRuntime");UnityEngine.Object.DontDestroyOnLoad(root);
             root.AddComponent<GameManager>();root.AddComponent<MarketManager>();root.AddComponent<UIController>();
         }
