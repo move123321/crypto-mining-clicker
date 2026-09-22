@@ -125,7 +125,7 @@ namespace CryptoMining
 
         public void Load()
         {
-            try{ if(File.Exists(SavePath)) S=JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath)); }catch{}
+            try{ if(File.Exists(SavePath)) S=UnityEngine.JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath)); }catch{}
             if(S==null||S.items==null||S.items.Count==0)S=Fresh();
             if(S.coins==null)S.coins=new List<CoinBalance>();
             for(int i=0;i<Catalog.Coins.Length;i++) if(BalanceObj(Catalog.Coins[i].id)==null)S.coins.Add(new CoinBalance{id=Catalog.Coins[i].id});
@@ -135,7 +135,7 @@ namespace CryptoMining
             if(!CoinUnlocked(Catalog.Coin(S.tradeCoinId)))S.tradeCoinId="btcx";
             EnsureContract();
         }
-        public void Save(){ try{File.WriteAllText(SavePath,JsonUtility.ToJson(S,true));}catch{} }
+        public void Save(){ try{File.WriteAllText(SavePath,UnityEngine.JsonUtility.ToJson(S,true));}catch{} }
         void OnApplicationQuit(){Save();}
         void OnApplicationPause(bool p){if(p)Save();}
 
@@ -325,7 +325,7 @@ namespace CryptoMining
         GameManager gm;MarketManager market;Font font;Canvas canvas;RectTransform root,rack;GameObject modal,intro,gameover;
         Text bal,coinName,auto,cash,fork,temp,power,electric,fever,eventLabel,toast;
         Color bg=Hex("#151a2c"),panel=Hex("#202a47"),panel2=Hex("#0e1527"),cyan=Hex("#50dcff"),green=Hex("#79f17d"),gold=Hex("#ffd365"),red=Hex("#ff727d"),white=Hex("#f2f5ff"),muted=Hex("#9aa7c5");
-        string active="",coolTarget="";int shopSlot=-1;Coroutine toastCo;
+        string coolTarget="";int shopSlot=-1;Coroutine toastCo;
 
         static Color Hex(string s){Color c;ColorUtility.TryParseHtmlString(s,out c);return c;}
 
@@ -389,7 +389,7 @@ namespace CryptoMining
 
         void OpenGPU()
         {
-            active="gpu";RectTransform c=Modal("GPU MANAGER");AddCard(c,"RIG STATUS",gm.Equipped().Count+"/8 ONLINE\nHASH "+gm.TotalHash().ToString("0.0")+" H/s\nAUTO "+gm.TotalAuto().ToString("0.0")+"/s","",null);
+            RectTransform c=Modal("GPU MANAGER");AddCard(c,"RIG STATUS",gm.Equipped().Count+"/8 ONLINE\nHASH "+gm.TotalHash().ToString("0.0")+" H/s\nAUTO "+gm.TotalAuto().ToString("0.0")+"/s","",null);
             int tier=gm.RigTier();GPUDef next=tier<Catalog.GPUs.Length-1?Catalog.GPUs[tier+1]:null;AddCard(c,"CERTIFICATION",next==null?"모든 인증 완료":"다음 "+next.name+"\n운영 "+gm.Duration(gm.S.runSeconds)+" / "+gm.Duration(gm.RequiredSeconds(next))+"\n누적 "+Fmt(gm.S.totalMined)+" / "+Fmt(next.unlockMined),"",null);
             AddCard(c,"PRIMARY GPU",gm.At(0)==null?"EMPTY":Catalog.GPU(gm.At(0).modelId).name,"업그레이드",delegate{gm.UpgradePrimary();OpenGPU();});
             for(int i=0;i<8;i++){int slot=i;GpuItem g=gm.At(i);if(g==null)AddCard(c,"SLOT "+(i+1),"EMPTY","SHOP",delegate{OpenShop(slot);});else AddCard(c,"SLOT "+(i+1)+" · "+Catalog.GPU(g.modelId).name,"TEMP "+Mathf.FloorToInt(g.temp)+"C\n"+Catalog.Cooler(g.coolerId).name,"해제",delegate{gm.Unequip(g.uid);OpenGPU();});}
@@ -397,14 +397,14 @@ namespace CryptoMining
 
         void OpenInv()
         {
-            active="inv";RectTransform c=Modal("GPU INVENTORY");int free=FreeSlot();for(int i=0;i<gm.S.items.Count;i++){GpuItem g=gm.S.items[i];GPUDef m=Catalog.GPU(g.modelId);if(g.slot>=0)AddCard(c,m.name+" SLOT "+(g.slot+1),m.hash+" H/s · "+m.power+"W","해제",delegate{gm.Unequip(g.uid);OpenInv();});else AddCard(c,m.name+" 보관",m.hash+" H/s · "+m.power+"W",free>=0?"장착":"랙 가득",free>=0?(Action)delegate{gm.Equip(g.uid,FreeSlot());OpenInv();}:null);}
+            RectTransform c=Modal("GPU INVENTORY");int free=FreeSlot();for(int i=0;i<gm.S.items.Count;i++){GpuItem g=gm.S.items[i];GPUDef m=Catalog.GPU(g.modelId);if(g.slot>=0)AddCard(c,m.name+" SLOT "+(g.slot+1),m.hash+" H/s · "+m.power+"W","해제",delegate{gm.Unequip(g.uid);OpenInv();});else AddCard(c,m.name+" 보관",m.hash+" H/s · "+m.power+"W",free>=0?"장착":"랙 가득",free>=0?(Action)delegate{gm.Equip(g.uid,FreeSlot());OpenInv();}:null);}
         }
 
-        void OpenOC(){active="oc";RectTransform c=Modal("OVERCLOCK");AddCard(c,gm.S.overclock?"OC ACTIVE":"OC OFF","자동 채굴 "+gm.TotalAuto().ToString("0.0")+"/s\n보너스 +"+(gm.HasFork("oc")?50:30)+"%\n발열 증가",gm.S.overclock?"OFF":"ON",delegate{gm.ToggleOC();OpenOC();});}
+        void OpenOC(){RectTransform c=Modal("OVERCLOCK");AddCard(c,gm.S.overclock?"OC ACTIVE":"OC OFF","자동 채굴 "+gm.TotalAuto().ToString("0.0")+"/s\n보너스 +"+(gm.HasFork("oc")?50:30)+"%\n발열 증가",gm.S.overclock?"OFF":"ON",delegate{gm.ToggleOC();OpenOC();});}
 
         void OpenCool()
         {
-            active="cool";RectTransform c=Modal("GPU COOLING LAB");List<GpuItem> eq=gm.Equipped();if(string.IsNullOrEmpty(coolTarget)&&eq.Count>0)coolTarget=eq[0].uid;
+            RectTransform c=Modal("GPU COOLING LAB");List<GpuItem> eq=gm.Equipped();if(string.IsNullOrEmpty(coolTarget)&&eq.Count>0)coolTarget=eq[0].uid;
             AddCard(c,"RACK TEMP","최고 "+Mathf.FloorToInt(gm.Hottest())+"C\n100C 도달 시 파산","긴급 냉각",delegate{gm.EmergencyCool();OpenCool();});
             for(int i=0;i<eq.Count;i++){GpuItem g=eq[i];AddCard(c,Catalog.GPU(g.modelId).name+(g.uid==coolTarget?" · 선택됨":""),"TEMP "+Mathf.FloorToInt(g.temp)+"C\n"+Catalog.Cooler(g.coolerId).name,"선택",delegate{coolTarget=g.uid;OpenCool();});}
             GpuItem target=gm.Find(coolTarget);if(target!=null)for(int i=0;i<Catalog.Coolers.Length;i++){CoolerDef cl=Catalog.Coolers[i];int id=cl.id;bool u=gm.CoolerUnlocked(cl);AddCard(c,cl.name,cl.desc+"\n냉각 -"+cl.rate.ToString("0.00")+"C/s · "+Fmt(cl.cost)+"원"+(u?"":"\n잠금 운영 "+gm.Duration(Mathf.FloorToInt(cl.unlockSeconds*gm.CycleFactor()))),target.coolerId==id?"장착중":u?"구매/장착":"잠금",u&&target.coolerId!=id?(Action)delegate{gm.BuyCooler(target.uid,id);OpenCool();}:null);}
@@ -412,20 +412,20 @@ namespace CryptoMining
 
         void OpenShop(int slot)
         {
-            shopSlot=slot;active="shop";RectTransform c=Modal("HARDWARE SHOP");AddCard(c,"현금",Fmt(gm.S.cash)+"원"+(slot>=0?"\nSLOT "+(slot+1)+" 자동 장착":""),"",null);
+            shopSlot=slot;RectTransform c=Modal("HARDWARE SHOP");AddCard(c,"현금",Fmt(gm.S.cash)+"원"+(slot>=0?"\nSLOT "+(slot+1)+" 자동 장착":""),"",null);
             for(int i=0;i<Catalog.GPUs.Length;i++){GPUDef m=Catalog.GPUs[i];int id=m.id;bool u=gm.Certified(m);AddCard(c,m.name,"CLICK "+m.click+" · AUTO "+m.autoMine+"/s\n"+m.hash+" H/s · "+m.power+"W\n가격 "+Fmt(m.price)+"원"+(u?"":"\n잠금: "+gm.Duration(gm.RequiredSeconds(m))+" + 누적 "+Fmt(m.unlockMined)),u?"구매":"잠금",u?(Action)delegate{gm.BuyGpu(id,shopSlot);OpenShop(-1);}:null);}
         }
 
         void OpenFork()
         {
-            active="fork";RectTransform c=Modal("FORK / REBIRTH");AddCard(c,"REBIRTH","QUANTUM "+gm.QuantumCount()+" / "+gm.RebirthReq()+"\n운영 "+gm.Duration(gm.S.runSeconds)+" / "+gm.Duration(gm.RebirthSeconds())+"\nFORK "+gm.S.fork,gm.CanRebirth()?"환생":"조건 미달",gm.CanRebirth()?(Action)delegate{gm.Rebirth();OpenFork();}:null);
+            RectTransform c=Modal("FORK / REBIRTH");AddCard(c,"REBIRTH","QUANTUM "+gm.QuantumCount()+" / "+gm.RebirthReq()+"\n운영 "+gm.Duration(gm.S.runSeconds)+" / "+gm.Duration(gm.RebirthSeconds())+"\nFORK "+gm.S.fork,gm.CanRebirth()?"환생":"조건 미달",gm.CanRebirth()?(Action)delegate{gm.Rebirth();OpenFork();}:null);
             string[,] nodes={{"cooling","THERMAL SHIELD","root","발열 -20%, 냉각 강화"},{"click","CLICK ENGINE","root","클릭 +25%"},{"auto","AUTO HASH","root","자동 +30%"},{"oc","STABLE OC","click","OC +50%"},{"fork","MINING MASTERY","auto","전체 +10%"},{"fever","FEVER CORE","cooling","FEVER x3"}};
             for(int i=0;i<nodes.GetLength(0);i++){string id=nodes[i,0],name=nodes[i,1],req=nodes[i,2],desc=nodes[i,3];bool have=gm.HasFork(id),ok=gm.HasFork(req);AddCard(c,name,desc+"\nCOST 1 FORK",have?"UNLOCKED":ok?"해금":"선행 필요",!have&&ok?(Action)delegate{gm.BuyFork(id,req);OpenFork();}:null);}
         }
 
         void OpenTrade()
         {
-            active="trade";RectTransform c=Modal("MULTI COIN EXCHANGE");gm.EnsureContract();
+            RectTransform c=Modal("MULTI COIN EXCHANGE");gm.EnsureContract();
             for(int i=0;i<Catalog.Coins.Length;i++){CoinDef coin=Catalog.Coins[i];bool u=gm.CoinUnlocked(coin);string id=coin.id;AddCard(c,coin.name,"시세 "+market.Price(id).ToString("0.000")+"원 · 보유 "+Fmt(gm.Balance(id))+(u?"":"\n잠금 "+Catalog.GPU(coin.unlockGpu).name+" 보유 필요"),u?(gm.S.miningCoinId==id?"채굴중":"채굴"):"잠금",u?(Action)delegate{gm.SetMiningCoin(id);gm.SetTradeCoin(id);OpenTrade();}:null);}
             CoinDef t=Catalog.Coin(gm.S.tradeCoinId);double b=gm.Balance(t.id);AddCard(c,"SELL "+t.name,"현재가 "+market.Price(t.id).ToString("0.000")+"원\n보유 "+Fmt(b),"25% 판매",b>0?(Action)delegate{gm.Sell(t.id,gm.Balance(t.id)*.25);OpenTrade();}:null);AddCard(c,"전량 판매",Fmt(b)+" "+t.name,"전량 판매",b>0?(Action)delegate{gm.Sell(t.id,gm.Balance(t.id));OpenTrade();}:null);
             ContractState q=gm.S.contract;AddCard(c,"MINING CONTRACT",(q.type=="mine"?"채굴 ":"판매 ")+Catalog.Coin(q.coinId).name+"\n"+Fmt(q.progress)+" / "+Fmt(q.target)+"\n보상 "+Fmt(q.reward)+"원",q.progress>=q.target?"보상 받기":"진행 중",q.progress>=q.target?(Action)delegate{gm.ClaimContract();OpenTrade();}:null);
@@ -457,7 +457,7 @@ namespace CryptoMining
         void TL(RectTransform r,float x,float y,float w,float h){r.anchorMin=r.anchorMax=new Vector2(0,1);r.pivot=new Vector2(0,1);r.anchoredPosition=new Vector2(x,-y);r.sizeDelta=new Vector2(w,h);}
         void Fill(RectTransform r){r.anchorMin=Vector2.zero;r.anchorMax=Vector2.one;r.offsetMin=r.offsetMax=Vector2.zero;}
         int FreeSlot(){for(int i=0;i<8;i++)if(gm.At(i)==null)return i;return-1;}
-        void CloseModal(){active="";if(modal!=null)Destroy(modal);modal=null;}
+        void CloseModal(){if(modal!=null)Destroy(modal);modal=null;}
 
         void ShowToast(string s){if(toastCo!=null)StopCoroutine(toastCo);toastCo=StartCoroutine(ToastRoutine(s));}
         IEnumerator ToastRoutine(string s){toast.text=s;toast.gameObject.SetActive(true);yield return new WaitForSecondsRealtime(2);toast.gameObject.SetActive(false);}
