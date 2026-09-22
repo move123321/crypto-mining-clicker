@@ -1,0 +1,24 @@
+using System;
+using System.IO;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using CryptoMining;
+public static class PortSetup {
+ static readonly string Report=Path.GetFullPath("Logs/WebPortValidation.txt");
+ [InitializeOnLoadMethod] static void Watch(){EditorApplication.delayCall+=TrySetup;}
+ static void TrySetup(){if(!File.Exists(".port-setup"))return;if(EditorApplication.isCompiling||EditorApplication.isUpdating){EditorApplication.delayCall+=TrySetup;return;}if(EditorApplication.isPlayingOrWillChangePlaymode)return;try{Setup();File.Delete(".port-setup");}catch(Exception e){File.WriteAllText(Report,e.ToString());Debug.LogException(e);}}
+ [MenuItem("Tools/Crypto Mining/Set Up Web Port")]
+ public static void Setup(){if(EditorSceneManager.GetActiveScene().isDirty)throw new Exception("Save current scene before setup; unsaved scene was preserved.");
+ string target="Assets/Scenes/Main.unity";if(!File.Exists(target))AssetDatabase.CopyAsset("Assets/Scenes/SampleScene.unity",target);
+ var scene=EditorSceneManager.OpenScene(target);if(UnityEngine.Object.FindFirstObjectByType<WebGameUI>()==null)new GameObject("Crypto Mining Web Port",typeof(WebGameUI));
+ Camera cam=Camera.main;if(cam!=null){cam.orthographic=true;cam.backgroundColor=new Color(.043f,.063f,.114f);cam.clearFlags=CameraClearFlags.SolidColor;}
+ EditorSceneManager.SaveScene(scene);EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene(target,true)};EditorSettings.defaultBehaviorMode=EditorBehaviorMode.Mode2D;
+ PlayerSettings.companyName="CryptoMining";PlayerSettings.productName="Crypto Mining Clicker";PlayerSettings.defaultScreenWidth=480;PlayerSettings.defaultScreenHeight=854;PlayerSettings.defaultIsNativeResolution=false;PlayerSettings.fullScreenMode=FullScreenMode.Windowed;PlayerSettings.defaultInterfaceOrientation=UIOrientation.Portrait;
+ foreach(SceneView v in SceneView.sceneViews)v.in2DMode=true;AssetDatabase.SaveAssets();Validate();
+ }
+ [MenuItem("Tools/Crypto Mining/Validate Gameplay")]
+ public static void Validate(){if(EditorApplication.isPlaying)throw new Exception("Stop Play mode before running isolated gameplay validation.");Directory.CreateDirectory("Logs");var root=new GameObject("Validation temporary");var g=root.AddComponent<GameManager>();g.SaveEnabled=false;GameManager.I=g;g.S=new SaveData();g.S.items.Add(new GpuItem{uid="gpu_1",modelId=0,slot=0,temp=30});g.S.forkUnlocked.Add("root");foreach(var c in Catalog.Coins)g.S.coins.Add(new CoinBalance{id=c.id});var m=root.AddComponent<MarketManager>();MarketManager.I=m;m.Init();int checks=0;Action<bool,string> check=(ok,name)=>{if(!ok)throw new Exception("FAILED: "+name);checks++;};try{
+ check(g.ClickMine("gpu_1")==10&&g.Balance("btcx")==10,"starter click");float before=g.At(0).temp;g.Tick();check(g.Balance("btcx")==11&&g.At(0).temp>before,"auto mine/heat");check(!g.BuyGpu(1),"locked GPU purchase");g.S.cash=100000;check(g.BuyGpu(0,1),"GPU buy and equip");check(g.ClickMine("gpu_1")==20,"synchronized multi GPU click");g.Equip("gpu_1",1);check(g.At(0)==null&&g.At(1).uid=="gpu_1","occupied slot replacement");g.Equip("gpu_1",0);g.Equip("gpu_2",1);check(g.BuyCooler("gpu_1",1),"cooler purchase");string cooler=g.S.coolingItems[0].uid;g.EquipCooler(cooler,"gpu_2");check(g.At(0).coolerId==0&&g.At(1).coolerId==1,"cooler transfer");g.StockCooler("gpu_2");check(g.S.coolingItems.Count==1&&g.At(1).coolerId==0,"cooler inventory retained");double bal=g.Balance("btcx"),cash=g.S.cash;check(g.Sell("btcx",bal)&&g.Balance("btcx")==0&&g.S.cash>cash,"sale");check(!g.Sell("btcx",double.NaN)&&!g.Sell("btcx",double.PositiveInfinity)&&!g.Sell("btcx",-1),"invalid sale rejected");g.S.contractsCompleted=12;g.S.contract=null;g.EnsureContract();check(g.S.contract.reward==7700,"contract progression matches web");g.S.contract.progress=g.S.contract.target;g.ClaimContract();check(g.S.contractsCompleted==13,"contract reward");g.S.overclock=false;g.ToggleOC();check(Math.Abs(g.ClickMul()-1.3)<.001,"overclock multiplier");g.At(0).temp=99.9f;g.ClickMine("gpu_1");check(!g.S.running,"overheat");g.S.fork=2;g.Restart();check(g.S.running&&g.S.fork==2&&g.S.items.Count==1&&g.S.cash==0,"restart preserves fork");check(g.BuyFork("click","root")&&Math.Abs(g.ClickMul()-1.25)<.001,"fork upgrade");g.At(0).modelId=8;g.S.runSeconds=10500;check(g.CanRebirth(),"rebirth gating");g.Rebirth();check(g.S.rebirths==1&&g.HasFork("click")&&g.S.fork==2&&g.At(0).modelId==0,"rebirth persistence");var restored=JsonUtility.FromJson<SaveData>(JsonUtility.ToJson(g.S));check(restored.markets.Count==6&&restored.forkUnlocked.Contains("click"),"save round trip");File.WriteAllText(Report,"PASS: "+checks+" gameplay checks. Main scene and portrait player configured.");Debug.Log("WEB_PORT_VALIDATION_PASS "+checks);
+ }finally{UnityEngine.Object.DestroyImmediate(root);GameManager.I=null;MarketManager.I=null;}}
+}

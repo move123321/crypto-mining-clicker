@@ -9,3 +9,5 @@
 *.csproj
 *.sln
 *.slnx
+
+/.port-*
