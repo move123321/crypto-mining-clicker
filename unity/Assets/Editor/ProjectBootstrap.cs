@@ -14,12 +14,36 @@ namespace CryptoMining.Editor
 
         static ProjectBootstrap()
         {
-            EditorApplication.delayCall += EnsureMainScene;
+            EditorApplication.delayCall += InitializeProject;
+        }
+
+        static void InitializeProject()
+        {
+            Configure2DProject();
+            EnsureMainScene();
+        }
+
+        [MenuItem("Tools/Crypto Mining/Configure 2D Project")]
+        public static void Configure2DProject()
+        {
+            EditorSettings.defaultBehaviorMode = EditorBehaviorMode.Mode2D;
+
+            SceneView view = SceneView.lastActiveSceneView;
+            if (view != null)
+            {
+                view.in2DMode = true;
+                view.Repaint();
+            }
+
+            AssetDatabase.SaveAssets();
+            Debug.Log("Crypto Mining: project configured for 2D mode.");
         }
 
         [MenuItem("Tools/Crypto Mining/Create Main Scene")]
         public static void EnsureMainScene()
         {
+            Configure2DProject();
+
             if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
                 AssetDatabase.CreateFolder("Assets", "Scenes");
 
@@ -54,6 +78,7 @@ namespace CryptoMining.Editor
         {
             EnsureMainScene();
             EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            Configure2DProject();
         }
     }
 }
