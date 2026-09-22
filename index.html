@@ -162,18 +162,18 @@ fork:{name:"MINING MASTERY",icon:"💎",cost:1,requirement:"auto",desc:"클릭 �
 fever:{name:"FEVER CORE",icon:"🔥",cost:1,requirement:"cooling",desc:"BTC FEVER 배율을 ×2에서 ×3으로 강화합니다."}
 };
 const COIN_TYPES=[
-{id:"btcx",name:"BTC-X",icon:"₿",base:1.00,vol:.025,mineRate:1.00,unlockSec:0,eventScale:1.00,desc:"가장 안정적인 기본 채굴 코인"},
-{id:"ethx",name:"ETHER-X",icon:"Ξ",base:.82,vol:.040,mineRate:1.20,unlockSec:900,eventScale:1.00,desc:"중간 변동성과 균형 잡힌 채굴 효율"},
-{id:"dogex",name:"DOGE-X",icon:"Ð",base:.35,vol:.070,mineRate:2.70,unlockSec:1800,eventScale:1.15,desc:"단가가 낮지만 빠르게 채굴되는 고변동 코인"},
-{id:"nova",name:"NOVA",icon:"✦",base:1.35,vol:.050,mineRate:.75,unlockSec:3600,eventScale:1.05,desc:"채굴량은 적지만 단가가 높은 성장형 코인"},
-{id:"meme404",name:"MEME-404",icon:"404",base:.18,vol:.130,mineRate:5.20,unlockSec:5400,eventScale:1.35,desc:"매우 불안정하지만 이벤트 폭등폭이 큰 밈 코인"},
-{id:"qbit",name:"QBIT",icon:"Q",base:2.40,vol:.035,mineRate:.42,unlockSec:7200,eventScale:.85,desc:"후반에 해금되는 고가·저변동 코인"}
+{id:"btcx",name:"BTC-X",icon:"₿",base:1.00,vol:.025,mineRate:1.00,unlockGpu:0,eventScale:1.00,desc:"가장 안정적인 기본 채굴 코인"},
+{id:"ethx",name:"ETHER-X",icon:"Ξ",base:.82,vol:.040,mineRate:1.20,unlockGpu:1,eventScale:1.00,desc:"RTX 2090부터 채굴 가능한 균형형 코인"},
+{id:"dogex",name:"DOGE-X",icon:"Ð",base:.35,vol:.070,mineRate:2.70,unlockGpu:2,eventScale:1.15,desc:"RTX 3090부터 열리는 고변동 코인"},
+{id:"nova",name:"NOVA",icon:"✦",base:1.35,vol:.050,mineRate:.75,unlockGpu:3,eventScale:1.05,desc:"RTX 4090부터 열리는 고단가 성장형 코인"},
+{id:"meme404",name:"MEME-404",icon:"404",base:.18,vol:.130,mineRate:5.20,unlockGpu:4,eventScale:1.35,desc:"RTX 5090부터 열리는 초고변동 밈 코인"},
+{id:"qbit",name:"QBIT",icon:"Q",base:2.40,vol:.035,mineRate:.42,unlockGpu:5,eventScale:.85,desc:"RTX 5090 Ti부터 열리는 고가·저변동 코인"}
 ];
 function makeEmptyBalances(){return Object.fromEntries(COIN_TYPES.map(x=>[x.id,0]))}
 function coinDef(id){return COIN_TYPES.find(x=>x.id===id)||COIN_TYPES[0]}
 let uidCounter=1;
 function createGpuItem(modelId){return{uid:"gpu_"+(uidCounter++),modelId,temp:30}}
-function freshState(){const starter=createGpuItem(0);return{coinBalances:makeEmptyBalances(),miningCoinId:"btcx",tradeCoinId:"btcx",rebirths:0,legacyFork:0,money:0,fork:0,totalClicks:0,totalMined:0,runSeconds:0,rigTierSeen:0,running:true,overclock:false,fever:false,feverTime:0,feverCooldown:20,items:[starter],rack:[starter.uid,null,null,null,null,null,null,null],coolingItems:[],coolingTargetGpuUid:null,pendingSlot:null,inventoryEquipUid:null,forkUnlocked:new Set(["root"]),selectedFork:"root"}}
+function freshState(){const starter=createGpuItem(0);return{coinBalances:makeEmptyBalances(),miningCoinId:"btcx",tradeCoinId:"btcx",rebirths:0,legacyFork:0,money:0,fork:0,totalClicks:0,totalMined:0,runSeconds:0,rigTierSeen:0,electricityTimer:0,contract:null,contractsCompleted:0,running:true,overclock:false,fever:false,feverTime:0,feverCooldown:20,items:[starter],rack:[starter.uid,null,null,null,null,null,null,null],coolingItems:[],coolingTargetGpuUid:null,pendingSlot:null,inventoryEquipUid:null,forkUnlocked:new Set(["root"]),selectedFork:"root"}}
 let state=freshState();
 
 
@@ -187,8 +187,8 @@ const COIN_EVENT_TEMPLATES=[
 {title:"네트워크 장애 루머",label:"악재",positive:false,min:.12,max:.35}
 ];
 const MARKET_INTERVAL=5000;
-function coinUnlockSeconds(coin){return Math.floor((coin.unlockSec||0)*cycleTimeFactor())}
-function isCoinUnlocked(coin){return state.runSeconds>=coinUnlockSeconds(coin)}
+function highestOwnedGpuModel(){return state.items.length?Math.max(...state.items.map(i=>i.modelId)):0}
+function isCoinUnlocked(coin){return highestOwnedGpuModel()>=(coin?.unlockGpu||0)}
 function unlockedCoins(){return COIN_TYPES.filter(isCoinUnlocked)}
 function miningCoinDef(){return coinDef(state.miningCoinId)}
 function tradeCoinDef(){return coinDef(state.tradeCoinId)}
@@ -277,7 +277,7 @@ function saveGame() {
   if (saveBlocked) return false;
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify({
-      ...state, markets, marketEvent, version: 5, savedAt: Date.now(),
+      ...state, markets, marketEvent, version: 6, savedAt: Date.now(),
       forkUnlocked: [...state.forkUnlocked], uidCounter, coolUidCounter,
       pendingSlot: null, inventoryEquipUid: null, coolingTargetGpuUid: null
     }));
@@ -292,13 +292,13 @@ function loadGame() {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return false;
     const data = JSON.parse(raw);
-    if (!data || typeof data !== "object" || (data.version !== undefined && ![1,2,3,4,5].includes(data.version)))
+    if (!data || typeof data !== "object" || (data.version !== undefined && ![1,2,3,4,5,6].includes(data.version)))
       throw new Error("Unsupported save");
     if (!Array.isArray(data.items) || !data.items.length || !Array.isArray(data.rack))
       throw new Error("Invalid inventory");
     const ids = new Set();
     const items = data.items.map(item => {
-      const mappedModelId=![4,5].includes(data.version)&&item&&item.modelId===5?8:item?.modelId;
+      const mappedModelId=![4,5,6].includes(data.version)&&item&&item.modelId===5?8:item?.modelId;
       if (!item || typeof item.uid !== "string" || !/^gpu_[1-9]\d*$/.test(item.uid) ||
           !Number.isSafeInteger(Number(item.uid.slice(4))) || Number(item.uid.slice(4)) >= Number.MAX_SAFE_INTEGER ||
           ids.has(item.uid) || !Number.isInteger(mappedModelId) || !GPU_LIST[mappedModelId] ||
@@ -315,7 +315,7 @@ function loadGame() {
     });
     const coolingItems=[];
     let nextCoolUid=1;
-    if([3,4,5].includes(data.version)&&Array.isArray(data.coolingItems)){
+    if([3,4,5,6].includes(data.version)&&Array.isArray(data.coolingItems)){
       const coolingIds=new Set(), cooledGpuIds=new Set();
       for(const unit of data.coolingItems){
         if(!unit||typeof unit.uid!=="string"||!/^cool_[1-9]\d*$/.test(unit.uid)||
@@ -343,19 +343,23 @@ function loadGame() {
     const feverTime = Math.min(25, Math.floor(number("feverTime")));
     const highestModel=Math.max(...items.map(i=>i.modelId));
     const legacySeconds=highestModel>=8?10500:highestModel>=4?5400:highestModel>=3?3600:highestModel>=2?1800:highestModel>=1?600:0;
-    const runSeconds=[4,5].includes(data.version)?Math.floor(number("runSeconds")):legacySeconds;
+    const runSeconds=[4,5,6].includes(data.version)?Math.floor(number("runSeconds")):legacySeconds;
     const coinBalances=makeEmptyBalances();
-    if(data.version===5&&data.coinBalances&&typeof data.coinBalances==="object"){
+    if([5,6].includes(data.version)&&data.coinBalances&&typeof data.coinBalances==="object"){
       for(const coin of COIN_TYPES)coinBalances[coin.id]=Number.isFinite(data.coinBalances[coin.id])&&data.coinBalances[coin.id]>=0?data.coinBalances[coin.id]:0;
     }else coinBalances.btcx=number("coins");
     const savedMining=COIN_TYPES.some(x=>x.id===data.miningCoinId)?data.miningCoinId:"btcx";
     const savedTrade=COIN_TYPES.some(x=>x.id===data.tradeCoinId)?data.tradeCoinId:"btcx";
+    const savedContract=data.version===6&&data.contract&&["mine","sell"].includes(data.contract.type)&&COIN_TYPES.some(x=>x.id===data.contract.coinId)&&Number.isFinite(data.contract.target)&&data.contract.target>0&&Number.isFinite(data.contract.progress)&&data.contract.progress>=0&&Number.isFinite(data.contract.reward)&&data.contract.reward>=0
+      ?{type:data.contract.type,coinId:data.contract.coinId,target:data.contract.target,progress:Math.min(data.contract.target,data.contract.progress),reward:data.contract.reward}:null;
     const restored = {
       coinBalances,miningCoinId:savedMining,tradeCoinId:savedTrade,
+      electricityTimer:data.version===6?Math.min(59,Math.floor(number("electricityTimer"))):0,
+      contract:savedContract,contractsCompleted:data.version===6?Math.floor(number("contractsCompleted")):0,
       rebirths:Math.min(52,Math.floor(number("rebirths"))),
       legacyFork:data.version>=2?number("legacyFork"):number("fork"),
       money:number("money"), fork:data.version>=2?Math.floor(number("fork")):0, totalClicks:Math.floor(number("totalClicks")),
-      totalMined:number("totalMined"), runSeconds, rigTierSeen:[4,5].includes(data.version)?Math.floor(number("rigTierSeen")):highestModel, running:data.running !== false,
+      totalMined:number("totalMined"), runSeconds, rigTierSeen:[4,5,6].includes(data.version)?Math.floor(number("rigTierSeen")):highestModel, running:data.running !== false,
       overclock:data.overclock === true, fever:data.fever === true && feverTime > 0,
       feverTime, feverCooldown:Math.min(35, Math.floor(number("feverCooldown",20))),
       items, rack, coolingItems, coolingTargetGpuUid:null, forkUnlocked:unlocked,
@@ -367,8 +371,8 @@ function loadGame() {
     uidCounter = Math.max(nextUid, Number.isSafeInteger(data.uidCounter) && data.uidCounter > 0 ? data.uidCounter : 1);
     coolUidCounter = Math.max(nextCoolUid, Number.isSafeInteger(data.coolUidCounter) && data.coolUidCounter > 0 ? data.coolUidCounter : 1);
     state = restored;
-    restoreMarkets(data.version===5?data.markets:null,data.market);
-    if(data.version===5&&data.marketEvent&&COIN_TYPES.some(x=>x.id===data.marketEvent.coinId)&&Number.isFinite(data.marketEvent.time))marketEvent=data.marketEvent;
+    restoreMarkets([5,6].includes(data.version)?data.markets:null,data.market);
+    if([5,6].includes(data.version)&&data.marketEvent&&COIN_TYPES.some(x=>x.id===data.marketEvent.coinId)&&Number.isFinite(data.marketEvent.time))marketEvent=data.marketEvent;
     if (equippedItems().some(item => item.temp >= 100)) state.running = false;
     el.gameOver.classList.toggle("show", !state.running);
     return true;
@@ -388,22 +392,39 @@ function isCoolingUnlocked(cooler){return !!cooler&&state.runSeconds>=Math.floor
 function currentRigTier(){let tier=0;for(let i=1;i<GPU_LIST.length;i++){if(isGpuUnlocked(GPU_LIST[i]))tier=i;else break}return tier}
 function certificationText(){const tier=currentRigTier(),next=GPU_LIST[tier+1];if(!next)return"QUANTUM 인증 완료 · 모든 GPU 등급 해금";return"현재 "+GPU_LIST[tier].name+" 인증 · 다음 "+next.name+"\n운영 "+formatDuration(state.runSeconds)+" / "+formatDuration(requiredGpuSeconds(next))+" · 누적 채굴 "+formatNumber(state.totalMined)+" / "+formatNumber(next.unlockMined)}
 function gpuLockText(model){if(isGpuUnlocked(model))return"해금됨";return"🔒 운영 "+formatDuration(requiredGpuSeconds(model))+" + 누적 채굴 "+formatNumber(model.unlockMined)}
-function coinUnlockText(coin){return isCoinUnlocked(coin)?"해금됨":"🔒 운영 "+formatDuration(coinUnlockSeconds(coin))+" 후 해금"}
+function coinUnlockText(coin){if(isCoinUnlocked(coin))return"해금됨";const gpu=GPU_LIST[coin.unlockGpu];return"🔒 "+(gpu?gpu.name:"상위 GPU")+" 구매/업그레이드 시 해금"}
+function makeContract(){
+ const pool=unlockedCoins(),coin=pool[Math.floor(Math.random()*pool.length)]||COIN_TYPES[0],tier=Math.max(0,currentRigTier()),done=state.contractsCompleted||0;
+ const type=Math.random()<.62?"mine":"sell",scale=Math.max(1,(tier+1)*(tier+1));
+ const target=Math.round((type==="mine"?900:450)*scale*(1+Math.min(done,12)*.08));
+ const reward=Math.round(3500*scale*(1+Math.min(done,12)*.10));
+ return {type,coinId:coin.id,target,progress:0,reward};
+}
+function ensureContract(){if(!state.contract)state.contract=makeContract()}
+function contractProgress(type,coinId,amount){
+ ensureContract();const q=state.contract;if(!q||q.type!==type||q.coinId!==coinId||q.progress>=q.target)return;
+ q.progress=Math.min(q.target,q.progress+Math.max(0,amount||0));
+ if(q.progress>=q.target){showToast("📋 채굴 계약 완료! 거래소에서 보상 수령");saveGame()}
+}
+function claimContract(){
+ ensureContract();const q=state.contract;if(!q||q.progress<q.target){showToast("아직 계약 목표를 달성하지 못했습니다.");return}
+ state.money+=q.reward;state.contractsCompleted=(state.contractsCompleted||0)+1;showToast("📋 계약 보상 +₩"+formatNumber(q.reward));state.contract=makeContract();saveGame();updateUI();openPopup("trade")
+}
 function setMiningCoin(id){const coin=coinDef(id);if(!isCoinUnlocked(coin)){showToast("🔒 아직 해금되지 않은 코인입니다.");return}state.miningCoinId=coin.id;saveGame();updateUI();showToast(coin.icon+" "+coin.name+" 채굴로 전환");if(el.menuPopup.classList.contains("show"))openPopup("trade")}
 function selectTradeCoin(id){const coin=coinDef(id);if(!isCoinUnlocked(coin))return;state.tradeCoinId=coin.id;openPopup("trade")}
 
 function clickMultiplier(){let m=hasFork("fork")?1.1:1;if(hasFork("click"))m*=1.25;if(state.overclock)m*=hasFork("oc")?1.50:1.30;if(state.fever)m*=hasFork("fever")?3:2;return m}function autoMultiplier(){let m=hasFork("fork")?1.1:1;if(hasFork("auto"))m*=1.30;if(state.overclock)m*=hasFork("oc")?1.50:1.30;if(state.fever)m*=hasFork("fever")?3:2;return m}// Crowded racks still trap heat, but additional GPUs scale gently enough for full-rack play.
 function rackHeatMultiplier(){const extra=Math.max(0,equippedItems().length-1);return 1+extra*.08+extra*extra*.01}
 function heatMultiplier(){return rackHeatMultiplier()*(hasFork("cooling")?.8:1)}
-function totalAuto(){return equippedItems().reduce((s,i)=>s+modelOf(i).auto,0)*autoMultiplier()*coinMineRate()}function totalHash(){return equippedItems().reduce((s,i)=>s+modelOf(i).hash,0)*autoMultiplier()}function totalPower(){return equippedItems().reduce((s,i)=>s+modelOf(i).power,0)}function hottestTemp(){const eq=equippedItems();return eq.length?Math.max(...eq.map(i=>i.temp)):25}
-function updateUI(){const primary=primaryItem(),pm=modelOf(primary),next=nextModelFor(primary),coin=miningCoinDef();el.coinIcon.textContent=coin.icon;el.coinNameText.textContent=coin.name+" 채굴 중";el.moneyText.textContent=formatNumber(coinBalance(coin.id));el.secText.textContent=format1(totalAuto());el.ethText.textContent=formatNumber(state.money);el.forkText.textContent=formatNumber(state.fork);const hot=hottestTemp();el.tempText.textContent=Math.floor(hot)+"°C";el.powerText.textContent=totalPower()+"W";el.electricityText.textContent="-₩"+Math.max(0,Math.round(totalPower()/42))+"/min";updateTempUI();updateFeverUI();renderRack();updateCoolerPanel();updateRebirthPanel();updatePrimaryUpgrade();updateTradePanel()}
+function totalAuto(){return equippedItems().reduce((s,i)=>s+modelOf(i).auto,0)*autoMultiplier()*coinMineRate()}function totalHash(){return equippedItems().reduce((s,i)=>s+modelOf(i).hash,0)*autoMultiplier()}function totalPower(){return equippedItems().reduce((s,i)=>s+modelOf(i).power,0)}function electricityPerMinute(){return Math.max(0,Math.round(totalPower()/42))}function chargeElectricitySecond(){state.electricityTimer=(state.electricityTimer||0)+1;if(state.electricityTimer<60)return;state.electricityTimer=0;const cost=electricityPerMinute();if(!cost)return;const paid=Math.min(state.money,cost);state.money-=paid;if(paid<cost)showToast("⚡ 전기요금 ₩"+formatNumber(cost)+" · 현금 부족")}function hottestTemp(){const eq=equippedItems();return eq.length?Math.max(...eq.map(i=>i.temp)):25}
+function updateUI(){ensureContract();const primary=primaryItem(),pm=modelOf(primary),next=nextModelFor(primary),coin=miningCoinDef();el.coinIcon.textContent=coin.icon;el.coinNameText.textContent=coin.name+" 채굴 중";el.moneyText.textContent=formatNumber(coinBalance(coin.id));el.secText.textContent=format1(totalAuto());el.ethText.textContent=formatNumber(state.money);el.forkText.textContent=formatNumber(state.fork);const hot=hottestTemp();el.tempText.textContent=Math.floor(hot)+"°C";el.powerText.textContent=totalPower()+"W";el.electricityText.textContent="-₩"+electricityPerMinute()+"/min";updateTempUI();updateFeverUI();renderRack();updateCoolerPanel();updateRebirthPanel();updatePrimaryUpgrade();updateTradePanel()}
 function updateTempUI(){const hot=hottestTemp();el.tempText.classList.remove("temp-normal","temp-warning","temp-danger");if(hot>=85){el.tempText.classList.add("temp-danger")}else if(hot>=65)el.tempText.classList.add("temp-warning");else el.tempText.classList.add("temp-normal")}
 function updateFeverUI(){if(state.fever){el.feverText.textContent="◆ MINING FEVER | ×"+(hasFork("fever")?3:2)+" | "+state.feverTime+"s ◆"}else el.feverText.textContent="◆ MINING FEVER | CHARGING | "+state.feverCooldown+"s ◆"}
 function renderRack(){el.rackGrid.innerHTML=state.rack.map((uid,index)=>{const item=itemByUid(uid);if(!item)return`<div class="slot empty-slot" data-empty-slot="${index}"><div class="add-screen">[추가하기]</div></div>`;const m=modelOf(item),cooler=coolerForGpu(item),hot=item.temp>=85?" hot":"",fast=item.temp>=65?" fast":"",coolingVisual=cooler.id>=3?`<div class="water-block">${cooler.icon}<span>WATER</span></div>`:`<div class="fan${fast}"><div class="fan-center"></div></div><div class="fan${fast}"><div class="fan-center"></div></div>`;return`<div class="slot gpu-slot${hot}" data-gpu-uid="${item.uid}" data-slot="${index}"><div class="gpu-card"><div class="gpu-label">${m.name}</div><div class="gpu-temp-mini">${Math.floor(item.temp)}°C</div><div class="gpu-cooler-mini" title="${cooler.name}">${cooler.icon}</div>${coolingVisual}</div></div>`}).join("")}
-function mineGpu(uid,event){if(!state.running)return;const clicked=itemByUid(uid);if(!clicked||!isEquipped(uid))return;const equipped=equippedItems();if(!equipped.length)return;const coin=miningCoinDef();let totalGain=0,totalWork=0;for(const item of equipped){const m=modelOf(item),baseGain=m.click*clickMultiplier(),gain=Math.floor(baseGain*coin.mineRate);totalGain+=gain;totalWork+=baseGain;let heat=(.85+m.id*.11)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp+=heat}state.coinBalances[coin.id]=coinBalance(coin.id)+totalGain;state.totalMined+=totalWork;state.totalClicks++;createFloat(event.clientX,event.clientY,totalGain,coin);checkGameOver();updateUI();animateAllGpuClicks()}
+function mineGpu(uid,event){if(!state.running)return;const clicked=itemByUid(uid);if(!clicked||!isEquipped(uid))return;const equipped=equippedItems();if(!equipped.length)return;const coin=miningCoinDef();let totalGain=0,totalWork=0;for(const item of equipped){const m=modelOf(item),baseGain=m.click*clickMultiplier(),gain=Math.floor(baseGain*coin.mineRate);totalGain+=gain;totalWork+=baseGain;let heat=(.85+m.id*.11)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp+=heat}state.coinBalances[coin.id]=coinBalance(coin.id)+totalGain;state.totalMined+=totalWork;state.totalClicks++;contractProgress("mine",coin.id,totalGain);createFloat(event.clientX,event.clientY,totalGain,coin);checkGameOver();updateUI();animateAllGpuClicks()}
 function animateAllGpuClicks(){const slots=el.rackGrid.querySelectorAll("[data-gpu-uid]");slots.forEach(slot=>{slot.classList.remove("sync-click");void slot.offsetWidth;slot.classList.add("sync-click")});setTimeout(()=>slots.forEach(slot=>slot.classList.remove("sync-click")),180)}
 function createFloat(x,y,amount,coin=miningCoinDef()){const d=document.createElement("div");d.className="float-text";d.textContent=coin.icon+" +"+formatNumber(amount)+" "+coin.name;d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),900)}
-function autoMine(){if(!state.running)return;state.runSeconds++;const eq=equippedItems(),coin=miningCoinDef();for(const item of eq){const m=modelOf(item),baseGain=m.auto*autoMultiplier(),gain=baseGain*coin.mineRate;state.coinBalances[coin.id]=coinBalance(coin.id)+gain;state.totalMined+=baseGain;let heat=(.32+m.id*.08)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp=Math.max(25,item.temp+heat-coolingRateForGpu(item))}for(const item of state.items){if(!isEquipped(item.uid))item.temp=Math.max(25,item.temp-.35)}const tier=currentRigTier();if(tier>state.rigTierSeen){state.rigTierSeen=tier;showToast("🔓 "+GPU_LIST[tier].name+" 채굴 인증 해금!");saveGame()}checkGameOver();updateUI()}
+function autoMine(){if(!state.running)return;state.runSeconds++;chargeElectricitySecond();const eq=equippedItems(),coin=miningCoinDef();for(const item of eq){const m=modelOf(item),baseGain=m.auto*autoMultiplier(),gain=baseGain*coin.mineRate;state.coinBalances[coin.id]=coinBalance(coin.id)+gain;state.totalMined+=baseGain;contractProgress("mine",coin.id,gain);let heat=(.32+m.id*.08)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp=Math.max(25,item.temp+heat-coolingRateForGpu(item))}for(const item of state.items){if(!isEquipped(item.uid))item.temp=Math.max(25,item.temp-.35)}const tier=currentRigTier();if(tier>state.rigTierSeen){state.rigTierSeen=tier;showToast("🔓 "+GPU_LIST[tier].name+" 채굴 인증 해금!");saveGame()}checkGameOver();updateUI()}
 function feverTick(){if(!state.running)return;if(state.fever){state.feverTime--;if(state.feverTime<=0){state.fever=false;state.feverCooldown=35;showToast("MINING FEVER 종료")}}else{state.feverCooldown--;if(state.feverCooldown<=0){state.fever=true;state.feverTime=hasFork("fever")?25:20;showToast(hasFork("fever")?"🔥 MINING FEVER ×3!":"🔥 MINING FEVER ×2!")}}updateFeverUI()}
 function coolGPU(){const eq=equippedItems();if(!eq.length){showToast("장착된 GPU가 없습니다.");return}const amount=16+Math.floor(Math.random()*8)+(hasFork("cooling")?5:0);eq.forEach(i=>i.temp=Math.max(25,i.temp-amount));showToast("❄️ ALL GPU -"+amount+"°C");updateUI()}
 function toggleOverclock(){state.overclock=!state.overclock;if(state.overclock){equippedItems().forEach(i=>i.temp+=3*heatMultiplier());showToast(hasFork("oc")?"🚀 STABLE OC +50%":"📈 OVERCLOCK +30%") }else showToast("📉 OVERCLOCK OFF");checkGameOver();updateUI();openPopup("oc")}
@@ -417,8 +438,8 @@ function buyForkUpgrade(id){const node=FORK_NODES[id];if(!node)return;if(state.f
 function updatePrimaryUpgrade(){
  const button=document.getElementById("primaryUpgradeBtn");if(!button)return;
  const item=primaryItem(),model=modelOf(item),next=nextModelFor(item),unlocked=next?isGpuUnlocked(next):false;
- button.disabled=!state.running||!next||!unlocked||state.money<model.upgradeCost;
- button.textContent=next?(!unlocked?"[ 🔒 "+next.name+" 인증 필요 ]":"[ "+next.name+" 업그레이드 · ₩"+formatNumber(model.upgradeCost)+" ]"):(model?"[ 최고 등급 ]":"[ 1번 슬롯에 GPU를 장착하세요 ]");
+ button.disabled=!state.running||!model||!next||!unlocked||state.money<model.upgradeCost;
+ button.textContent=!model?"[ 1번 슬롯에 GPU를 장착하세요 ]":next?(!unlocked?"[ 🔒 "+next.name+" 인증 필요 ]":"[ "+next.name+" 업그레이드 · ₩"+formatNumber(model.upgradeCost)+" ]"):"[ 최고 등급 ]";
 }
 function updateTradePanel(){
  const coin=tradeCoinDef(),m=marketFor(coin.id),balanceNow=coinBalance(coin.id),quote=document.getElementById("marketQuote");
@@ -432,7 +453,7 @@ function sellCoins(all=false){
  if(!state.running)return;
  const coin=tradeCoinDef(),balance=coinBalance(coin.id),input=document.getElementById("tradeAmount"),amount=all?balance:Number(input?.value);
  if(!Number.isFinite(amount)||amount<=0||amount>balance){showToast("보유 "+coin.name+" 이내의 올바른 수량을 입력하세요.");return}
- state.coinBalances[coin.id]=Math.max(0,balance-amount);
+ state.coinBalances[coin.id]=Math.max(0,balance-amount);contractProgress("sell",coin.id,amount);
  const price=marketPrice(coin.id),proceeds=amount*price;state.money+=proceeds;saveGame();updateUI();if(input)input.value="";
  showToast(coin.icon+" "+coin.name+" 판매 +₩"+proceeds.toFixed(2));
 }
@@ -448,8 +469,8 @@ if(type==="trade"){
  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
  el.popupTitle.textContent="🖥️ MULTI COIN EXCHANGE";
  const coins=COIN_TYPES.map(coin=>{const unlocked=isCoinUnlocked(coin),m=marketFor(coin.id),x=m.candles[m.candles.length-1],change=(x.close/x.open-1)*100,eventHot=marketEvent&&marketEvent.coinId===coin.id&&Date.now()-marketEvent.time<60000;return`<div class="coin-chip ${state.tradeCoinId===coin.id?"active":""} ${eventHot?"pumping":""}"><div>${unlocked?coin.icon:"🔒"} ${coin.name}</div><div>${unlocked?"₩"+marketPrice(coin.id).toFixed(3)+" · "+(change>=0?"+":"")+change.toFixed(1)+"%":coinUnlockText(coin)}</div><div>보유 ${coinBalance(coin.id).toFixed(1)}</div><div class="coin-actions"><button data-action="selectTradeCoin" data-coin="${coin.id}" ${unlocked?"":"disabled"}>차트</button><button class="mine" data-action="setMiningCoin" data-coin="${coin.id}" ${unlocked?"":"disabled"}>${state.miningCoinId===coin.id?"채굴중":"채굴"}</button></div></div>`}).join("");
- const coin=tradeCoinDef();
- el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">코인 선택 · 랜덤 이벤트가 특정 코인을 급등/급락시킵니다</div><div class="coin-tabs">${coins}</div><div class="popup-text">현재 채굴: ${miningCoinDef().icon} ${miningCoinDef().name} · 코인 변경은 앞으로 채굴되는 보상에만 적용됩니다.</div></div><div class="popup-info"><div class="popup-title-small">${coin.name} / 원 · 5초봉</div><div class="popup-main" id="marketQuote"></div><div id="marketChart"></div><div class="popup-text" id="marketCountdown"></div><div class="popup-text" id="tradeBalance"></div></div><div class="popup-text" id="saleEstimate"></div><label class="popup-text" for="tradeAmount">판매할 ${coin.name} 수량</label><input class="trade-amount" id="tradeAmount" type="number" min="0.01" step="any" inputmode="decimal" placeholder="판매 수량 입력"><button class="popup-btn blue" data-action="sellCoins">[ 입력 수량 판매 ]</button><button class="popup-btn" id="sellAllBtn" data-action="sellAll">[ ${coin.name} 전량 판매 ]</button>`;
+ const coin=tradeCoinDef();ensureContract();const q=state.contract,qCoin=coinDef(q.coinId),qDone=q.progress>=q.target;
+ el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">코인 선택 · 상위 GPU를 구매/업그레이드하면 새 코인이 해금됩니다</div><div class="coin-tabs">${coins}</div><div class="popup-text">현재 채굴: ${miningCoinDef().icon} ${miningCoinDef().name} · 랜덤 이벤트는 해금된 코인 중 하나에 발생합니다.</div></div><div class="popup-info"><div class="popup-title-small">📋 MINING CONTRACT · 완료 ${state.contractsCompleted||0}</div><div class="popup-main">${q.type==="mine"?"채굴 계약":"판매 계약"} · ${qCoin.icon} ${qCoin.name}</div><div class="popup-text">${q.type==="mine"?"채굴":"판매"} ${formatNumber(q.progress)} / ${formatNumber(q.target)}<br>보상 ₩${formatNumber(q.reward)}</div><button class="popup-btn ${qDone?"purple":""}" data-action="claimContract" ${qDone?"":"disabled"}>${qDone?"📋 [ 계약 보상 받기 ]":"[ 계약 진행 중 ]"}</button></div><div class="popup-info"><div class="popup-title-small">${coin.name} / 원 · 5초봉</div><div class="popup-main" id="marketQuote"></div><div id="marketChart"></div><div class="popup-text" id="marketCountdown"></div><div class="popup-text" id="tradeBalance"></div></div><div class="popup-text" id="saleEstimate"></div><label class="popup-text" for="tradeAmount">판매할 ${coin.name} 수량</label><input class="trade-amount" id="tradeAmount" type="number" min="0.01" step="any" inputmode="decimal" placeholder="판매 수량 입력"><button class="popup-btn blue" data-action="sellCoins">[ 입력 수량 판매 ]</button><button class="popup-btn" id="sellAllBtn" data-action="sellAll">[ ${coin.name} 전량 판매 ]</button>`;
  renderMarketChart();updateTradePanel();document.getElementById("tradeAmount").addEventListener("input",updateTradePanel);
 }
 if(type==="inventory"){setActiveNav(el.invBtn);el.popupTitle.textContent="🎒 GPU INVENTORY";const unEquipped=state.items.filter(i=>!isEquipped(i.uid));const equipped=state.items.filter(i=>isEquipped(i.uid));let html=`<div class="popup-info"><div class="popup-title-small">INVENTORY</div><div class="popup-main">보유 GPU ${state.items.length}개</div><div class="popup-text">장착 ${equipped.length} / 보관 ${unEquipped.length}</div></div>`;if(state.inventoryEquipUid){const item=itemByUid(state.inventoryEquipUid),m=modelOf(item);html+=`<div class="popup-info"><div class="popup-title-small">장착 슬롯 선택</div><div class="popup-main">${m.name}</div><div class="slot-picker">${state.rack.map((uid,i)=>{const old=itemByUid(uid),oldM=modelOf(old);return`<button class="slot-choice ${uid?'occupied':''}" data-action="equipSlot" data-uid="${item.uid}" data-slot="${i}">SLOT ${i+1}<br>${oldM?oldM.name:'EMPTY'}</button>`}).join("")}</div><button class="popup-btn red" data-action="cancelEquip">[ 취소 ]</button></div>`}html+=`<div class="card-list">${state.items.map(item=>{const m=modelOf(item),idx=rackIndexOf(item.uid);return`<div class="item-card"><div class="item-icon">🖥️</div><div><div class="item-name">${m.name}${idx!==-1?` <span class="badge">SLOT ${idx+1}</span>`:` <span class="badge">보관</span>`}</div><div class="item-stats">${format1(m.hash)} H/s · ${m.power}W<br>TEMP ${Math.floor(item.temp)}°C<br>COOL ${coolerForGpu(item).name}</div></div>${idx===-1?`<button class="small-btn blue" data-action="startEquip" data-uid="${item.uid}">장착</button>`:`<button class="small-btn red" data-action="unequip" data-uid="${item.uid}">해제</button>`}</div>`}).join("")}</div>`;el.popupContent.innerHTML=html}
@@ -502,7 +523,7 @@ function checkGameOver(){if(hottestTemp()<100)return;state.running=false;closePo
 function restartGame(){const progress={rebirths:state.rebirths,fork:state.fork,forkUnlocked:new Set(state.forkUnlocked),legacyFork:state.legacyFork};uidCounter=1;coolUidCounter=1;state={...freshState(),...progress};el.gameOver.classList.remove("show");updateUI();saveGame();showToast("🔄 시스템 재부팅 완료!")}
 let toastTimer;function showToast(text){clearTimeout(toastTimer);el.toast.textContent=text;el.toast.classList.add("show");toastTimer=setTimeout(()=>el.toast.classList.remove("show"),1600)}
 el.rackGrid.addEventListener("click",event=>{const gpu=event.target.closest("[data-gpu-uid]");if(gpu){mineGpu(gpu.dataset.gpuUid,event);return}const empty=event.target.closest("[data-empty-slot]");if(empty){state.pendingSlot=Number(empty.dataset.emptySlot);openPopup("shop")}});
-el.popupContent.addEventListener("click",event=>{const forkNode=event.target.closest("[data-fork-node]");if(forkNode){state.selectedFork=forkNode.dataset.forkNode;renderForkTree();return}const b=event.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;if(a==="dismissNews")closePopup();if(a==="eventTrade"){state.tradeCoinId=b.dataset.coin;openPopup("trade")}if(a==="selectTradeCoin")selectTradeCoin(b.dataset.coin);if(a==="setMiningCoin")setMiningCoin(b.dataset.coin);if(a==="sellCoins")sellCoins();if(a==="sellAll")sellCoins(true);if(a==="upgradePrimary"){upgradePrimary();openPopup("gpu")}if(a==="rebirth")rebirthGame();if(a==="selectCoolingGpu")selectCoolingGpu(b.dataset.uid);if(a==="buyGpuCooler")buyGpuCooler(Number(b.dataset.cooler));if(a==="equipGpuCooler")equipGpuCooler(b.dataset.coolingUid,b.dataset.gpuUid);if(a==="equipStockCooler")equipStockCooler(b.dataset.gpuUid);if(a==="cool"){coolGPU();openPopup("cool")}if(a==="oc")toggleOverclock();if(a==="buyGpu")buyGpu(Number(b.dataset.model));if(a==="startEquip")startEquip(b.dataset.uid);if(a==="equipSlot")equipToSlot(b.dataset.uid,Number(b.dataset.slot));if(a==="cancelEquip"){state.inventoryEquipUid=null;openPopup("inventory")}if(a==="unequip")unequip(b.dataset.uid);if(a==="shopForSlot"){state.pendingSlot=Number(b.dataset.slot);openPopup("shop")}if(a==="buyFork")buyForkUpgrade(b.dataset.forkId)});
+el.popupContent.addEventListener("click",event=>{const forkNode=event.target.closest("[data-fork-node]");if(forkNode){state.selectedFork=forkNode.dataset.forkNode;renderForkTree();return}const b=event.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;if(a==="dismissNews")closePopup();if(a==="eventTrade"){state.tradeCoinId=b.dataset.coin;openPopup("trade")}if(a==="selectTradeCoin")selectTradeCoin(b.dataset.coin);if(a==="setMiningCoin")setMiningCoin(b.dataset.coin);if(a==="claimContract")claimContract();if(a==="sellCoins")sellCoins();if(a==="sellAll")sellCoins(true);if(a==="upgradePrimary"){upgradePrimary();openPopup("gpu")}if(a==="rebirth")rebirthGame();if(a==="selectCoolingGpu")selectCoolingGpu(b.dataset.uid);if(a==="buyGpuCooler")buyGpuCooler(Number(b.dataset.cooler));if(a==="equipGpuCooler")equipGpuCooler(b.dataset.coolingUid,b.dataset.gpuUid);if(a==="equipStockCooler")equipStockCooler(b.dataset.gpuUid);if(a==="cool"){coolGPU();openPopup("cool")}if(a==="oc")toggleOverclock();if(a==="buyGpu")buyGpu(Number(b.dataset.model));if(a==="startEquip")startEquip(b.dataset.uid);if(a==="equipSlot")equipToSlot(b.dataset.uid,Number(b.dataset.slot));if(a==="cancelEquip"){state.inventoryEquipUid=null;openPopup("inventory")}if(a==="unequip")unequip(b.dataset.uid);if(a==="shopForSlot"){state.pendingSlot=Number(b.dataset.slot);openPopup("shop")}if(a==="buyFork")buyForkUpgrade(b.dataset.forkId)});
 el.gpuBtn.addEventListener("click",()=>openPopup("gpu"));el.invBtn.addEventListener("click",()=>openPopup("inventory"));el.ocBtn.addEventListener("click",()=>openPopup("oc"));el.coolBtn.addEventListener("click",()=>openPopup("cool"));el.shopBtn.addEventListener("click",()=>{state.pendingSlot=null;openPopup("shop")});el.forkBtn.addEventListener("click",()=>openPopup("fork"));el.popupClose.addEventListener("click",closePopup);el.menuPopup.addEventListener("click",e=>{if(e.target===el.menuPopup)closePopup()});el.restartBtn.addEventListener("click",restartGame);
 document.getElementById("tradeComputer").addEventListener("click",()=>openPopup("trade"));
 loadGame();
