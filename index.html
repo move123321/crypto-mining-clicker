@@ -25,6 +25,7 @@
 .menu-popup{position:fixed;z-index:3000;inset:0;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(3,6,13,.84);backdrop-filter:blur(2px)}.menu-popup.show{display:flex}.popup-box{width:min(100%,440px);max-height:calc(100vh - 28px);overflow:auto;background:linear-gradient(#253451,#141c31);border:4px solid #65749a;border-radius:6px;box-shadow:inset 0 0 0 2px #0b1120,0 8px 0 #070a12;animation:popupOpen .16s ease-out}@keyframes popupOpen{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}.popup-header{position:sticky;z-index:40;top:0;display:flex;justify-content:space-between;align-items:center;min-height:50px;padding:10px;background:linear-gradient(#364665,#202b47);border-bottom:3px solid #687698;color:#8be9ff;font-size:10px}.popup-close{width:36px;height:32px;color:#fff;background:#4b2330;border:2px solid #ff7884;border-radius:4px}.popup-content{padding:12px}.popup-info{margin-bottom:9px;padding:11px;background:#0e1527;border:2px solid #394765;border-radius:4px;box-shadow:inset 0 0 0 2px #080d18}.popup-title-small{margin-bottom:8px;color:#8b99b7;font-size:7px}.popup-main{margin-bottom:7px;color:#7af27d;font-size:11px;line-height:1.5}.popup-text{color:#e4e8f2;font-family:'Courier New',monospace;font-size:12px;font-weight:bold;line-height:1.65}.popup-green{color:#81f386}.popup-cyan{color:#60e4ff}.popup-gold{color:#ffd26b}.popup-red{color:#ff847e}.popup-purple{color:#dd91ff}.popup-btn{width:100%;min-height:46px;margin-top:4px;padding:8px;color:#fff;background:linear-gradient(#397642,#214927);border:3px solid #80f387;border-radius:4px;font-size:8px;line-height:1.5}.popup-btn.blue{background:linear-gradient(#315f7c,#1c394d);border-color:#63dfff}.popup-btn.orange{background:linear-gradient(#805625,#4d3216);border-color:#ffc460}.popup-btn.purple{background:linear-gradient(#653c81,#352144);border-color:#d788ff}.popup-btn.red{background:linear-gradient(#74343c,#412027);border-color:#ff7b86}.popup-btn:disabled{opacity:.4;cursor:default}.temp-bar{width:100%;height:15px;margin-top:10px;overflow:hidden;background:#070b13;border:2px solid #35425e}.temp-fill{height:100%}
 /* SHOP / INVENTORY */
 .card-list{display:grid;gap:8px}.item-card{display:grid;grid-template-columns:52px 1fr auto;gap:9px;align-items:center;padding:9px;background:#11192d;border:2px solid #3c4968;border-radius:4px}.item-icon{width:52px;height:46px;display:flex;align-items:center;justify-content:center;background:#080d18;border:2px solid #5e6880;font-size:22px}.item-name{color:#7ff584;font-size:8px;line-height:1.5}.item-stats{margin-top:5px;color:#bfc9dc;font-family:'Courier New',monospace;font-weight:bold;font-size:10px;line-height:1.4}.small-btn{min-width:84px;min-height:38px;padding:6px;background:#284b30;border:2px solid #72e67a;border-radius:3px;color:#fff;font-size:6px;line-height:1.4}.small-btn.blue{background:#25465c;border-color:#62dfff}.small-btn.red{background:#552832;border-color:#ff7c88}.small-btn:disabled{opacity:.4}.slot-picker{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:8px}.slot-choice{padding:10px 5px;background:#121a2c;border:2px solid #435172;color:#b8c2d8;font-size:7px;line-height:1.5;text-align:center}.slot-choice.selected{border-color:#5ce4ff;color:#85eeff}.slot-choice.occupied{border-color:#d4a742;color:#ffd36a}.badge{display:inline-block;margin-left:5px;padding:2px 4px;border:1px solid currentColor;font-size:5px}.inventory-empty{text-align:center;padding:20px;color:#9aa7c5;font-size:8px;line-height:1.7}
+.coin-tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin:8px 0 12px}.coin-chip{padding:8px;background:#10182b;border:2px solid #405071;color:#dce5f7;font-size:7px;line-height:1.5;text-align:left}.coin-chip.active{border-color:#5ce4ff;box-shadow:0 0 8px rgba(92,228,255,.25)}.coin-chip.pumping{border-color:#ffd365;box-shadow:0 0 10px rgba(255,211,101,.35)}.coin-name-mini{font-size:6px;color:#9fdfff;margin-top:2px}.coin-actions{display:flex;gap:5px;margin-top:6px}.coin-actions button{flex:1;min-height:28px;padding:4px;background:#243754;border:1px solid #63dfff;color:#fff;font:inherit;font-size:5px}.coin-actions button.mine{border-color:#7df087;background:#24442d}.coin-actions button:disabled{opacity:.4}
 /* FORK TREE */
 .fork-header{display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;padding:10px;background:#0b1120;border:2px solid #394765;font-size:8px;line-height:1.5}.fork-points{color:#7ef584}.tree-scroll{width:100%;overflow-x:auto;padding-bottom:5px}.tech-tree{position:relative;width:390px;height:430px;margin:0 auto;background:radial-gradient(circle at center,#171717,#0d0f12 70%);border:2px solid #343945;overflow:hidden}.tree-line{position:absolute;z-index:1;height:3px;background:#777d86;transform-origin:left center;opacity:.75}.tree-line.unlocked{background:#6bf270;box-shadow:0 0 6px rgba(107,242,112,.55)}.tech-node{position:absolute;z-index:3;width:58px;height:58px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;color:#687183;background:#0e1117;border:4px solid #353b48;box-shadow:inset 0 0 0 2px #05070a,0 0 0 2px #11151c;font-size:20px;cursor:pointer;transition:transform .08s,border-color .15s,box-shadow .15s}.tech-node:hover{transform:scale(1.05)}.tech-node .node-cost{font-size:5px;color:#8b94a6}.tech-node.locked{filter:grayscale(1) brightness(.65)}.tech-node.available{border-color:#e0c528;color:#fff;box-shadow:inset 0 0 0 2px #332b05,0 0 7px rgba(255,220,50,.45)}.tech-node.unlocked{border-color:#19f22b;color:#fff;box-shadow:inset 0 0 0 2px #07300b,0 0 7px rgba(30,255,50,.55)}.tech-node.selected{outline:3px solid #62e8ff;outline-offset:3px}#node-root{left:166px;top:177px}#node-cooling{left:68px;top:86px}#node-click{left:68px;top:270px}#node-auto{left:264px;top:86px}#node-oc{left:264px;top:270px}#node-fork{left:166px;top:28px}#node-fever{left:166px;top:326px}.tree-details{margin-top:10px;padding:11px;background:#0d1425;border:2px solid #394765}.tree-detail-name{margin-bottom:8px;color:#80f587;font-size:10px}.tree-detail-desc{color:#dce3f0;font-family:'Courier New',monospace;font-size:12px;font-weight:bold;line-height:1.6;margin-bottom:8px}.tree-detail-cost{color:#ffd26b;font-size:8px}
 /* TOAST / GAMEOVER */
@@ -58,7 +59,7 @@
   <div id="gameDateTime" style="font-size:11px;line-height:1.7;text-align:left;color:#dce5f7"></div>
   <div class="title">『암호화폐 마이닝』</div>
   <section class="pixel-panel hud">
-    <div class="wallet-row"><div class="btc-group"><div class="btc-icon">₿</div><div class="money" id="moneyText">0</div></div><div class="sec">+<span id="secText">1.0</span> / sec</div></div>
+    <div class="wallet-row"><div class="btc-group"><div class="btc-icon" id="coinIcon">₿</div><div><div class="money" id="moneyText">0</div><div class="coin-name-mini" id="coinNameText">BTC-X 채굴 중</div></div></div><div class="sec">+<span id="secText">1.0</span> / sec</div></div>
     <div class="fever" id="feverText">◆ BTC FEVER | CHARGING ◆</div>
     <div class="sub-row"><div class="sub-card">₩ 현금 <span id="ethText">0</span></div><div class="sub-card"><span class="fork-green">⇅</span> FORK <span id="forkText">0</span></div></div>
     <div class="status-grid">
@@ -165,84 +166,110 @@ oc:{name:"STABLE OC",icon:"🚀",cost:1,requirement:"click",desc:"오버클럭 �
 fork:{name:"MINING MASTERY",icon:"💎",cost:1,requirement:"auto",desc:"클릭 및 자동 채굴 수익이 영구적으로 10% 증가합니다. 환생 보상은 항상 FORK 1개입니다."},
 fever:{name:"FEVER CORE",icon:"🔥",cost:1,requirement:"cooling",desc:"BTC FEVER 배율을 ×2에서 ×3으로 강화합니다."}
 };
+const COIN_TYPES=[
+{id:"btcx",name:"BTC-X",icon:"₿",base:1.00,vol:.025,mineRate:1.00,unlockSec:0,eventScale:1.00,desc:"가장 안정적인 기본 채굴 코인"},
+{id:"ethx",name:"ETHER-X",icon:"Ξ",base:.82,vol:.040,mineRate:1.20,unlockSec:900,eventScale:1.00,desc:"중간 변동성과 균형 잡힌 채굴 효율"},
+{id:"dogex",name:"DOGE-X",icon:"Ð",base:.35,vol:.070,mineRate:2.70,unlockSec:1800,eventScale:1.15,desc:"단가가 낮지만 빠르게 채굴되는 고변동 코인"},
+{id:"nova",name:"NOVA",icon:"✦",base:1.35,vol:.050,mineRate:.75,unlockSec:3600,eventScale:1.05,desc:"채굴량은 적지만 단가가 높은 성장형 코인"},
+{id:"meme404",name:"MEME-404",icon:"404",base:.18,vol:.130,mineRate:5.20,unlockSec:5400,eventScale:1.35,desc:"매우 불안정하지만 이벤트 폭등폭이 큰 밈 코인"},
+{id:"qbit",name:"QBIT",icon:"Q",base:2.40,vol:.035,mineRate:.42,unlockSec:7200,eventScale:.85,desc:"후반에 해금되는 고가·저변동 코인"}
+];
+function makeEmptyBalances(){return Object.fromEntries(COIN_TYPES.map(x=>[x.id,0]))}
+function coinDef(id){return COIN_TYPES.find(x=>x.id===id)||COIN_TYPES[0]}
 let uidCounter=1;
 function createGpuItem(modelId){return{uid:"gpu_"+(uidCounter++),modelId,temp:30}}
-function freshState(){const starter=createGpuItem(0);return{coins:0,rebirths:0,legacyFork:0,money:0,fork:0,totalClicks:0,totalMined:0,runSeconds:0,rigTierSeen:0,running:true,overclock:false,fever:false,feverTime:0,feverCooldown:20,items:[starter],rack:[starter.uid,null,null,null,null,null,null,null],coolingItems:[],coolingTargetGpuUid:null,pendingSlot:null,inventoryEquipUid:null,forkUnlocked:new Set(["root"]),selectedFork:"root"}}
+function freshState(){const starter=createGpuItem(0);return{coinBalances:makeEmptyBalances(),miningCoinId:"btcx",tradeCoinId:"btcx",rebirths:0,legacyFork:0,money:0,fork:0,totalClicks:0,totalMined:0,runSeconds:0,rigTierSeen:0,running:true,overclock:false,fever:false,feverTime:0,feverCooldown:20,items:[starter],rack:[starter.uid,null,null,null,null,null,null,null],coolingItems:[],coolingTargetGpuUid:null,pendingSlot:null,inventoryEquipUid:null,forkUnlocked:new Set(["root"]),selectedFork:"root"}}
 let state=freshState();
 
 
-/* Fictional market: five-second candles, independent of mining and rebirth. */
-
-const GAME_NEWS=[
- {title:"대형 게임사가 코인 결제를 도입했습니다.",bias:.010,label:"호재"},
- {title:"신규 투자자가 유입되며 거래가 활발해졌습니다.",bias:.007,label:"호재"},
- {title:"채굴 네트워크 업데이트가 성공적으로 끝났습니다.",bias:.008,label:"호재"},
- {title:"거래소 점검 지연으로 투자 심리가 위축됐습니다.",bias:-.010,label:"악재"},
- {title:"대량 매도 물량이 나오며 시장이 긴장하고 있습니다.",bias:-.008,label:"악재"},
- {title:"투자자들이 다음 소식을 기다리고 있습니다.",bias:0,label:"중립"}
+/* Fictional multi-coin market: all prices and events are game-only. */
+const COIN_EVENT_TEMPLATES=[
+{title:"대형 거래소 상장",label:"상장 떡상",positive:true,min:.45,max:1.05},
+{title:"고래 지갑 대량 매수",label:"고래 매수",positive:true,min:.25,max:.70},
+{title:"채굴 최적화 패치 공개",label:"채굴 호재",positive:true,min:.20,max:.55},
+{title:"커뮤니티 밈 폭발",label:"바이럴 떡상",positive:true,min:.40,max:1.20},
+{title:"대량 매도 물량 출현",label:"패닉셀",positive:false,min:.20,max:.45},
+{title:"네트워크 장애 루머",label:"악재",positive:false,min:.12,max:.35}
 ];
-const NEWS_INTERVAL=30000;
-function randomNewsDelay(){return 20000+Math.floor(Math.random()*40001)}
-let gameNews={index:5,time:Date.now()};
-let nextNewsAt=Date.now()+randomNewsDelay();
+const MARKET_INTERVAL=5000;
+function coinUnlockSeconds(coin){return Math.floor((coin.unlockSec||0)*cycleTimeFactor())}
+function isCoinUnlocked(coin){return state.runSeconds>=coinUnlockSeconds(coin)}
+function unlockedCoins(){return COIN_TYPES.filter(isCoinUnlocked)}
+function miningCoinDef(){return coinDef(state.miningCoinId)}
+function tradeCoinDef(){return coinDef(state.tradeCoinId)}
+function coinBalance(id){return Math.max(0,Number(state.coinBalances?.[id])||0)}
+function coinMineRate(){return miningCoinDef().mineRate}
+function marketClampFor(coin,n){return Math.max(coin.base*.18,Math.min(coin.base*8,n))}
+function makeCandle(coin,open,time){
+ const close=marketClampFor(coin,open*(1+(Math.random()-.5)*coin.vol));
+ return {time,open,close,high:marketClampFor(coin,Math.max(open,close)*(1+Math.random()*coin.vol*.35)),low:marketClampFor(coin,Math.min(open,close)*(1-Math.random()*coin.vol*.35))};
+}
+function freshMarketFor(coin){
+ const candles=[],now=Date.now();let close=coin.base;
+ for(let i=0;i<40;i++){const open=marketClampFor(coin,close*(1+(Math.random()-.5)*coin.vol));candles.unshift({time:now-i*MARKET_INTERVAL,open,close,high:marketClampFor(coin,Math.max(open,close)*1.01),low:marketClampFor(coin,Math.min(open,close)*.99)});close=open}
+ return {candles,lastTick:now};
+}
+function freshMarkets(){return Object.fromEntries(COIN_TYPES.map(coin=>[coin.id,freshMarketFor(coin)]))}
+let markets=freshMarkets();
+let marketEvent=null;
+let nextCoinEventAt=Date.now()+randomCoinEventDelay();
+function randomCoinEventDelay(){return 45000+Math.floor(Math.random()*45001)}
+function marketFor(id=state.tradeCoinId){return markets[id]||markets.btcx}
+function marketPrice(id=state.tradeCoinId){const m=marketFor(id);return m.candles[m.candles.length-1].close}
+function restoreMarkets(saved,legacy){
+ markets=freshMarkets();
+ const validMarket=(coin,m)=>{
+   if(!m||!Array.isArray(m.candles)||!m.candles.length)return null;
+   const candles=m.candles.slice(-60);
+   if(!candles.every((x,i)=>x&&Number.isFinite(x.time)&&["open","close","high","low"].every(k=>Number.isFinite(x[k])&&x[k]>=coin.base*.18&&x[k]<=coin.base*8)&&x.low<=Math.min(x.open,x.close)&&x.high>=Math.max(x.open,x.close)&&(!i||x.time>candles[i-1].time)))return null;
+   return {candles,lastTick:Date.now()};
+ };
+ if(saved&&typeof saved==="object"){
+   for(const coin of COIN_TYPES){const v=validMarket(coin,saved[coin.id]);if(v)markets[coin.id]=v}
+ }else if(legacy){
+   const v=validMarket(COIN_TYPES[0],legacy);if(v)markets.btcx=v;
+ }
+}
+function triggerCoinEvent(){
+ const pool=unlockedCoins();if(!pool.length)return;
+ const coin=pool[Math.floor(Math.random()*pool.length)];
+ const template=COIN_EVENT_TEMPLATES[Math.floor(Math.random()*COIN_EVENT_TEMPLATES.length)];
+ let pct=template.min+Math.random()*(template.max-template.min);pct*=coin.eventScale;
+ const signed=template.positive?pct:-pct;
+ const m=marketFor(coin.id),open=marketPrice(coin.id),close=marketClampFor(coin,open*(1+signed)),now=Date.now();
+ const candle={time:Math.max(now,m.candles[m.candles.length-1].time+1),open,close,high:Math.max(open,close)*(template.positive?1.015:1.005),low:Math.min(open,close)*(template.positive?.995:.985)};
+ candle.high=marketClampFor(coin,candle.high);candle.low=marketClampFor(coin,candle.low);
+ m.candles.push(candle);if(m.candles.length>60)m.candles.shift();m.lastTick=now;
+ const actual=(close/open-1)*100;
+ marketEvent={coinId:coin.id,title:template.title,label:template.label,positive:actual>=0,percent:actual,time:now};
+ state.tradeCoinId=coin.id;
+ nextCoinEventAt=now+randomCoinEventDelay();
+ openPopup("news");saveGame();
+}
 function updateGameInfo(){
  document.getElementById("gameDateTime").textContent=new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",weekday:"short",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date())+" · 한국 시간";
  const now=Date.now();
- if(now>=nextNewsAt&&state.running&&!el.menuPopup.classList.contains("show")){
-   const offset=1+Math.floor(Math.random()*(GAME_NEWS.length-1));
-   gameNews={index:(gameNews.index+offset)%GAME_NEWS.length,time:now};
-   nextNewsAt=now+randomNewsDelay();
-   openPopup("news");
-   saveGame();
- }
-}
-
-function newsBias(){return Date.now()-gameNews.time<NEWS_INTERVAL?GAME_NEWS[gameNews.index].bias:0}
-
-const MARKET_INTERVAL=5000;
-const marketClamp=n=>Math.max(.25,Math.min(4,n));
-function makeCandle(open,time){
- const close=marketClamp(open*(1+(Math.random()-.5)*.06+newsBias()));
- return {time,open,close,high:marketClamp(Math.max(open,close)*(1+Math.random()*.025)),low:marketClamp(Math.min(open,close)*(1-Math.random()*.025))};
-}
-function freshMarket(){
- const candles=[];const now=Date.now();let close=1;
- // Seeded display history is simulated, not previous player activity.
- for(let i=0;i<40;i++){
-  const open=marketClamp(close*(1+(Math.random()-.5)*.06));
-  candles.unshift({time:now-i*MARKET_INTERVAL,open,close,high:marketClamp(Math.max(open,close)*1.015),low:marketClamp(Math.min(open,close)*.985)});
-  close=open;
- }
- return {candles,lastTick:now};
-}
-let market=freshMarket();
-function marketPrice(){return market.candles[market.candles.length-1].close}
-function restoreMarket(saved){
- if(!saved||!Array.isArray(saved.candles)||!saved.candles.length)return;
- const candles=saved.candles.slice(-60);
- if(!candles.every((c,i)=>c&&Number.isFinite(c.time)&&["open","close","high","low"].every(k=>Number.isFinite(c[k])&&c[k]>=.25&&c[k]<=4)&&c.low<=Math.min(c.open,c.close)&&c.high>=Math.max(c.open,c.close)&&(!i||c.time>candles[i-1].time)))return;
- market={candles,lastTick:Date.now()};
+ if(now>=nextCoinEventAt&&state.running&&!el.menuPopup.classList.contains("show"))triggerCoinEvent();
 }
 function marketTick(){
  const now=Date.now();
- if(now-market.lastTick<MARKET_INTERVAL)return;
- market.candles.push(makeCandle(marketPrice(),Math.max(now,market.candles[market.candles.length-1].time+1)));
- if(market.candles.length>60)market.candles.shift();
- market.lastTick=now;
+ for(const coin of COIN_TYPES){
+   const m=marketFor(coin.id);if(now-m.lastTick<MARKET_INTERVAL)continue;
+   m.candles.push(makeCandle(coin,marketPrice(coin.id),Math.max(now,m.candles[m.candles.length-1].time+1)));
+   if(m.candles.length>60)m.candles.shift();m.lastTick=now;
+ }
  renderMarketChart();updateTradePanel();
 }
 function renderMarketChart(){
  const chart=document.getElementById("marketChart");if(!chart)return;
- const cs=market.candles,w=480,h=230,left=12,right=415,top=14,bottom=195;
- const lo=Math.min(...cs.map(c=>c.low)),hi=Math.max(...cs.map(c=>c.high)),pad=Math.max(.015,(hi-lo)*.12);
+ const coin=tradeCoinDef(),m=marketFor(coin.id),cs=m.candles,w=480,h=230,left=12,right=415,top=14,bottom=195;
+ const lo=Math.min(...cs.map(x=>x.low)),hi=Math.max(...cs.map(x=>x.high)),pad=Math.max(coin.base*.01,(hi-lo)*.12);
  const min=lo-pad,max=hi+pad,y=p=>bottom-(p-min)/(max-min)*(bottom-top),step=(right-left)/cs.length;
  let svg="";
  for(let i=0;i<=4;i++){const price=min+(max-min)*i/4,py=y(price);svg+=`<line x1="${left}" y1="${py}" x2="${right}" y2="${py}" stroke="#343840" stroke-dasharray="3 4"/><text x="420" y="${py+4}" fill="#aeb6c6" font-size="10">${price.toFixed(3)}</text>`}
- cs.forEach((c,i)=>{const x=left+step*(i+.5),color=c.close>=c.open?"#ff605b":"#509aff";svg+=`<line x1="${x}" y1="${y(c.high)}" x2="${x}" y2="${y(c.low)}" stroke="${color}"/><rect x="${x-step*.3}" y="${Math.min(y(c.open),y(c.close))}" width="${Math.max(1,step*.6)}" height="${Math.max(1,Math.abs(y(c.open)-y(c.close)))}" fill="${color}"/>`});
- for(const i of [0,Math.floor(cs.length/2),cs.length-1]){const t=new Date(cs[i].time).toLocaleTimeString("ko-KR",{hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"});svg+=`<text x="${left+step*(i+.5)}" y="219" text-anchor="${i===0?"start":i===cs.length-1?"end":"middle"}" fill="#9ba7ba" font-size="10">${t}</text>`}
- const current=cs[cs.length-1],color=current.close>=current.open?"#ff605b":"#509aff";
- svg+=`<line x1="${left}" y1="${y(current.close)}" x2="${right}" y2="${y(current.close)}" stroke="${color}" stroke-dasharray="4 3"/>`;
- chart.innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="게임 코인 시세 캔들 차트. 상승 빨강, 하락 파랑." style="display:block;width:100%;background:#191c22;border:1px solid #3a414c">${svg}</svg>`;
+ cs.forEach((x,i)=>{const px=left+step*(i+.5),color=x.close>=x.open?"#ff605b":"#509aff";svg+=`<line x1="${px}" y1="${y(x.high)}" x2="${px}" y2="${y(x.low)}" stroke="${color}"/><rect x="${px-step*.3}" y="${Math.min(y(x.open),y(x.close))}" width="${Math.max(1,step*.6)}" height="${Math.max(1,Math.abs(y(x.open)-y(x.close)))}" fill="${color}"/>`});
+ const current=cs[cs.length-1],color=current.close>=current.open?"#ff605b":"#509aff";svg+=`<line x1="${left}" y1="${y(current.close)}" x2="${right}" y2="${y(current.close)}" stroke="${color}" stroke-dasharray="4 3"/>`;
+ chart.innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${coin.name} 게임 시세 차트" style="display:block;width:100%;background:#191c22;border:1px solid #3a414c">${svg}</svg>`;
 }
 
 /* Versioned local save. UI selections are deliberately transient. */
@@ -255,7 +282,7 @@ function saveGame() {
   if (saveBlocked) return false;
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify({
-      ...state, market, gameNews, version: 4, savedAt: Date.now(),
+      ...state, markets, marketEvent, version: 5, savedAt: Date.now(),
       forkUnlocked: [...state.forkUnlocked], uidCounter, coolUidCounter,
       pendingSlot: null, inventoryEquipUid: null, coolingTargetGpuUid: null
     }));
@@ -270,13 +297,13 @@ function loadGame() {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return false;
     const data = JSON.parse(raw);
-    if (!data || typeof data !== "object" || (data.version !== undefined && ![1,2,3,4].includes(data.version)))
+    if (!data || typeof data !== "object" || (data.version !== undefined && ![1,2,3,4,5].includes(data.version)))
       throw new Error("Unsupported save");
     if (!Array.isArray(data.items) || !data.items.length || !Array.isArray(data.rack))
       throw new Error("Invalid inventory");
     const ids = new Set();
     const items = data.items.map(item => {
-      const mappedModelId=data.version!==4&&item&&item.modelId===5?8:item?.modelId;
+      const mappedModelId=![4,5].includes(data.version)&&item&&item.modelId===5?8:item?.modelId;
       if (!item || typeof item.uid !== "string" || !/^gpu_[1-9]\d*$/.test(item.uid) ||
           !Number.isSafeInteger(Number(item.uid.slice(4))) || Number(item.uid.slice(4)) >= Number.MAX_SAFE_INTEGER ||
           ids.has(item.uid) || !Number.isInteger(mappedModelId) || !GPU_LIST[mappedModelId] ||
@@ -293,7 +320,7 @@ function loadGame() {
     });
     const coolingItems=[];
     let nextCoolUid=1;
-    if(data.version===3&&Array.isArray(data.coolingItems)){
+    if([3,4,5].includes(data.version)&&Array.isArray(data.coolingItems)){
       const coolingIds=new Set(), cooledGpuIds=new Set();
       for(const unit of data.coolingItems){
         if(!unit||typeof unit.uid!=="string"||!/^cool_[1-9]\d*$/.test(unit.uid)||
@@ -321,12 +348,19 @@ function loadGame() {
     const feverTime = Math.min(25, Math.floor(number("feverTime")));
     const highestModel=Math.max(...items.map(i=>i.modelId));
     const legacySeconds=highestModel>=8?10500:highestModel>=4?5400:highestModel>=3?3600:highestModel>=2?1800:highestModel>=1?600:0;
-    const runSeconds=data.version===4?Math.floor(number("runSeconds")):legacySeconds;
+    const runSeconds=[4,5].includes(data.version)?Math.floor(number("runSeconds")):legacySeconds;
+    const coinBalances=makeEmptyBalances();
+    if(data.version===5&&data.coinBalances&&typeof data.coinBalances==="object"){
+      for(const coin of COIN_TYPES)coinBalances[coin.id]=Number.isFinite(data.coinBalances[coin.id])&&data.coinBalances[coin.id]>=0?data.coinBalances[coin.id]:0;
+    }else coinBalances.btcx=number("coins");
+    const savedMining=COIN_TYPES.some(x=>x.id===data.miningCoinId)?data.miningCoinId:"btcx";
+    const savedTrade=COIN_TYPES.some(x=>x.id===data.tradeCoinId)?data.tradeCoinId:"btcx";
     const restored = {
+      coinBalances,miningCoinId:savedMining,tradeCoinId:savedTrade,
       rebirths:Math.min(52,Math.floor(number("rebirths"))),
       legacyFork:data.version>=2?number("legacyFork"):number("fork"),
-      coins:number("coins"), money:number("money"), fork:data.version>=2?Math.floor(number("fork")):0, totalClicks:Math.floor(number("totalClicks")),
-      totalMined:number("totalMined"), runSeconds, rigTierSeen:data.version===4?Math.floor(number("rigTierSeen")):highestModel, running:data.running !== false,
+      money:number("money"), fork:data.version>=2?Math.floor(number("fork")):0, totalClicks:Math.floor(number("totalClicks")),
+      totalMined:number("totalMined"), runSeconds, rigTierSeen:[4,5].includes(data.version)?Math.floor(number("rigTierSeen")):highestModel, running:data.running !== false,
       overclock:data.overclock === true, fever:data.fever === true && feverTime > 0,
       feverTime, feverCooldown:Math.min(35, Math.floor(number("feverCooldown",20))),
       items, rack, coolingItems, coolingTargetGpuUid:null, forkUnlocked:unlocked,
@@ -338,8 +372,8 @@ function loadGame() {
     uidCounter = Math.max(nextUid, Number.isSafeInteger(data.uidCounter) && data.uidCounter > 0 ? data.uidCounter : 1);
     coolUidCounter = Math.max(nextCoolUid, Number.isSafeInteger(data.coolUidCounter) && data.coolUidCounter > 0 ? data.coolUidCounter : 1);
     state = restored;
-    restoreMarket(data.market);
-    if(data.gameNews&&Number.isInteger(data.gameNews.index)&&GAME_NEWS[data.gameNews.index]&&Number.isFinite(data.gameNews.time)&&data.gameNews.time<=Date.now())gameNews={index:data.gameNews.index,time:data.gameNews.time};
+    restoreMarkets(data.version===5?data.markets:null,data.market);
+    if(data.version===5&&data.marketEvent&&COIN_TYPES.some(x=>x.id===data.marketEvent.coinId)&&Number.isFinite(data.marketEvent.time))marketEvent=data.marketEvent;
     if (equippedItems().some(item => item.temp >= 100)) state.running = false;
     el.gameOver.classList.toggle("show", !state.running);
     return true;
@@ -350,7 +384,7 @@ function loadGame() {
   }
 }
 
-const el={moneyText:document.getElementById("moneyText"),secText:document.getElementById("secText"),ethText:document.getElementById("ethText"),forkText:document.getElementById("forkText"),feverText:document.getElementById("feverText"),tempText:document.getElementById("tempText"),powerText:document.getElementById("powerText"),electricityText:document.getElementById("electricityText"),rackGrid:document.getElementById("rackGrid"),robotText:document.getElementById("robotText"),gpuBtn:document.getElementById("gpuBtn"),invBtn:document.getElementById("invBtn"),ocBtn:document.getElementById("ocBtn"),coolBtn:document.getElementById("coolBtn"),shopBtn:document.getElementById("shopBtn"),forkBtn:document.getElementById("forkBtn"),menuPopup:document.getElementById("menuPopup"),popupTitle:document.getElementById("popupTitle"),popupContent:document.getElementById("popupContent"),popupClose:document.getElementById("popupClose"),toast:document.getElementById("toast"),gameOver:document.getElementById("gameOver"),restartBtn:document.getElementById("restartBtn")};
+const el={coinIcon:document.getElementById("coinIcon"),coinNameText:document.getElementById("coinNameText"),moneyText:document.getElementById("moneyText"),secText:document.getElementById("secText"),ethText:document.getElementById("ethText"),forkText:document.getElementById("forkText"),feverText:document.getElementById("feverText"),tempText:document.getElementById("tempText"),powerText:document.getElementById("powerText"),electricityText:document.getElementById("electricityText"),rackGrid:document.getElementById("rackGrid"),robotText:document.getElementById("robotText"),gpuBtn:document.getElementById("gpuBtn"),invBtn:document.getElementById("invBtn"),ocBtn:document.getElementById("ocBtn"),coolBtn:document.getElementById("coolBtn"),shopBtn:document.getElementById("shopBtn"),forkBtn:document.getElementById("forkBtn"),menuPopup:document.getElementById("menuPopup"),popupTitle:document.getElementById("popupTitle"),popupContent:document.getElementById("popupContent"),popupClose:document.getElementById("popupClose"),toast:document.getElementById("toast"),gameOver:document.getElementById("gameOver"),restartBtn:document.getElementById("restartBtn")};
 function formatNumber(n){return Math.floor(n).toLocaleString("ko-KR")}function format1(n){return Number(n).toFixed(1)}function formatDuration(sec){sec=Math.max(0,Math.floor(sec));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60);return h?h+"시간 "+m+"분":m+"분"}function itemByUid(uid){return state.items.find(i=>i.uid===uid)||null}function modelOf(item){return item?GPU_LIST[item.modelId]:null}function rackIndexOf(uid){return state.rack.indexOf(uid)}function isEquipped(uid){return rackIndexOf(uid)!==-1}function equippedItems(){return state.rack.map(itemByUid).filter(Boolean)}function primaryItem(){return itemByUid(state.rack[0])}function nextModelFor(item){return item&&GPU_LIST[item.modelId+1]?GPU_LIST[item.modelId+1]:null}function hasFork(id){return state.forkUnlocked.has(id)}
 function cycleTimeFactor(){return Math.max(.55,1-state.rebirths*.08)}
 function requiredGpuSeconds(model){return Math.floor((model?.unlockSec||0)*cycleTimeFactor())}
@@ -359,20 +393,23 @@ function isCoolingUnlocked(cooler){return !!cooler&&state.runSeconds>=Math.floor
 function currentRigTier(){let tier=0;for(let i=1;i<GPU_LIST.length;i++){if(isGpuUnlocked(GPU_LIST[i]))tier=i;else break}return tier}
 function certificationText(){const tier=currentRigTier(),next=GPU_LIST[tier+1];if(!next)return"QUANTUM 인증 완료 · 모든 GPU 등급 해금";return"현재 "+GPU_LIST[tier].name+" 인증 · 다음 "+next.name+"\n운영 "+formatDuration(state.runSeconds)+" / "+formatDuration(requiredGpuSeconds(next))+" · 누적 채굴 "+formatNumber(state.totalMined)+" / "+formatNumber(next.unlockMined)}
 function gpuLockText(model){if(isGpuUnlocked(model))return"해금됨";return"🔒 운영 "+formatDuration(requiredGpuSeconds(model))+" + 누적 채굴 "+formatNumber(model.unlockMined)}
+function coinUnlockText(coin){return isCoinUnlocked(coin)?"해금됨":"🔒 운영 "+formatDuration(coinUnlockSeconds(coin))+" 후 해금"}
+function setMiningCoin(id){const coin=coinDef(id);if(!isCoinUnlocked(coin)){showToast("🔒 아직 해금되지 않은 코인입니다.");return}state.miningCoinId=coin.id;saveGame();updateUI();el.robotText.textContent="💬 "+coin.icon+" "+coin.name+" 채굴로 전환했습니다.";if(el.menuPopup.classList.contains("show"))openPopup("trade")}
+function selectTradeCoin(id){const coin=coinDef(id);if(!isCoinUnlocked(coin))return;state.tradeCoinId=coin.id;openPopup("trade")}
 
 function clickMultiplier(){let m=hasFork("fork")?1.1:1;if(hasFork("click"))m*=1.25;if(state.overclock)m*=hasFork("oc")?1.50:1.30;if(state.fever)m*=hasFork("fever")?3:2;return m}function autoMultiplier(){let m=hasFork("fork")?1.1:1;if(hasFork("auto"))m*=1.30;if(state.overclock)m*=hasFork("oc")?1.50:1.30;if(state.fever)m*=hasFork("fever")?3:2;return m}// Crowded racks still trap heat, but additional GPUs scale gently enough for full-rack play.
 function rackHeatMultiplier(){const extra=Math.max(0,equippedItems().length-1);return 1+extra*.08+extra*extra*.01}
 function heatMultiplier(){return rackHeatMultiplier()*(hasFork("cooling")?.8:1)}
-function totalAuto(){return equippedItems().reduce((s,i)=>s+modelOf(i).auto,0)*autoMultiplier()}function totalHash(){return equippedItems().reduce((s,i)=>s+modelOf(i).hash,0)*autoMultiplier()}function totalPower(){return equippedItems().reduce((s,i)=>s+modelOf(i).power,0)}function hottestTemp(){const eq=equippedItems();return eq.length?Math.max(...eq.map(i=>i.temp)):25}
-function updateUI(){const primary=primaryItem(),pm=modelOf(primary),next=nextModelFor(primary);el.moneyText.textContent=formatNumber(state.coins);el.secText.textContent=format1(totalAuto());el.ethText.textContent=formatNumber(state.money);el.forkText.textContent=formatNumber(state.fork);const hot=hottestTemp();el.tempText.textContent=Math.floor(hot)+"°C";el.powerText.textContent=totalPower()+"W";el.electricityText.textContent="-₩"+Math.max(0,Math.round(totalPower()/42))+"/min";updateTempUI();updateFeverUI();renderRack();updateCoolerPanel();updateRebirthPanel();updatePrimaryUpgrade();updateTradePanel()}
+function totalAuto(){return equippedItems().reduce((s,i)=>s+modelOf(i).auto,0)*autoMultiplier()*coinMineRate()}function totalHash(){return equippedItems().reduce((s,i)=>s+modelOf(i).hash,0)*autoMultiplier()}function totalPower(){return equippedItems().reduce((s,i)=>s+modelOf(i).power,0)}function hottestTemp(){const eq=equippedItems();return eq.length?Math.max(...eq.map(i=>i.temp)):25}
+function updateUI(){const primary=primaryItem(),pm=modelOf(primary),next=nextModelFor(primary),coin=miningCoinDef();el.coinIcon.textContent=coin.icon;el.coinNameText.textContent=coin.name+" 채굴 중";el.moneyText.textContent=formatNumber(coinBalance(coin.id));el.secText.textContent=format1(totalAuto());el.ethText.textContent=formatNumber(state.money);el.forkText.textContent=formatNumber(state.fork);const hot=hottestTemp();el.tempText.textContent=Math.floor(hot)+"°C";el.powerText.textContent=totalPower()+"W";el.electricityText.textContent="-₩"+Math.max(0,Math.round(totalPower()/42))+"/min";updateTempUI();updateFeverUI();renderRack();updateCoolerPanel();updateRebirthPanel();updatePrimaryUpgrade();updateTradePanel()}
 function updateTempUI(){const hot=hottestTemp();el.tempText.classList.remove("temp-normal","temp-warning","temp-danger");if(hot>=85){el.tempText.classList.add("temp-danger");el.robotText.textContent="💬 위험! 장착 GPU 중 하나가 과열 중입니다! COOL을 사용하세요!"}else if(hot>=65)el.tempText.classList.add("temp-warning");else el.tempText.classList.add("temp-normal")}
-function updateFeverUI(){if(state.fever){el.feverText.textContent="◆ BTC FEVER | MINING ×"+(hasFork("fever")?3:2)+" | "+state.feverTime+"s ◆"}else el.feverText.textContent="◆ BTC FEVER | CHARGING | "+state.feverCooldown+"s ◆"}
+function updateFeverUI(){if(state.fever){el.feverText.textContent="◆ MINING FEVER | ×"+(hasFork("fever")?3:2)+" | "+state.feverTime+"s ◆"}else el.feverText.textContent="◆ MINING FEVER | CHARGING | "+state.feverCooldown+"s ◆"}
 function renderRack(){el.rackGrid.innerHTML=state.rack.map((uid,index)=>{const item=itemByUid(uid);if(!item)return`<div class="slot empty-slot" data-empty-slot="${index}"><div class="add-screen">[추가하기]</div></div>`;const m=modelOf(item),cooler=coolerForGpu(item),hot=item.temp>=85?" hot":"",fast=item.temp>=65?" fast":"",coolingVisual=cooler.id>=3?`<div class="water-block">${cooler.icon}<span>WATER</span></div>`:`<div class="fan${fast}"><div class="fan-center"></div></div><div class="fan${fast}"><div class="fan-center"></div></div>`;return`<div class="slot gpu-slot${hot}" data-gpu-uid="${item.uid}" data-slot="${index}"><div class="gpu-card"><div class="gpu-label">${m.name}</div><div class="gpu-temp-mini">${Math.floor(item.temp)}°C</div><div class="gpu-cooler-mini" title="${cooler.name}">${cooler.icon}</div>${coolingVisual}</div></div>`}).join("")}
-function mineGpu(uid,event){if(!state.running)return;const clicked=itemByUid(uid);if(!clicked||!isEquipped(uid))return;const equipped=equippedItems();if(!equipped.length)return;let totalGain=0;for(const item of equipped){const m=modelOf(item);const gain=Math.floor(m.click*clickMultiplier());totalGain+=gain;let heat=(.85+m.id*.11)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp+=heat}state.coins+=totalGain;state.totalMined+=totalGain;state.totalClicks++;createFloat(event.clientX,event.clientY,totalGain);el.robotText.textContent=`💬 ⚡ ${equipped.length}개 GPU 동시 채굴! +코인 ${formatNumber(totalGain)}`;checkGameOver();updateUI();animateAllGpuClicks()}
+function mineGpu(uid,event){if(!state.running)return;const clicked=itemByUid(uid);if(!clicked||!isEquipped(uid))return;const equipped=equippedItems();if(!equipped.length)return;const coin=miningCoinDef();let totalGain=0,totalWork=0;for(const item of equipped){const m=modelOf(item),baseGain=m.click*clickMultiplier(),gain=Math.floor(baseGain*coin.mineRate);totalGain+=gain;totalWork+=baseGain;let heat=(.85+m.id*.11)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp+=heat}state.coinBalances[coin.id]=coinBalance(coin.id)+totalGain;state.totalMined+=totalWork;state.totalClicks++;createFloat(event.clientX,event.clientY,totalGain,coin);el.robotText.textContent=`💬 ⚡ ${equipped.length}개 GPU 동시 채굴! +${formatNumber(totalGain)} ${coin.name}`;checkGameOver();updateUI();animateAllGpuClicks()}
 function animateAllGpuClicks(){const slots=el.rackGrid.querySelectorAll("[data-gpu-uid]");slots.forEach(slot=>{slot.classList.remove("sync-click");void slot.offsetWidth;slot.classList.add("sync-click")});setTimeout(()=>slots.forEach(slot=>slot.classList.remove("sync-click")),180)}
-function createFloat(x,y,amount){const d=document.createElement("div");d.className="float-text";d.textContent="🪙 +"+formatNumber(amount)+" SATOSHI";d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),900)}
-function autoMine(){if(!state.running)return;state.runSeconds++;const eq=equippedItems();for(const item of eq){const m=modelOf(item);const gain=m.auto*autoMultiplier();state.coins+=gain;state.totalMined+=gain;let heat=(.32+m.id*.08)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp=Math.max(25,item.temp+heat-coolingRateForGpu(item))}for(const item of state.items){if(!isEquipped(item.uid))item.temp=Math.max(25,item.temp-.35)}const tier=currentRigTier();if(tier>state.rigTierSeen){state.rigTierSeen=tier;showToast("🔓 "+GPU_LIST[tier].name+" 채굴 인증 해금!");el.robotText.textContent="💬 새 GPU 인증 완료! "+GPU_LIST[tier].name+" 사용 가능";saveGame()}checkGameOver();updateUI()}
-function feverTick(){if(!state.running)return;if(state.fever){state.feverTime--;if(state.feverTime<=0){state.fever=false;state.feverCooldown=35;showToast("BTC FEVER 종료")}}else{state.feverCooldown--;if(state.feverCooldown<=0){state.fever=true;state.feverTime=hasFork("fever")?25:20;showToast(hasFork("fever")?"🔥 BTC FEVER ×3!":"🔥 BTC FEVER ×2!")}}updateFeverUI()}
+function createFloat(x,y,amount,coin=miningCoinDef()){const d=document.createElement("div");d.className="float-text";d.textContent=coin.icon+" +"+formatNumber(amount)+" "+coin.name;d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),900)}
+function autoMine(){if(!state.running)return;state.runSeconds++;const eq=equippedItems(),coin=miningCoinDef();for(const item of eq){const m=modelOf(item),baseGain=m.auto*autoMultiplier(),gain=baseGain*coin.mineRate;state.coinBalances[coin.id]=coinBalance(coin.id)+gain;state.totalMined+=baseGain;let heat=(.32+m.id*.08)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp=Math.max(25,item.temp+heat-coolingRateForGpu(item))}for(const item of state.items){if(!isEquipped(item.uid))item.temp=Math.max(25,item.temp-.35)}const tier=currentRigTier();if(tier>state.rigTierSeen){state.rigTierSeen=tier;showToast("🔓 "+GPU_LIST[tier].name+" 채굴 인증 해금!");el.robotText.textContent="💬 새 GPU 인증 완료! "+GPU_LIST[tier].name+" 사용 가능";saveGame()}checkGameOver();updateUI()}
+function feverTick(){if(!state.running)return;if(state.fever){state.feverTime--;if(state.feverTime<=0){state.fever=false;state.feverCooldown=35;showToast("MINING FEVER 종료")}}else{state.feverCooldown--;if(state.feverCooldown<=0){state.fever=true;state.feverTime=hasFork("fever")?25:20;showToast(hasFork("fever")?"🔥 MINING FEVER ×3!":"🔥 MINING FEVER ×2!")}}updateFeverUI()}
 function coolGPU(){const eq=equippedItems();if(!eq.length){showToast("장착된 GPU가 없습니다.");return}const amount=16+Math.floor(Math.random()*8)+(hasFork("cooling")?5:0);eq.forEach(i=>i.temp=Math.max(25,i.temp-amount));el.robotText.textContent="💬 랙 전체 냉각 완료! -"+amount+"°C";showToast("❄️ ALL GPU -"+amount+"°C");updateUI()}
 function toggleOverclock(){state.overclock=!state.overclock;if(state.overclock){equippedItems().forEach(i=>i.temp+=3*heatMultiplier());showToast(hasFork("oc")?"🚀 STABLE OC +50%":"📈 OVERCLOCK +30%") }else showToast("📉 OVERCLOCK OFF");checkGameOver();updateUI();openPopup("oc")}
 function upgradePrimary(){const item=primaryItem();if(!item){showToast("1번 슬롯에 GPU를 장착하세요.");return}const m=modelOf(item),next=nextModelFor(item);if(!next){showToast("최종 GPU입니다.");return}if(!isGpuUnlocked(next)){showToast("🔒 "+next.name+" 인증 조건을 먼저 달성하세요.");return}if(state.money<m.upgradeCost){showToast("₩"+formatNumber(m.upgradeCost-state.money)+" 부족합니다.");return}state.money-=m.upgradeCost;item.modelId++;item.temp=Math.max(30,item.temp-8);showToast("⚡ "+next.name+" 업그레이드 완료!");el.robotText.textContent="💬 PRIMARY GPU가 "+next.name+"(으)로 업그레이드되었습니다.";updateUI()}
@@ -389,42 +426,36 @@ function updatePrimaryUpgrade(){
  button.textContent=next?(!unlocked?"[ 🔒 "+next.name+" 인증 필요 ]":"[ "+next.name+" 업그레이드 · ₩"+formatNumber(model.upgradeCost)+" ]"):(model?"[ 최고 등급 ]":"[ 1번 슬롯에 GPU를 장착하세요 ]");
 }
 function updateTradePanel(){
- const quote=document.getElementById("marketQuote");
- if(quote){const c=market.candles[market.candles.length-1],change=(c.close/c.open-1)*100;quote.textContent="1코인 = ₩"+marketPrice().toFixed(3)+"  "+(change>=0?"+":"")+change.toFixed(2)+"%";quote.style.color=change>=0?"#ff605b":"#509aff"}
- const estimate=document.getElementById("saleEstimate");
- if(estimate){const amount=Number(document.getElementById("tradeAmount")?.value);estimate.textContent="전량 판매 예상 ₩"+(state.coins*marketPrice()).toFixed(2)+(Number.isFinite(amount)&&amount>0?" · 입력 수량 ₩"+(amount*marketPrice()).toFixed(2):"")}
- const countdown=document.getElementById("marketCountdown");if(countdown)countdown.textContent="다음 시세 갱신 "+Math.max(0,Math.ceil((MARKET_INTERVAL-(Date.now()-market.lastTick))/1000))+"초";
- const balance=document.getElementById("tradeBalance");
- if(balance)balance.textContent="보유 코인 "+state.coins.toFixed(2)+" · 현금 ₩"+formatNumber(state.money);
- const all=document.getElementById("sellAllBtn");
- if(all)all.disabled=!state.running||state.coins<=0;
+ const coin=tradeCoinDef(),m=marketFor(coin.id),balanceNow=coinBalance(coin.id),quote=document.getElementById("marketQuote");
+ if(quote){const x=m.candles[m.candles.length-1],change=(x.close/x.open-1)*100;quote.textContent=coin.icon+" "+coin.name+" · 1코인 = ₩"+marketPrice(coin.id).toFixed(3)+"  "+(change>=0?"+":"")+change.toFixed(2)+"%";quote.style.color=change>=0?"#ff605b":"#509aff"}
+ const estimate=document.getElementById("saleEstimate");if(estimate){const amount=Number(document.getElementById("tradeAmount")?.value),price=marketPrice(coin.id);estimate.textContent="전량 판매 예상 ₩"+(balanceNow*price).toFixed(2)+(Number.isFinite(amount)&&amount>0?" · 입력 수량 ₩"+(amount*price).toFixed(2):"")}
+ const countdown=document.getElementById("marketCountdown");if(countdown)countdown.textContent="다음 시세 갱신 "+Math.max(0,Math.ceil((MARKET_INTERVAL-(Date.now()-m.lastTick))/1000))+"초";
+ const balance=document.getElementById("tradeBalance");if(balance)balance.textContent="보유 "+coin.name+" "+balanceNow.toFixed(2)+" · 현금 ₩"+formatNumber(state.money);
+ const all=document.getElementById("sellAllBtn");if(all)all.disabled=!state.running||balanceNow<=0;
 }
 function sellCoins(all=false){
  if(!state.running)return;
- const input=document.getElementById("tradeAmount");
- const amount=all?state.coins:Number(input?.value);
- if(!Number.isFinite(amount)||amount<=0||amount>state.coins){showToast("보유 코인 이내의 올바른 수량을 입력하세요.");return}
- state.coins=Math.max(0,state.coins-amount);
- const price=marketPrice(),proceeds=amount*price;
- state.money+=proceeds;
- saveGame();updateUI();
- if(input)input.value="";
- showToast("판매 완료! +₩"+proceeds.toFixed(2)+" (1코인 ₩"+price.toFixed(3)+")");
+ const coin=tradeCoinDef(),balance=coinBalance(coin.id),input=document.getElementById("tradeAmount"),amount=all?balance:Number(input?.value);
+ if(!Number.isFinite(amount)||amount<=0||amount>balance){showToast("보유 "+coin.name+" 이내의 올바른 수량을 입력하세요.");return}
+ state.coinBalances[coin.id]=Math.max(0,balance-amount);
+ const price=marketPrice(coin.id),proceeds=amount*price;state.money+=proceeds;saveGame();updateUI();if(input)input.value="";
+ showToast(coin.icon+" "+coin.name+" 판매 +₩"+proceeds.toFixed(2));
 }
 function setActiveNav(button){document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));button.classList.add("active")}
 function openPopup(type){if(!state.running)return;el.menuPopup.classList.add("show");const primary=primaryItem(),pm=modelOf(primary);if(type==="gpu"){setActiveNav(el.gpuBtn);el.popupTitle.textContent="🖥️ GPU MANAGER";const slots=state.rack.map((uid,i)=>{const item=itemByUid(uid),m=modelOf(item);return`<div class="popup-info"><div class="popup-title-small">SLOT ${i+1}</div>${item?`<div class="popup-main">${m.name}</div><div class="popup-text">TEMP ${Math.floor(item.temp)}°C<br>CLICK 코인 ${formatNumber(m.click*clickMultiplier())}<br>AUTO 코인 ${format1(m.auto*autoMultiplier())}/sec<br>COOL ${coolerForGpu(item).name}</div><button class="popup-btn red" data-action="unequip" data-uid="${item.uid}">[ 인벤토리로 이동 ]</button>`:`<div class="popup-main">EMPTY</div><button class="popup-btn blue" data-action="shopForSlot" data-slot="${i}">[ GPU 추가하기 ]</button>`}</div>`}).join("");el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">RIG STATUS</div><div class="popup-main">${equippedItems().length}/8 GPU ONLINE</div><div class="popup-text">TOTAL HASH ${format1(totalHash())} H/s<br>AUTO 코인 ${format1(totalAuto())}/sec<br>POWER ${totalPower()}W</div></div><div class="popup-info"><div class="popup-title-small">RIG CERTIFICATION</div><div class="popup-main">${GPU_LIST[currentRigTier()].name} TIER</div><div class="popup-text">${certificationText().replace("\n","<br>")}<br>환생할수록 인증 시간이 조금씩 단축됩니다.</div></div><button class="popup-btn" id="primaryUpgradeBtn" data-action="upgradePrimary"></button><div class="popup-text" style="margin:8px 0">1번 슬롯 GPU를 업그레이드합니다.</div>${slots}`;updatePrimaryUpgrade()}
 if(type==="news"){
  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
- const news=GAME_NEWS[gameNews.index];
- el.popupTitle.textContent="📰 속보";
- el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">게임 속 가상 뉴스</div><div class="popup-main">${news.label==="호재"?"📈":news.label==="악재"?"📉":"📰"} ${news.label}</div><div class="popup-text" style="font-size:16px;margin:12px 0">${news.title}</div><div class="popup-text">${news.bias>0?"앞으로 30초 동안 시세가 상승할 가능성이 커집니다.":news.bias<0?"앞으로 30초 동안 시세가 하락할 가능성이 커집니다.":"이번 뉴스는 시세에 영향을 주지 않습니다."}<br>뉴스가 떠 있는 동안에도 채굴과 시세는 계속 움직입니다.</div></div><button class="popup-btn blue" data-action="dismissNews">[ 확인 ]</button>`;
+ const ev=marketEvent,coin=ev?coinDef(ev.coinId):COIN_TYPES[0],up=ev?.positive!==false;
+ el.popupTitle.textContent="📰 코인 시장 속보";
+ el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">게임 속 가상 시장 이벤트</div><div class="popup-main">${up?"🚀":"📉"} ${coin.icon} ${coin.name} · ${ev?.label||"시장 변동"}</div><div class="popup-text" style="font-size:16px;margin:12px 0">${ev?.title||"시장 변동 발생"}</div><div class="popup-text">${coin.name} 시세가 즉시 <span class="${up?"popup-green":"popup-red"}">${ev?.percent>=0?"+":""}${(ev?.percent||0).toFixed(1)}%</span> 변동했습니다.<br>이 게임의 코인은 모두 가상이며 실제 자산과 관계없습니다.</div></div><button class="popup-btn orange" data-action="eventTrade" data-coin="${coin.id}">[ ${coin.name} 거래소 보기 ]</button><button class="popup-btn blue" data-action="dismissNews">[ 확인 ]</button>`;
 }
 if(type==="trade"){
  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
- el.popupTitle.textContent="🖥️ 코인 거래소";
- el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">게임 코인 / 원 · 5초봉</div><div class="popup-main" id="marketQuote"></div><div id="marketChart"></div><div class="popup-text" id="marketCountdown"></div><div class="popup-text" id="tradeBalance"></div><div class="popup-text">현재 시세로 판매 · 수수료 없음</div></div><div class="popup-text" id="saleEstimate"></div><label class="popup-text" for="tradeAmount">판매할 코인 수량</label><input class="trade-amount" id="tradeAmount" type="number" min="0.01" step="any" inputmode="decimal" placeholder="판매 수량 입력"><button class="popup-btn blue" data-action="sellCoins">[ 입력 수량 판매 ]</button><button class="popup-btn" id="sellAllBtn" data-action="sellAll">[ 전량 판매 ]</button>`;
- renderMarketChart();updateTradePanel();
- document.getElementById("tradeAmount").addEventListener("input",updateTradePanel);
+ el.popupTitle.textContent="🖥️ MULTI COIN EXCHANGE";
+ const coins=COIN_TYPES.map(coin=>{const unlocked=isCoinUnlocked(coin),m=marketFor(coin.id),x=m.candles[m.candles.length-1],change=(x.close/x.open-1)*100,eventHot=marketEvent&&marketEvent.coinId===coin.id&&Date.now()-marketEvent.time<60000;return`<div class="coin-chip ${state.tradeCoinId===coin.id?"active":""} ${eventHot?"pumping":""}"><div>${unlocked?coin.icon:"🔒"} ${coin.name}</div><div>${unlocked?"₩"+marketPrice(coin.id).toFixed(3)+" · "+(change>=0?"+":"")+change.toFixed(1)+"%":coinUnlockText(coin)}</div><div>보유 ${coinBalance(coin.id).toFixed(1)}</div><div class="coin-actions"><button data-action="selectTradeCoin" data-coin="${coin.id}" ${unlocked?"":"disabled"}>차트</button><button class="mine" data-action="setMiningCoin" data-coin="${coin.id}" ${unlocked?"":"disabled"}>${state.miningCoinId===coin.id?"채굴중":"채굴"}</button></div></div>`}).join("");
+ const coin=tradeCoinDef();
+ el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">코인 선택 · 랜덤 이벤트가 특정 코인을 급등/급락시킵니다</div><div class="coin-tabs">${coins}</div><div class="popup-text">현재 채굴: ${miningCoinDef().icon} ${miningCoinDef().name} · 코인 변경은 앞으로 채굴되는 보상에만 적용됩니다.</div></div><div class="popup-info"><div class="popup-title-small">${coin.name} / 원 · 5초봉</div><div class="popup-main" id="marketQuote"></div><div id="marketChart"></div><div class="popup-text" id="marketCountdown"></div><div class="popup-text" id="tradeBalance"></div></div><div class="popup-text" id="saleEstimate"></div><label class="popup-text" for="tradeAmount">판매할 ${coin.name} 수량</label><input class="trade-amount" id="tradeAmount" type="number" min="0.01" step="any" inputmode="decimal" placeholder="판매 수량 입력"><button class="popup-btn blue" data-action="sellCoins">[ 입력 수량 판매 ]</button><button class="popup-btn" id="sellAllBtn" data-action="sellAll">[ ${coin.name} 전량 판매 ]</button>`;
+ renderMarketChart();updateTradePanel();document.getElementById("tradeAmount").addEventListener("input",updateTradePanel);
 }
 if(type==="inventory"){setActiveNav(el.invBtn);el.popupTitle.textContent="🎒 GPU INVENTORY";const unEquipped=state.items.filter(i=>!isEquipped(i.uid));const equipped=state.items.filter(i=>isEquipped(i.uid));let html=`<div class="popup-info"><div class="popup-title-small">INVENTORY</div><div class="popup-main">보유 GPU ${state.items.length}개</div><div class="popup-text">장착 ${equipped.length} / 보관 ${unEquipped.length}</div></div>`;if(state.inventoryEquipUid){const item=itemByUid(state.inventoryEquipUid),m=modelOf(item);html+=`<div class="popup-info"><div class="popup-title-small">장착 슬롯 선택</div><div class="popup-main">${m.name}</div><div class="slot-picker">${state.rack.map((uid,i)=>{const old=itemByUid(uid),oldM=modelOf(old);return`<button class="slot-choice ${uid?'occupied':''}" data-action="equipSlot" data-uid="${item.uid}" data-slot="${i}">SLOT ${i+1}<br>${oldM?oldM.name:'EMPTY'}</button>`}).join("")}</div><button class="popup-btn red" data-action="cancelEquip">[ 취소 ]</button></div>`}html+=`<div class="card-list">${state.items.map(item=>{const m=modelOf(item),idx=rackIndexOf(item.uid);return`<div class="item-card"><div class="item-icon">🖥️</div><div><div class="item-name">${m.name}${idx!==-1?` <span class="badge">SLOT ${idx+1}</span>`:` <span class="badge">보관</span>`}</div><div class="item-stats">${format1(m.hash)} H/s · ${m.power}W<br>TEMP ${Math.floor(item.temp)}°C<br>COOL ${coolerForGpu(item).name}</div></div>${idx===-1?`<button class="small-btn blue" data-action="startEquip" data-uid="${item.uid}">장착</button>`:`<button class="small-btn red" data-action="unequip" data-uid="${item.uid}">해제</button>`}</div>`}).join("")}</div>`;el.popupContent.innerHTML=html}
 if(type==="oc"){setActiveNav(el.ocBtn);el.popupTitle.textContent="📈 OVERCLOCK";el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">OVERCLOCK STATUS</div><div class="popup-main">${state.overclock?'ACTIVE':'OFF'}</div><div class="popup-text">현재 랙 자동 채굴 코인 ${format1(totalAuto())}/sec<br>OC BONUS +${hasFork('oc')?50:30}%<br><br>성능이 오르는 대신 장착 GPU의 발열 속도도 증가합니다.</div></div><button class="popup-btn orange" data-action="oc">${state.overclock?'📉 [ OVERCLOCK OFF ]':'📈 [ OVERCLOCK ON ]'}</button>`}
@@ -476,7 +507,7 @@ function checkGameOver(){if(hottestTemp()<100)return;state.running=false;closePo
 function restartGame(){const progress={rebirths:state.rebirths,fork:state.fork,forkUnlocked:new Set(state.forkUnlocked),legacyFork:state.legacyFork};uidCounter=1;coolUidCounter=1;state={...freshState(),...progress};el.gameOver.classList.remove("show");el.robotText.textContent="💬 시스템 재부팅 완료! 다시 채굴하세요.";updateUI();saveGame()}
 let toastTimer;function showToast(text){clearTimeout(toastTimer);el.toast.textContent=text;el.toast.classList.add("show");toastTimer=setTimeout(()=>el.toast.classList.remove("show"),1600)}
 el.rackGrid.addEventListener("click",event=>{const gpu=event.target.closest("[data-gpu-uid]");if(gpu){mineGpu(gpu.dataset.gpuUid,event);return}const empty=event.target.closest("[data-empty-slot]");if(empty){state.pendingSlot=Number(empty.dataset.emptySlot);openPopup("shop")}});
-el.popupContent.addEventListener("click",event=>{const forkNode=event.target.closest("[data-fork-node]");if(forkNode){state.selectedFork=forkNode.dataset.forkNode;renderForkTree();return}const b=event.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;if(a==="dismissNews")closePopup();if(a==="sellCoins")sellCoins();if(a==="sellAll")sellCoins(true);if(a==="upgradePrimary"){upgradePrimary();openPopup("gpu")}if(a==="rebirth")rebirthGame();if(a==="selectCoolingGpu")selectCoolingGpu(b.dataset.uid);if(a==="buyGpuCooler")buyGpuCooler(Number(b.dataset.cooler));if(a==="equipGpuCooler")equipGpuCooler(b.dataset.coolingUid,b.dataset.gpuUid);if(a==="equipStockCooler")equipStockCooler(b.dataset.gpuUid);if(a==="cool"){coolGPU();openPopup("cool")}if(a==="oc")toggleOverclock();if(a==="buyGpu")buyGpu(Number(b.dataset.model));if(a==="startEquip")startEquip(b.dataset.uid);if(a==="equipSlot")equipToSlot(b.dataset.uid,Number(b.dataset.slot));if(a==="cancelEquip"){state.inventoryEquipUid=null;openPopup("inventory")}if(a==="unequip")unequip(b.dataset.uid);if(a==="shopForSlot"){state.pendingSlot=Number(b.dataset.slot);openPopup("shop")}if(a==="buyFork")buyForkUpgrade(b.dataset.forkId)});
+el.popupContent.addEventListener("click",event=>{const forkNode=event.target.closest("[data-fork-node]");if(forkNode){state.selectedFork=forkNode.dataset.forkNode;renderForkTree();return}const b=event.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;if(a==="dismissNews")closePopup();if(a==="eventTrade"){state.tradeCoinId=b.dataset.coin;openPopup("trade")}if(a==="selectTradeCoin")selectTradeCoin(b.dataset.coin);if(a==="setMiningCoin")setMiningCoin(b.dataset.coin);if(a==="sellCoins")sellCoins();if(a==="sellAll")sellCoins(true);if(a==="upgradePrimary"){upgradePrimary();openPopup("gpu")}if(a==="rebirth")rebirthGame();if(a==="selectCoolingGpu")selectCoolingGpu(b.dataset.uid);if(a==="buyGpuCooler")buyGpuCooler(Number(b.dataset.cooler));if(a==="equipGpuCooler")equipGpuCooler(b.dataset.coolingUid,b.dataset.gpuUid);if(a==="equipStockCooler")equipStockCooler(b.dataset.gpuUid);if(a==="cool"){coolGPU();openPopup("cool")}if(a==="oc")toggleOverclock();if(a==="buyGpu")buyGpu(Number(b.dataset.model));if(a==="startEquip")startEquip(b.dataset.uid);if(a==="equipSlot")equipToSlot(b.dataset.uid,Number(b.dataset.slot));if(a==="cancelEquip"){state.inventoryEquipUid=null;openPopup("inventory")}if(a==="unequip")unequip(b.dataset.uid);if(a==="shopForSlot"){state.pendingSlot=Number(b.dataset.slot);openPopup("shop")}if(a==="buyFork")buyForkUpgrade(b.dataset.forkId)});
 el.gpuBtn.addEventListener("click",()=>openPopup("gpu"));el.invBtn.addEventListener("click",()=>openPopup("inventory"));el.ocBtn.addEventListener("click",()=>openPopup("oc"));el.coolBtn.addEventListener("click",()=>openPopup("cool"));el.shopBtn.addEventListener("click",()=>{state.pendingSlot=null;openPopup("shop")});el.forkBtn.addEventListener("click",()=>openPopup("fork"));el.popupClose.addEventListener("click",closePopup);el.menuPopup.addEventListener("click",e=>{if(e.target===el.menuPopup)closePopup()});el.restartBtn.addEventListener("click",restartGame);
 document.getElementById("tradeComputer").addEventListener("click",()=>openPopup("trade"));
 loadGame();
