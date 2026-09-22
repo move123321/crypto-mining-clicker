@@ -92,20 +92,23 @@
 
 <script>
 const GPU_LIST=[
-{id:0,name:"RTX 1090",click:10,auto:1,hash:8,power:180,price:180,upgradeCost:300},
-{id:1,name:"RTX 2090",click:24,auto:3.5,hash:18,power:240,price:700,upgradeCost:1000},
-{id:2,name:"RTX 3090",click:55,auto:9,hash:42,power:360,price:2500,upgradeCost:3600},
-{id:3,name:"RTX 4090",click:125,auto:24,hash:110,power:560,price:8500,upgradeCost:12500},
-{id:4,name:"RTX 5090",click:280,auto:62,hash:205,power:760,price:28000,upgradeCost:42000},
-{id:5,name:"RTX 6090 QUANTUM",click:650,auto:170,hash:430,power:980,price:90000,upgradeCost:null}
+{id:0,name:"RTX 1090",click:10,auto:1,hash:8,power:180,price:5000,upgradeCost:15000,unlockSec:0,unlockMined:0},
+{id:1,name:"RTX 2090",click:18,auto:2.5,hash:17,power:235,price:25000,upgradeCost:50000,unlockSec:600,unlockMined:20000},
+{id:2,name:"RTX 3090",click:32,auto:6,hash:35,power:330,price:85000,upgradeCost:130000,unlockSec:1800,unlockMined:80000},
+{id:3,name:"RTX 4090",click:58,auto:14,hash:78,power:480,price:220000,upgradeCost:300000,unlockSec:3600,unlockMined:250000},
+{id:4,name:"RTX 5090",click:105,auto:32,hash:150,power:650,price:500000,upgradeCost:600000,unlockSec:5400,unlockMined:600000},
+{id:5,name:"RTX 5090 Ti",click:160,auto:55,hash:225,power:760,price:900000,upgradeCost:1000000,unlockSec:7200,unlockMined:1200000},
+{id:6,name:"RTX 5090 TITAN",click:240,auto:90,hash:310,power:840,price:1500000,upgradeCost:1500000,unlockSec:8400,unlockMined:2200000},
+{id:7,name:"RTX 6090 PROTOTYPE",click:360,auto:145,hash:400,power:920,price:2500000,upgradeCost:2000000,unlockSec:9600,unlockMined:3800000},
+{id:8,name:"RTX 6090 QUANTUM",click:520,auto:230,hash:540,power:1020,price:4000000,upgradeCost:null,unlockSec:10500,unlockMined:6000000}
 ];
 const GPU_COOLERS=[
-{id:0,name:"기본 듀얼팬",icon:"🌀",rate:0,cost:0,desc:"그래픽카드 기본 쿨러입니다."},
-{id:1,name:"트리플팬 공랭",icon:"🌪️",rate:.35,cost:350,desc:"GPU 방열판과 3팬으로 열을 빠르게 배출합니다."},
-{id:2,name:"베이퍼 챔버",icon:"◈",rate:.75,cost:1400,desc:"GPU 코어의 열을 넓게 퍼뜨리는 고급 공랭 냉각입니다."},
-{id:3,name:"GPU HYBRID AIO",icon:"💧",rate:1.2,cost:5200,desc:"GPU 워터블록과 라디에이터를 결합한 일체형 수냉입니다."},
-{id:4,name:"FULL COVER 수냉",icon:"💠",rate:1.75,cost:17000,desc:"GPU 코어·VRAM·VRM을 함께 식히는 풀커버 워터블록입니다."},
-{id:5,name:"CUSTOM LOOP GPU",icon:"🌊",rate:2.5,cost:50000,desc:"GPU 전용 커스텀 루프 수냉. 최상급 냉각 성능을 제공합니다."}
+{id:0,name:"기본 듀얼팬",icon:"🌀",rate:0,cost:0,unlockSec:0,desc:"그래픽카드 기본 쿨러입니다."},
+{id:1,name:"트리플팬 공랭",icon:"🌪️",rate:.35,cost:3000,unlockSec:0,desc:"GPU 방열판과 3팬으로 열을 빠르게 배출합니다."},
+{id:2,name:"베이퍼 챔버",icon:"◈",rate:.75,cost:25000,unlockSec:1800,desc:"GPU 코어의 열을 넓게 퍼뜨리는 고급 공랭 냉각입니다."},
+{id:3,name:"GPU HYBRID AIO",icon:"💧",rate:1.2,cost:180000,unlockSec:3600,desc:"GPU 워터블록과 라디에이터를 결합한 일체형 수냉입니다."},
+{id:4,name:"FULL COVER 수냉",icon:"💠",rate:1.75,cost:1200000,unlockSec:5400,desc:"GPU 코어·VRAM·VRM을 함께 식히는 풀커버 워터블록입니다."},
+{id:5,name:"CUSTOM LOOP GPU",icon:"🌊",rate:2.5,cost:6000000,unlockSec:7800,desc:"GPU 전용 커스텀 루프 수냉. 최상급 냉각 성능을 제공합니다."}
 ];
 let coolUidCounter=1;
 function createCoolingItem(coolerId){return{uid:"cool_"+(coolUidCounter++),coolerId,gpuUid:null}}
@@ -117,6 +120,7 @@ function buyGpuCooler(coolerId){
   if(!state.running)return;
   const cooler=GPU_COOLERS[coolerId];
   if(!cooler||cooler.id===0)return;
+  if(!isCoolingUnlocked(cooler)){showToast("🔒 GPU 냉각 인증이 아직 잠겨 있습니다.");return}
   if(state.money<cooler.cost){showToast("₩"+formatNumber(cooler.cost-state.money)+" 부족합니다.");return}
   state.money-=cooler.cost;
   const unit=createCoolingItem(coolerId);
@@ -163,7 +167,7 @@ fever:{name:"FEVER CORE",icon:"🔥",cost:1,requirement:"cooling",desc:"BTC FEVE
 };
 let uidCounter=1;
 function createGpuItem(modelId){return{uid:"gpu_"+(uidCounter++),modelId,temp:30}}
-function freshState(){const starter=createGpuItem(0);return{coins:0,rebirths:0,legacyFork:0,money:0,fork:0,totalClicks:0,totalMined:0,running:true,overclock:false,fever:false,feverTime:0,feverCooldown:20,items:[starter],rack:[starter.uid,null,null,null,null,null,null,null],coolingItems:[],coolingTargetGpuUid:null,pendingSlot:null,inventoryEquipUid:null,forkUnlocked:new Set(["root"]),selectedFork:"root"}}
+function freshState(){const starter=createGpuItem(0);return{coins:0,rebirths:0,legacyFork:0,money:0,fork:0,totalClicks:0,totalMined:0,runSeconds:0,rigTierSeen:0,running:true,overclock:false,fever:false,feverTime:0,feverCooldown:20,items:[starter],rack:[starter.uid,null,null,null,null,null,null,null],coolingItems:[],coolingTargetGpuUid:null,pendingSlot:null,inventoryEquipUid:null,forkUnlocked:new Set(["root"]),selectedFork:"root"}}
 let state=freshState();
 
 
@@ -251,7 +255,7 @@ function saveGame() {
   if (saveBlocked) return false;
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify({
-      ...state, market, gameNews, version: 3, savedAt: Date.now(),
+      ...state, market, gameNews, version: 4, savedAt: Date.now(),
       forkUnlocked: [...state.forkUnlocked], uidCounter, coolUidCounter,
       pendingSlot: null, inventoryEquipUid: null, coolingTargetGpuUid: null
     }));
@@ -266,18 +270,19 @@ function loadGame() {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return false;
     const data = JSON.parse(raw);
-    if (!data || typeof data !== "object" || (data.version !== undefined && ![1,2,3].includes(data.version)))
+    if (!data || typeof data !== "object" || (data.version !== undefined && ![1,2,3,4].includes(data.version)))
       throw new Error("Unsupported save");
     if (!Array.isArray(data.items) || !data.items.length || !Array.isArray(data.rack))
       throw new Error("Invalid inventory");
     const ids = new Set();
     const items = data.items.map(item => {
+      const mappedModelId=data.version!==4&&item&&item.modelId===5?8:item?.modelId;
       if (!item || typeof item.uid !== "string" || !/^gpu_[1-9]\d*$/.test(item.uid) ||
           !Number.isSafeInteger(Number(item.uid.slice(4))) || Number(item.uid.slice(4)) >= Number.MAX_SAFE_INTEGER ||
-          ids.has(item.uid) || !Number.isInteger(item.modelId) || !GPU_LIST[item.modelId] ||
+          ids.has(item.uid) || !Number.isInteger(mappedModelId) || !GPU_LIST[mappedModelId] ||
           !Number.isFinite(item.temp)) throw new Error("Invalid GPU");
       ids.add(item.uid);
-      return {uid:item.uid, modelId:item.modelId, temp:Math.max(25, Math.min(100, item.temp))};
+      return {uid:item.uid, modelId:mappedModelId, temp:Math.max(25, Math.min(100, item.temp))};
     });
     const used = new Set();
     const rack = Array.from({length:8}, (_, i) => {
@@ -314,11 +319,14 @@ function loadGame() {
       if (requested.has(id) && (!node.requirement || unlocked.has(node.requirement))) unlocked.add(id);
     const number = (key, fallback=0) => Number.isFinite(data[key]) && data[key] >= 0 ? data[key] : fallback;
     const feverTime = Math.min(25, Math.floor(number("feverTime")));
+    const highestModel=Math.max(...items.map(i=>i.modelId));
+    const legacySeconds=highestModel>=8?10500:highestModel>=4?5400:highestModel>=3?3600:highestModel>=2?1800:highestModel>=1?600:0;
+    const runSeconds=data.version===4?Math.floor(number("runSeconds")):legacySeconds;
     const restored = {
       rebirths:Math.min(52,Math.floor(number("rebirths"))),
       legacyFork:data.version>=2?number("legacyFork"):number("fork"),
       coins:number("coins"), money:number("money"), fork:data.version>=2?Math.floor(number("fork")):0, totalClicks:Math.floor(number("totalClicks")),
-      totalMined:number("totalMined"), running:data.running !== false,
+      totalMined:number("totalMined"), runSeconds, rigTierSeen:data.version===4?Math.floor(number("rigTierSeen")):highestModel, running:data.running !== false,
       overclock:data.overclock === true, fever:data.fever === true && feverTime > 0,
       feverTime, feverCooldown:Math.min(35, Math.floor(number("feverCooldown",20))),
       items, rack, coolingItems, coolingTargetGpuUid:null, forkUnlocked:unlocked,
@@ -343,7 +351,15 @@ function loadGame() {
 }
 
 const el={moneyText:document.getElementById("moneyText"),secText:document.getElementById("secText"),ethText:document.getElementById("ethText"),forkText:document.getElementById("forkText"),feverText:document.getElementById("feverText"),tempText:document.getElementById("tempText"),powerText:document.getElementById("powerText"),electricityText:document.getElementById("electricityText"),rackGrid:document.getElementById("rackGrid"),robotText:document.getElementById("robotText"),gpuBtn:document.getElementById("gpuBtn"),invBtn:document.getElementById("invBtn"),ocBtn:document.getElementById("ocBtn"),coolBtn:document.getElementById("coolBtn"),shopBtn:document.getElementById("shopBtn"),forkBtn:document.getElementById("forkBtn"),menuPopup:document.getElementById("menuPopup"),popupTitle:document.getElementById("popupTitle"),popupContent:document.getElementById("popupContent"),popupClose:document.getElementById("popupClose"),toast:document.getElementById("toast"),gameOver:document.getElementById("gameOver"),restartBtn:document.getElementById("restartBtn")};
-function formatNumber(n){return Math.floor(n).toLocaleString("ko-KR")}function format1(n){return Number(n).toFixed(1)}function itemByUid(uid){return state.items.find(i=>i.uid===uid)||null}function modelOf(item){return item?GPU_LIST[item.modelId]:null}function rackIndexOf(uid){return state.rack.indexOf(uid)}function isEquipped(uid){return rackIndexOf(uid)!==-1}function equippedItems(){return state.rack.map(itemByUid).filter(Boolean)}function primaryItem(){return itemByUid(state.rack[0])}function nextModelFor(item){return item&&GPU_LIST[item.modelId+1]?GPU_LIST[item.modelId+1]:null}function hasFork(id){return state.forkUnlocked.has(id)}
+function formatNumber(n){return Math.floor(n).toLocaleString("ko-KR")}function format1(n){return Number(n).toFixed(1)}function formatDuration(sec){sec=Math.max(0,Math.floor(sec));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60);return h?h+"시간 "+m+"분":m+"분"}function itemByUid(uid){return state.items.find(i=>i.uid===uid)||null}function modelOf(item){return item?GPU_LIST[item.modelId]:null}function rackIndexOf(uid){return state.rack.indexOf(uid)}function isEquipped(uid){return rackIndexOf(uid)!==-1}function equippedItems(){return state.rack.map(itemByUid).filter(Boolean)}function primaryItem(){return itemByUid(state.rack[0])}function nextModelFor(item){return item&&GPU_LIST[item.modelId+1]?GPU_LIST[item.modelId+1]:null}function hasFork(id){return state.forkUnlocked.has(id)}
+function cycleTimeFactor(){return Math.max(.55,1-state.rebirths*.08)}
+function requiredGpuSeconds(model){return Math.floor((model?.unlockSec||0)*cycleTimeFactor())}
+function isGpuUnlocked(model){return !!model&&state.runSeconds>=requiredGpuSeconds(model)&&state.totalMined>=(model.unlockMined||0)}
+function isCoolingUnlocked(cooler){return !!cooler&&state.runSeconds>=Math.floor((cooler.unlockSec||0)*cycleTimeFactor())}
+function currentRigTier(){let tier=0;for(let i=1;i<GPU_LIST.length;i++){if(isGpuUnlocked(GPU_LIST[i]))tier=i;else break}return tier}
+function certificationText(){const tier=currentRigTier(),next=GPU_LIST[tier+1];if(!next)return"QUANTUM 인증 완료 · 모든 GPU 등급 해금";return"현재 "+GPU_LIST[tier].name+" 인증 · 다음 "+next.name+"\n운영 "+formatDuration(state.runSeconds)+" / "+formatDuration(requiredGpuSeconds(next))+" · 누적 채굴 "+formatNumber(state.totalMined)+" / "+formatNumber(next.unlockMined)}
+function gpuLockText(model){if(isGpuUnlocked(model))return"해금됨";return"🔒 운영 "+formatDuration(requiredGpuSeconds(model))+" + 누적 채굴 "+formatNumber(model.unlockMined)}
+
 function clickMultiplier(){let m=hasFork("fork")?1.1:1;if(hasFork("click"))m*=1.25;if(state.overclock)m*=hasFork("oc")?1.50:1.30;if(state.fever)m*=hasFork("fever")?3:2;return m}function autoMultiplier(){let m=hasFork("fork")?1.1:1;if(hasFork("auto"))m*=1.30;if(state.overclock)m*=hasFork("oc")?1.50:1.30;if(state.fever)m*=hasFork("fever")?3:2;return m}// Crowded racks still trap heat, but additional GPUs scale gently enough for full-rack play.
 function rackHeatMultiplier(){const extra=Math.max(0,equippedItems().length-1);return 1+extra*.08+extra*extra*.01}
 function heatMultiplier(){return rackHeatMultiplier()*(hasFork("cooling")?.8:1)}
@@ -355,23 +371,22 @@ function renderRack(){el.rackGrid.innerHTML=state.rack.map((uid,index)=>{const i
 function mineGpu(uid,event){if(!state.running)return;const clicked=itemByUid(uid);if(!clicked||!isEquipped(uid))return;const equipped=equippedItems();if(!equipped.length)return;let totalGain=0;for(const item of equipped){const m=modelOf(item);const gain=Math.floor(m.click*clickMultiplier());totalGain+=gain;let heat=(.85+m.id*.11)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp+=heat}state.coins+=totalGain;state.totalMined+=totalGain;state.totalClicks++;createFloat(event.clientX,event.clientY,totalGain);el.robotText.textContent=`💬 ⚡ ${equipped.length}개 GPU 동시 채굴! +코인 ${formatNumber(totalGain)}`;checkGameOver();updateUI();animateAllGpuClicks()}
 function animateAllGpuClicks(){const slots=el.rackGrid.querySelectorAll("[data-gpu-uid]");slots.forEach(slot=>{slot.classList.remove("sync-click");void slot.offsetWidth;slot.classList.add("sync-click")});setTimeout(()=>slots.forEach(slot=>slot.classList.remove("sync-click")),180)}
 function createFloat(x,y,amount){const d=document.createElement("div");d.className="float-text";d.textContent="🪙 +"+formatNumber(amount)+" SATOSHI";d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),900)}
-function autoMine(){if(!state.running)return;const eq=equippedItems();for(const item of eq){const m=modelOf(item);const gain=m.auto*autoMultiplier();state.coins+=gain;state.totalMined+=gain;let heat=(.32+m.id*.08)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp=Math.max(25,item.temp+heat-coolingRateForGpu(item))}for(const item of state.items){if(!isEquipped(item.uid))item.temp=Math.max(25,item.temp-.35)}checkGameOver();updateUI()}
+function autoMine(){if(!state.running)return;state.runSeconds++;const eq=equippedItems();for(const item of eq){const m=modelOf(item);const gain=m.auto*autoMultiplier();state.coins+=gain;state.totalMined+=gain;let heat=(.32+m.id*.08)*heatMultiplier();if(state.overclock)heat*=1.30;item.temp=Math.max(25,item.temp+heat-coolingRateForGpu(item))}for(const item of state.items){if(!isEquipped(item.uid))item.temp=Math.max(25,item.temp-.35)}const tier=currentRigTier();if(tier>state.rigTierSeen){state.rigTierSeen=tier;showToast("🔓 "+GPU_LIST[tier].name+" 채굴 인증 해금!");el.robotText.textContent="💬 새 GPU 인증 완료! "+GPU_LIST[tier].name+" 사용 가능";saveGame()}checkGameOver();updateUI()}
 function feverTick(){if(!state.running)return;if(state.fever){state.feverTime--;if(state.feverTime<=0){state.fever=false;state.feverCooldown=35;showToast("BTC FEVER 종료")}}else{state.feverCooldown--;if(state.feverCooldown<=0){state.fever=true;state.feverTime=hasFork("fever")?25:20;showToast(hasFork("fever")?"🔥 BTC FEVER ×3!":"🔥 BTC FEVER ×2!")}}updateFeverUI()}
 function coolGPU(){const eq=equippedItems();if(!eq.length){showToast("장착된 GPU가 없습니다.");return}const amount=16+Math.floor(Math.random()*8)+(hasFork("cooling")?5:0);eq.forEach(i=>i.temp=Math.max(25,i.temp-amount));el.robotText.textContent="💬 랙 전체 냉각 완료! -"+amount+"°C";showToast("❄️ ALL GPU -"+amount+"°C");updateUI()}
 function toggleOverclock(){state.overclock=!state.overclock;if(state.overclock){equippedItems().forEach(i=>i.temp+=3*heatMultiplier());showToast(hasFork("oc")?"🚀 STABLE OC +50%":"📈 OVERCLOCK +30%") }else showToast("📉 OVERCLOCK OFF");checkGameOver();updateUI();openPopup("oc")}
-function upgradePrimary(){const item=primaryItem();if(!item){showToast("1번 슬롯에 GPU를 장착하세요.");return}const m=modelOf(item),next=nextModelFor(item);if(!next){showToast("최종 GPU입니다.");return}if(state.money<m.upgradeCost){showToast("₩"+formatNumber(m.upgradeCost-state.money)+" 부족합니다.");return}state.money-=m.upgradeCost;item.modelId++;item.temp=Math.max(30,item.temp-8);showToast("⚡ "+next.name+" 업그레이드 완료!");el.robotText.textContent="💬 PRIMARY GPU가 "+next.name+"(으)로 업그레이드되었습니다.";updateUI()}
-function buyGpu(modelId){const m=GPU_LIST[modelId];if(state.money<m.price){showToast("₩"+formatNumber(m.price-state.money)+" 부족합니다.");return}state.money-=m.price;const item=createGpuItem(modelId);state.items.push(item);if(state.pendingSlot!==null&&state.rack[state.pendingSlot]===null){state.rack[state.pendingSlot]=item.uid;showToast("🖥️ "+m.name+" 구매 + 슬롯 "+(state.pendingSlot+1)+" 장착");state.pendingSlot=null}else showToast("🎒 "+m.name+" 구매! 인벤토리에 보관했습니다.");updateUI();openPopup("shop")}
+function upgradePrimary(){const item=primaryItem();if(!item){showToast("1번 슬롯에 GPU를 장착하세요.");return}const m=modelOf(item),next=nextModelFor(item);if(!next){showToast("최종 GPU입니다.");return}if(!isGpuUnlocked(next)){showToast("🔒 "+next.name+" 인증 조건을 먼저 달성하세요.");return}if(state.money<m.upgradeCost){showToast("₩"+formatNumber(m.upgradeCost-state.money)+" 부족합니다.");return}state.money-=m.upgradeCost;item.modelId++;item.temp=Math.max(30,item.temp-8);showToast("⚡ "+next.name+" 업그레이드 완료!");el.robotText.textContent="💬 PRIMARY GPU가 "+next.name+"(으)로 업그레이드되었습니다.";updateUI()}
+function buyGpu(modelId){const m=GPU_LIST[modelId];if(!m)return;if(!isGpuUnlocked(m)){showToast("🔒 "+m.name+" 인증 조건을 먼저 달성하세요.");return}if(state.money<m.price){showToast("₩"+formatNumber(m.price-state.money)+" 부족합니다.");return}state.money-=m.price;const item=createGpuItem(modelId);state.items.push(item);if(state.pendingSlot!==null&&state.rack[state.pendingSlot]===null){state.rack[state.pendingSlot]=item.uid;showToast("🖥️ "+m.name+" 구매 + 슬롯 "+(state.pendingSlot+1)+" 장착");state.pendingSlot=null}else showToast("🎒 "+m.name+" 구매! 인벤토리에 보관했습니다.");updateUI();openPopup("shop")}
 function startEquip(uid){state.inventoryEquipUid=uid;openPopup("inventory")}
 function equipToSlot(uid,slot){const item=itemByUid(uid);if(!item)return;const oldIndex=rackIndexOf(uid);if(oldIndex!==-1)state.rack[oldIndex]=null;const replaced=state.rack[slot];state.rack[slot]=uid;if(replaced&&replaced!==uid)showToast("🔄 슬롯 "+(slot+1)+" 장비 교체 완료");else showToast("✅ 슬롯 "+(slot+1)+" 장착 완료");state.inventoryEquipUid=null;updateUI();openPopup("inventory")}
 function unequip(uid){const idx=rackIndexOf(uid);if(idx===-1)return;state.rack[idx]=null;showToast("🎒 장비를 인벤토리로 이동했습니다.");updateUI();openPopup("inventory")}
 function forkNodeStatus(id){if(state.forkUnlocked.has(id))return"unlocked";const node=FORK_NODES[id];if(!node.requirement||state.forkUnlocked.has(node.requirement))return"available";return"locked"}
 function buyForkUpgrade(id){const node=FORK_NODES[id];if(!node)return;if(state.forkUnlocked.has(id)){showToast("이미 해금된 업그레이드입니다.");return}if(node.requirement&&!state.forkUnlocked.has(node.requirement)){showToast("이전 업그레이드를 먼저 해금하세요.");return}if(state.fork<node.cost){showToast("🔱 FORK 포인트가 부족합니다.");return}state.fork-=node.cost;state.forkUnlocked.add(id);state.selectedFork=id;saveGame();showToast("🔱 "+node.name+" 해금!");updateUI();openPopup("fork")}
 function updatePrimaryUpgrade(){
- const button=document.getElementById("primaryUpgradeBtn");
- if(!button)return;
- const item=primaryItem(),model=modelOf(item),next=nextModelFor(item);
- button.disabled=!state.running||!next||state.money<model.upgradeCost;
- button.textContent=next?"[ "+next.name+" 업그레이드 · ₩"+formatNumber(model.upgradeCost)+" ]":(model?"[ 최고 등급 ]":"[ 1번 슬롯에 GPU를 장착하세요 ]");
+ const button=document.getElementById("primaryUpgradeBtn");if(!button)return;
+ const item=primaryItem(),model=modelOf(item),next=nextModelFor(item),unlocked=next?isGpuUnlocked(next):false;
+ button.disabled=!state.running||!next||!unlocked||state.money<model.upgradeCost;
+ button.textContent=next?(!unlocked?"[ 🔒 "+next.name+" 인증 필요 ]":"[ "+next.name+" 업그레이드 · ₩"+formatNumber(model.upgradeCost)+" ]"):(model?"[ 최고 등급 ]":"[ 1번 슬롯에 GPU를 장착하세요 ]");
 }
 function updateTradePanel(){
  const quote=document.getElementById("marketQuote");
@@ -397,7 +412,7 @@ function sellCoins(all=false){
  showToast("판매 완료! +₩"+proceeds.toFixed(2)+" (1코인 ₩"+price.toFixed(3)+")");
 }
 function setActiveNav(button){document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));button.classList.add("active")}
-function openPopup(type){if(!state.running)return;el.menuPopup.classList.add("show");const primary=primaryItem(),pm=modelOf(primary);if(type==="gpu"){setActiveNav(el.gpuBtn);el.popupTitle.textContent="🖥️ GPU MANAGER";const slots=state.rack.map((uid,i)=>{const item=itemByUid(uid),m=modelOf(item);return`<div class="popup-info"><div class="popup-title-small">SLOT ${i+1}</div>${item?`<div class="popup-main">${m.name}</div><div class="popup-text">TEMP ${Math.floor(item.temp)}°C<br>CLICK 코인 ${formatNumber(m.click*clickMultiplier())}<br>AUTO 코인 ${format1(m.auto*autoMultiplier())}/sec<br>COOL ${coolerForGpu(item).name}</div><button class="popup-btn red" data-action="unequip" data-uid="${item.uid}">[ 인벤토리로 이동 ]</button>`:`<div class="popup-main">EMPTY</div><button class="popup-btn blue" data-action="shopForSlot" data-slot="${i}">[ GPU 추가하기 ]</button>`}</div>`}).join("");el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">RIG STATUS</div><div class="popup-main">${equippedItems().length}/8 GPU ONLINE</div><div class="popup-text">TOTAL HASH ${format1(totalHash())} H/s<br>AUTO 코인 ${format1(totalAuto())}/sec<br>POWER ${totalPower()}W</div></div><button class="popup-btn" id="primaryUpgradeBtn" data-action="upgradePrimary"></button><div class="popup-text" style="margin:8px 0">1번 슬롯 GPU를 업그레이드합니다.</div>${slots}`;updatePrimaryUpgrade()}
+function openPopup(type){if(!state.running)return;el.menuPopup.classList.add("show");const primary=primaryItem(),pm=modelOf(primary);if(type==="gpu"){setActiveNav(el.gpuBtn);el.popupTitle.textContent="🖥️ GPU MANAGER";const slots=state.rack.map((uid,i)=>{const item=itemByUid(uid),m=modelOf(item);return`<div class="popup-info"><div class="popup-title-small">SLOT ${i+1}</div>${item?`<div class="popup-main">${m.name}</div><div class="popup-text">TEMP ${Math.floor(item.temp)}°C<br>CLICK 코인 ${formatNumber(m.click*clickMultiplier())}<br>AUTO 코인 ${format1(m.auto*autoMultiplier())}/sec<br>COOL ${coolerForGpu(item).name}</div><button class="popup-btn red" data-action="unequip" data-uid="${item.uid}">[ 인벤토리로 이동 ]</button>`:`<div class="popup-main">EMPTY</div><button class="popup-btn blue" data-action="shopForSlot" data-slot="${i}">[ GPU 추가하기 ]</button>`}</div>`}).join("");el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">RIG STATUS</div><div class="popup-main">${equippedItems().length}/8 GPU ONLINE</div><div class="popup-text">TOTAL HASH ${format1(totalHash())} H/s<br>AUTO 코인 ${format1(totalAuto())}/sec<br>POWER ${totalPower()}W</div></div><div class="popup-info"><div class="popup-title-small">RIG CERTIFICATION</div><div class="popup-main">${GPU_LIST[currentRigTier()].name} TIER</div><div class="popup-text">${certificationText().replace("\n","<br>")}<br>환생할수록 인증 시간이 조금씩 단축됩니다.</div></div><button class="popup-btn" id="primaryUpgradeBtn" data-action="upgradePrimary"></button><div class="popup-text" style="margin:8px 0">1번 슬롯 GPU를 업그레이드합니다.</div>${slots}`;updatePrimaryUpgrade()}
 if(type==="news"){
  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
  const news=GAME_NEWS[gameNews.index];
@@ -425,11 +440,11 @@ if(type==="cool"){
    const ownedChoices=state.coolingItems.length?state.coolingItems.map(unit=>{const cooler=GPU_COOLERS[unit.coolerId],mounted=itemByUid(unit.gpuUid),mountedSlot=mounted&&isEquipped(mounted.uid)?rackIndexOf(mounted.uid)+1:null;const status=unit.gpuUid?(unit.gpuUid===target.uid?"현재 장착":mountedSlot?"SLOT "+mountedSlot+" 장착":"보관 GPU 장착"):"보관";return`<div class="item-card"><div class="item-icon">${cooler.icon}</div><div><div class="item-name">${cooler.name}</div><div class="item-stats">-${(cooler.rate*(hasFork("cooling")?1.15:1)).toFixed(2)}°C/s · ${status}</div></div><button class="small-btn" data-action="equipGpuCooler" data-cooling-uid="${unit.uid}" data-gpu-uid="${target.uid}" ${unit.gpuUid===target.uid?"disabled":""}>장착</button></div>`}).join(""):`<div class="inventory-empty">구매한 GPU 냉각장치가 없습니다.</div>`;
    targetPanel=`<div class="popup-info"><div class="popup-title-small">선택 GPU</div><div class="popup-main">${modelOf(target).name}</div><div class="popup-text">현재: ${current.icon} ${current.name}<br>자동 냉각 -${coolingRateForGpu(target).toFixed(2)}°C / sec<br>구매한 냉각장치는 한 GPU에만 장착할 수 있습니다.</div><button class="popup-btn" data-action="equipStockCooler" data-gpu-uid="${target.uid}">🌀 [ 기본 듀얼팬 장착 ]</button></div><div class="popup-title-small" style="margin:12px 0 7px">보유 GPU 냉각장치</div><div class="card-list">${ownedChoices}</div>`;
  }
- const shop=GPU_COOLERS.slice(1).map(c=>`<div class="item-card"><div class="item-icon">${c.icon}</div><div><div class="item-name">${c.name}</div><div class="item-stats">${c.desc}<br>자동 냉각 -${(c.rate*(hasFork("cooling")?1.15:1)).toFixed(2)}°C/s · ₩${formatNumber(c.cost)}</div></div><button class="small-btn" data-action="buyGpuCooler" data-cooler="${c.id}" ${state.money<c.cost?"disabled":""}>구매</button></div>`).join("");
+ const shop=GPU_COOLERS.slice(1).map(c=>{const unlocked=isCoolingUnlocked(c);return`<div class="item-card"><div class="item-icon">${unlocked?c.icon:"🔒"}</div><div><div class="item-name">${c.name}</div><div class="item-stats">${c.desc}<br>자동 냉각 -${(c.rate*(hasFork("cooling")?1.15:1)).toFixed(2)}°C/s · ₩${formatNumber(c.cost)}<br>${unlocked?"인증 완료":"운영 "+formatDuration(Math.floor(c.unlockSec*cycleTimeFactor()))+" 후 해금"}</div></div><button class="small-btn" data-action="buyGpuCooler" data-cooler="${c.id}" ${!unlocked||state.money<c.cost?"disabled":""}>${unlocked?"구매":"잠금"}</button></div>`}).join("");
  el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">RACK TEMPERATURE</div><div class="popup-main" id="coolerTemp">🌡️ ${Math.floor(hottestTemp())}°C</div><div class="popup-text"><span id="rackHeatInfo"></span><br>냉각장치는 GPU마다 따로 장착됩니다.<br>수냉 장착 GPU는 랙에서도 워터블록 모양으로 표시됩니다.<br>100°C 도달 시 파산합니다.</div></div><button class="popup-btn blue" data-action="cool">❄️ [ 랙 전체 긴급 냉각 ]</button><div class="popup-title-small" style="margin:12px 0 7px">장착 GPU</div><div class="card-list">${gpuList}</div>${targetPanel}<div class="popup-title-small" style="margin:14px 0 7px">GPU 냉각장치 SHOP · 보유 ₩${formatNumber(state.money)}</div><div class="card-list">${shop}</div>`;
  updateCoolerPanel();
 }
-if(type==="shop"){setActiveNav(el.shopBtn);el.popupTitle.textContent="🛒 HARDWARE SHOP";const target=state.pendingSlot!==null?`구매한 GPU는 SLOT ${state.pendingSlot+1}에 바로 장착됩니다.`:"구매한 GPU는 인벤토리에 보관됩니다.";el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">SHOP MODE</div><div class="popup-main">${state.pendingSlot!==null?'SLOT '+(state.pendingSlot+1)+' 장착 구매':'INVENTORY 구매'}</div><div class="popup-text">${target}<br>보유 ₩${formatNumber(state.money)}</div></div><div class="card-list">${GPU_LIST.map(m=>`<div class="item-card"><div class="item-icon">🖥️</div><div><div class="item-name">${m.name}</div><div class="item-stats">CLICK 코인 ${formatNumber(m.click)} · AUTO 코인 ${format1(m.auto)}/s<br>${format1(m.hash)} H/s · ${m.power}W<br>가격 ${formatNumber(m.price)}원</div></div><button class="small-btn" data-action="buyGpu" data-model="${m.id}" ${state.money<m.price?'disabled':''}>구매</button></div>`).join("")}</div>`}
+if(type==="shop"){setActiveNav(el.shopBtn);el.popupTitle.textContent="🛒 HARDWARE SHOP";const target=state.pendingSlot!==null?`구매한 GPU는 SLOT ${state.pendingSlot+1}에 바로 장착됩니다.`:"구매한 GPU는 인벤토리에 보관됩니다.";el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">RIG CERTIFICATION</div><div class="popup-main">${GPU_LIST[currentRigTier()].name} TIER</div><div class="popup-text">${certificationText().replace("\n","<br>")}<br><br>${target}<br>보유 ₩${formatNumber(state.money)}</div></div><div class="card-list">${GPU_LIST.map(m=>{const unlocked=isGpuUnlocked(m);return`<div class="item-card"><div class="item-icon">${unlocked?"🖥️":"🔒"}</div><div><div class="item-name">${m.name}</div><div class="item-stats">CLICK 코인 ${formatNumber(m.click)} · AUTO 코인 ${format1(m.auto)}/s<br>${format1(m.hash)} H/s · ${m.power}W<br>가격 ₩${formatNumber(m.price)}<br>${gpuLockText(m)}</div></div><button class="small-btn" data-action="buyGpu" data-model="${m.id}" ${!unlocked||state.money<m.price?"disabled":""}>${unlocked?"구매":"잠금"}</button></div>`}).join("")}</div>`}
 if(type==="fork"){setActiveNav(el.forkBtn);el.popupTitle.textContent="🔱 FORK UPGRADE TREE";renderForkTree()}}
 function renderForkLines(lineClass){
   const positions={root:[195,206],cooling:[97,115],click:[97,299],auto:[293,115],oc:[293,299],fork:[195,57],fever:[195,355]};
@@ -440,22 +455,22 @@ function renderForkLines(lineClass){
 }
 function rebirthRequirement(){const curve=[1,2,3,4,6,8];return curve[Math.min(state.rebirths,curve.length-1)]}
 function quantumCount(){return equippedItems().filter(item=>item.modelId===GPU_LIST.length-1).length}
+function rebirthTimeRequirement(){return requiredGpuSeconds(GPU_LIST[GPU_LIST.length-1])}
 function updateRebirthPanel(){
-  const progress=document.getElementById("rebirthProgress");
-  if(progress)progress.textContent=(state.rebirths+1)+"번째 환생 · 장착 RTX 6090 "+quantumCount()+" / "+formatNumber(rebirthRequirement())+"개";
-  const button=document.getElementById("rebirthBtn");
-  if(button)button.disabled=!state.running||quantumCount()<rebirthRequirement();
+  const progress=document.getElementById("rebirthProgress"),timeReady=state.runSeconds>=rebirthTimeRequirement();
+  if(progress)progress.textContent=(state.rebirths+1)+"번째 환생 · RTX 6090 QUANTUM "+quantumCount()+" / "+formatNumber(rebirthRequirement())+"개 · 운영 "+formatDuration(state.runSeconds)+" / "+formatDuration(rebirthTimeRequirement());
+  const button=document.getElementById("rebirthBtn");if(button)button.disabled=!state.running||quantumCount()<rebirthRequirement()||!timeReady;
 }
 function rebirthGame(){
-  if(!state.running||quantumCount()<rebirthRequirement())return;
+  if(!state.running||quantumCount()<rebirthRequirement()||state.runSeconds<rebirthTimeRequirement())return;
   if(!window.confirm("환생하고 FORK 1개를 받으시겠습니까? 돈, GPU, 쿨러와 이번 회차 기록이 초기화됩니다. 환생 횟수, FORK 및 해금한 업그레이드는 유지됩니다."))return;
-  if(!state.running||quantumCount()<rebirthRequirement())return;
+  if(!state.running||quantumCount()<rebirthRequirement()||state.runSeconds<rebirthTimeRequirement())return;
   const progress={rebirths:state.rebirths+1,fork:state.fork+1,forkUnlocked:new Set(state.forkUnlocked),legacyFork:state.legacyFork};
   uidCounter=1;coolUidCounter=1;state={...freshState(),...progress};
   closePopup();updateUI();saveGame();openPopup("fork");
   showToast("✨ "+state.rebirths+"번째 환생 완료! FORK +1");
 }
-function renderForkTree(){const selected=FORK_NODES[state.selectedFork],selectedStatus=forkNodeStatus(state.selectedFork);let buttonHTML;if(selectedStatus==="unlocked")buttonHTML=`<button class="popup-btn" disabled>✅ [ UNLOCKED ]</button>`;else if(selectedStatus==="locked")buttonHTML=`<button class="popup-btn" disabled>🔒 [ 선행 노드 필요 ]</button>`;else buttonHTML=`<button class="popup-btn purple" data-action="buyFork" data-fork-id="${state.selectedFork}" ${state.fork<selected.cost?'disabled':''}>${state.fork>=selected.cost?'🔱 [ 업그레이드 해금 ]':'🔒 [ FORK 부족 ]'}</button>`;const statusClass=id=>forkNodeStatus(id)+(state.selectedFork===id?" selected":"");const lineClass=(a,b)=>hasFork(a)&&hasFork(b)?"tree-line unlocked":"tree-line";el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">환생 · 완료 ${state.rebirths}회</div><div class="popup-main" id="rebirthProgress"></div><div class="popup-text">RTX 6090 장착 조건: 1 → 2 → 3 → 4 → 6 → 8개 (이후 8개 유지)<br>랙에 장착된 6090만 계산합니다. 인벤토리 보관분은 제외됩니다.<br>환생 보상: FORK 1개 · 각 노드 해금 비용: 1개<br>초기화: 돈, GPU, 쿨러, 이번 회차 기록<br>유지: 환생 횟수, FORK, 해금한 업그레이드${state.legacyFork?`<br>이전 버전 FORK ${formatNumber(state.legacyFork)}개는 기록으로 보관되며 사용할 수 없습니다. 기존 해금은 유지됩니다.`:""}</div><button class="popup-btn purple" id="rebirthBtn" data-action="rebirth">✨ [ 환생 · FORK +1 ]</button></div><div class="fork-header"><span>FORK NETWORK</span><span class="fork-points">🔱 ${formatNumber(state.fork)}</span></div><div class="tree-scroll"><div class="tech-tree">${renderForkLines(lineClass)}<div class="tech-node ${statusClass('root')}" id="node-root" data-fork-node="root">❤️<div class="node-cost">CORE</div></div><div class="tech-node ${statusClass('cooling')}" id="node-cooling" data-fork-node="cooling">🛡️<div class="node-cost">1</div></div><div class="tech-node ${statusClass('click')}" id="node-click" data-fork-node="click">⚡<div class="node-cost">1</div></div><div class="tech-node ${statusClass('auto')}" id="node-auto" data-fork-node="auto">🤖<div class="node-cost">1</div></div><div class="tech-node ${statusClass('oc')}" id="node-oc" data-fork-node="oc">🚀<div class="node-cost">1</div></div><div class="tech-node ${statusClass('fork')}" id="node-fork" data-fork-node="fork">💎<div class="node-cost">1</div></div><div class="tech-node ${statusClass('fever')}" id="node-fever" data-fork-node="fever">🔥<div class="node-cost">1</div></div></div></div><div class="tree-details"><div class="tree-detail-name">${selected.icon} ${selected.name}</div><div class="tree-detail-desc">${selected.desc}</div><div class="tree-detail-cost">COST : 🔱 ${selected.cost}</div></div>${buttonHTML}`;updateRebirthPanel()}
+function renderForkTree(){const selected=FORK_NODES[state.selectedFork],selectedStatus=forkNodeStatus(state.selectedFork);let buttonHTML;if(selectedStatus==="unlocked")buttonHTML=`<button class="popup-btn" disabled>✅ [ UNLOCKED ]</button>`;else if(selectedStatus==="locked")buttonHTML=`<button class="popup-btn" disabled>🔒 [ 선행 노드 필요 ]</button>`;else buttonHTML=`<button class="popup-btn purple" data-action="buyFork" data-fork-id="${state.selectedFork}" ${state.fork<selected.cost?'disabled':''}>${state.fork>=selected.cost?'🔱 [ 업그레이드 해금 ]':'🔒 [ FORK 부족 ]'}</button>`;const statusClass=id=>forkNodeStatus(id)+(state.selectedFork===id?" selected":"");const lineClass=(a,b)=>hasFork(a)&&hasFork(b)?"tree-line unlocked":"tree-line";el.popupContent.innerHTML=`<div class="popup-info"><div class="popup-title-small">환생 · 완료 ${state.rebirths}회</div><div class="popup-main" id="rebirthProgress"></div><div class="popup-text">RTX 6090 QUANTUM 장착 조건: 1 → 2 → 3 → 4 → 6 → 8개 (이후 8개 유지)<br>첫 회차 최종 GPU 인증은 약 2시간 55분에 열리며, 자금 성장까지 포함해 첫 환생은 약 3시간을 목표로 합니다.<br>환생 후에는 인증 시간이 점차 단축됩니다.<br>랙에 장착된 6090 QUANTUM만 계산합니다. 인벤토리 보관분은 제외됩니다.<br>환생 보상: FORK 1개 · 각 노드 해금 비용: 1개<br>초기화: 돈, GPU, 쿨러, 이번 회차 기록<br>유지: 환생 횟수, FORK, 해금한 업그레이드${state.legacyFork?`<br>이전 버전 FORK ${formatNumber(state.legacyFork)}개는 기록으로 보관되며 사용할 수 없습니다. 기존 해금은 유지됩니다.`:""}</div><button class="popup-btn purple" id="rebirthBtn" data-action="rebirth">✨ [ 환생 · FORK +1 ]</button></div><div class="fork-header"><span>FORK NETWORK</span><span class="fork-points">🔱 ${formatNumber(state.fork)}</span></div><div class="tree-scroll"><div class="tech-tree">${renderForkLines(lineClass)}<div class="tech-node ${statusClass('root')}" id="node-root" data-fork-node="root">❤️<div class="node-cost">CORE</div></div><div class="tech-node ${statusClass('cooling')}" id="node-cooling" data-fork-node="cooling">🛡️<div class="node-cost">1</div></div><div class="tech-node ${statusClass('click')}" id="node-click" data-fork-node="click">⚡<div class="node-cost">1</div></div><div class="tech-node ${statusClass('auto')}" id="node-auto" data-fork-node="auto">🤖<div class="node-cost">1</div></div><div class="tech-node ${statusClass('oc')}" id="node-oc" data-fork-node="oc">🚀<div class="node-cost">1</div></div><div class="tech-node ${statusClass('fork')}" id="node-fork" data-fork-node="fork">💎<div class="node-cost">1</div></div><div class="tech-node ${statusClass('fever')}" id="node-fever" data-fork-node="fever">🔥<div class="node-cost">1</div></div></div></div><div class="tree-details"><div class="tree-detail-name">${selected.icon} ${selected.name}</div><div class="tree-detail-desc">${selected.desc}</div><div class="tree-detail-cost">COST : 🔱 ${selected.cost}</div></div>${buttonHTML}`;updateRebirthPanel()}
 function closePopup(){el.menuPopup.classList.remove("show");state.pendingSlot=null;state.inventoryEquipUid=null;state.coolingTargetGpuUid=null;document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));el.gpuBtn.classList.add("active")}
 function checkGameOver(){if(hottestTemp()<100)return;state.running=false;closePopup();el.gameOver.classList.add("show");saveGame()}
 function restartGame(){const progress={rebirths:state.rebirths,fork:state.fork,forkUnlocked:new Set(state.forkUnlocked),legacyFork:state.legacyFork};uidCounter=1;coolUidCounter=1;state={...freshState(),...progress};el.gameOver.classList.remove("show");el.robotText.textContent="💬 시스템 재부팅 완료! 다시 채굴하세요.";updateUI();saveGame()}
