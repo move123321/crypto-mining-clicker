@@ -8,6 +8,12 @@
 3. 처음 열면 Editor 스크립트가 Assets/Scenes/Main.unity를 자동 생성합니다.
 4. Main.unity를 열고 Play를 누릅니다.
 
+프로젝트 방향
+- 2D 전용 구성
+- Canvas/UI 및 2D Sprite 기반
+- 3D 카메라, Directional Light, 3D 오브젝트는 게임 구성에 사용하지 않음
+- Unity Scene View도 자동으로 2D 모드로 설정
+
 현재 Unity 포트 목표
 - 웹과 같은 8칸 GPU 랙
 - GPU 클릭/자동 채굴
