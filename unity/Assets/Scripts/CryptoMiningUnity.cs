@@ -502,23 +502,23 @@ namespace CryptoMining
 
         void Build()
         {
-            GameObject cg=new GameObject("Canvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));DontDestroyOnLoad(cg);canvas=cg.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;
-            CanvasScaler sc=cg.GetComponent<CanvasScaler>();sc.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;sc.referenceResolution=new Vector2(480,800);sc.matchWidthOrHeight=.5f;
-            root=Box(canvas.transform,"Main",bg,0,0,480,800);
-            Label(root,"『암호화폐 마이닝 · UNITY』",14,Color.white,30,10,420,34,TextAnchor.MiddleCenter);
-            Btn(root,"MOV",7,panel2,gold,378,12,42,28,delegate{Cutscene(true);});Btn(root,"?",11,panel2,cyan,425,12,42,28,Tutorial);
-            RectTransform hud=Box(root,"HUD",panel,10,52,460,120);bal=Label(hud,"0",24,Color.white,10,8,220,34,TextAnchor.MiddleLeft);coinName=Label(hud,"BTC-X",8,cyan,10,42,220,18,TextAnchor.MiddleLeft);
-            auto=Label(hud,"+0/s",9,green,260,10,180,24,TextAnchor.MiddleRight);fever=Label(hud,"FEVER",8,gold,10,64,430,18,TextAnchor.MiddleCenter);
-            cash=Label(hud,"현금 0",8,white,10,88,100,18,TextAnchor.MiddleLeft);fork=Label(hud,"FORK 0",8,green,110,88,70,18,TextAnchor.MiddleLeft);temp=Label(hud,"TEMP",8,white,185,88,75,18,TextAnchor.MiddleCenter);power=Label(hud,"W",8,gold,265,88,70,18,TextAnchor.MiddleCenter);electric=Label(hud,"-0/min",8,red,340,88,105,18,TextAnchor.MiddleCenter);
-            RectTransform room=Box(root,"Room",Hex("#cbb8a8"),10,182,460,490);rack=Box(room,"Rack",Hex("#555a66"),12,66,220,408);eventLabel=Label(room,"시장 대기 중",9,Hex("#1e2434"),240,20,205,60,TextAnchor.MiddleCenter);
-            Btn(room,"COIN\nEXCHANGE",10,Hex("#32394b"),green,285,230,130,82,OpenTrade);
-            BuildNav();toast=Label(root,"",9,Color.white,20,640,440,38,TextAnchor.MiddleCenter);toast.gameObject.SetActive(false);
+            GameObject cg=new GameObject("Canvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));DontDestroyOnLoad(cg);canvas=cg.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;canvas.pixelPerfect=true;
+            CanvasScaler sc=cg.GetComponent<CanvasScaler>();sc.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;sc.referenceResolution=new Vector2(480,854);sc.screenMatchMode=CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;sc.matchWidthOrHeight=0f;sc.referencePixelsPerUnit=100f;
+            root=Box(canvas.transform,"Main",bg,0,0,480,854);
+            Label(root,"『암호화폐 마이닝 · UNITY』",16,Color.white,30,10,420,34,TextAnchor.MiddleCenter);
+            Btn(root,"MOV",9,panel2,gold,378,12,42,28,delegate{Cutscene(true);});Btn(root,"?",13,panel2,cyan,425,12,42,28,Tutorial);
+            RectTransform hud=Box(root,"HUD",panel,10,52,460,120);bal=Label(hud,"0",28,Color.white,10,8,220,34,TextAnchor.MiddleLeft);coinName=Label(hud,"BTC-X",10,cyan,10,42,220,18,TextAnchor.MiddleLeft);
+            auto=Label(hud,"+0/s",11,green,260,10,180,24,TextAnchor.MiddleRight);fever=Label(hud,"FEVER",10,gold,10,64,430,18,TextAnchor.MiddleCenter);
+            cash=Label(hud,"현금 0",10,white,10,88,100,18,TextAnchor.MiddleLeft);fork=Label(hud,"FORK 0",10,green,110,88,70,18,TextAnchor.MiddleLeft);temp=Label(hud,"TEMP",9,white,185,88,75,18,TextAnchor.MiddleCenter);power=Label(hud,"W",9,gold,265,88,70,18,TextAnchor.MiddleCenter);electric=Label(hud,"-0/min",9,red,340,88,105,18,TextAnchor.MiddleCenter);
+            RectTransform room=Box(root,"Room",Hex("#cbb8a8"),10,182,460,548);rack=Box(room,"Rack",Hex("#555a66"),12,66,220,408);eventLabel=Label(room,"시장 대기 중",11,Hex("#1e2434"),240,20,205,60,TextAnchor.MiddleCenter);
+            Btn(room,"COIN\nEXCHANGE",12,Hex("#32394b"),green,285,230,130,82,OpenTrade);
+            BuildNav();toast=Label(root,"",11,Color.white,20,690,440,42,TextAnchor.MiddleCenter);toast.gameObject.SetActive(false);
         }
 
         void BuildNav()
         {
-            RectTransform n=Box(root,"Nav",Hex("#090d17"),0,690,480,110);string[] names={"GPU","INV","OC","COOL","SHOP","FORK"};Action[] a={OpenGPU,OpenInv,OpenOC,OpenCool,delegate{OpenShop(-1);},OpenFork};
-            for(int i=0;i<6;i++){int k=i;Btn(n,names[i],7,panel,white,5+i*79,10,74,72,delegate{a[k]();});}
+            RectTransform n=Box(root,"Nav",Hex("#090d17"),0,744,480,110);string[] names={"GPU","INV","OC","COOL","SHOP","FORK"};Action[] a={OpenGPU,OpenInv,OpenOC,OpenCool,delegate{OpenShop(-1);},OpenFork};
+            for(int i=0;i<6;i++){int k=i;Btn(n,names[i],9,panel,white,5+i*79,10,74,72,delegate{a[k]();});}
         }
 
         void Refresh()
@@ -534,10 +534,10 @@ namespace CryptoMining
             for(int s=0;s<8;s++)
             {
                 int slot=s,col=s%2,row=s/2;float x=8+col*102,y=8+row*98;GpuItem g=gm.At(slot);
-                if(g==null){Btn(rack,"[추가하기]",7,Hex("#183521"),green,x,y,94,86,delegate{OpenShop(slot);});continue;}
+                if(g==null){Btn(rack,"[추가하기]",8,Hex("#183521"),green,x,y,94,86,delegate{OpenShop(slot);});continue;}
                 Button b=Btn(rack,"",7,Hex("#1a1f2b"),white,x,y,94,86,delegate{double gain=gm.ClickMine(g.uid);if(gain>0)ShowToast("+"+Fmt(gain)+" "+gm.MiningCoin().name);});RectTransform r=b.GetComponent<RectTransform>();GPUDef m=Catalog.GPU(g.modelId);CoolerDef cool=Catalog.Cooler(g.coolerId);
-                Label(r,m.name,5,muted,3,2,68,14,TextAnchor.MiddleLeft);Label(r,Mathf.FloorToInt(g.temp)+"C",5,cyan,70,2,21,14,TextAnchor.MiddleRight);
-                if(cool.id>=3)Label(r,"WATER\n"+cool.name,6,cyan,7,25,80,44,TextAnchor.MiddleCenter);
+                Label(r,m.name,7,muted,3,2,68,14,TextAnchor.MiddleLeft);Label(r,Mathf.FloorToInt(g.temp)+"C",7,cyan,70,2,21,14,TextAnchor.MiddleRight);
+                if(cool.id>=3)Label(r,"WATER\n"+cool.name,7,cyan,7,25,80,44,TextAnchor.MiddleCenter);
                 else{Text f1=Label(r,"+",28,muted,12,28,30,30,TextAnchor.MiddleCenter);Text f2=Label(r,"+",28,muted,52,28,30,30,TextAnchor.MiddleCenter);float sp=g.temp>=65?720:280;f1.gameObject.AddComponent<FanSpinner>().speed=sp;f2.gameObject.AddComponent<FanSpinner>().speed=sp;}
             }
         }
@@ -590,7 +590,7 @@ namespace CryptoMining
         RectTransform Modal(string title)
         {
             CloseModal();modal=new GameObject("Modal",typeof(RectTransform),typeof(Image));modal.transform.SetParent(canvas.transform,false);Fill(modal.GetComponent<RectTransform>());modal.GetComponent<Image>().color=new Color(.01f,.02f,.05f,.92f);
-            RectTransform box=Box(modal.transform,"Box",panel,20,35,440,720);Label(box,title,12,cyan,12,8,350,40,TextAnchor.MiddleLeft);Btn(box,"X",10,Hex("#4b2330"),Color.white,382,8,44,36,CloseModal);
+            RectTransform box=Box(modal.transform,"Box",panel,20,35,440,720);Label(box,title,14,cyan,12,8,350,40,TextAnchor.MiddleLeft);Btn(box,"X",12,Hex("#4b2330"),Color.white,382,8,44,36,CloseModal);
             GameObject sg=new GameObject("Scroll",typeof(RectTransform),typeof(ScrollRect));sg.transform.SetParent(box,false);RectTransform sr=sg.GetComponent<RectTransform>();TL(sr,12,54,416,650);
             GameObject vp=new GameObject("Viewport",typeof(RectTransform),typeof(Image),typeof(Mask));vp.transform.SetParent(sg.transform,false);Fill(vp.GetComponent<RectTransform>());vp.GetComponent<Image>().color=Color.clear;vp.GetComponent<Mask>().showMaskGraphic=false;
             GameObject cg=new GameObject("Content",typeof(RectTransform),typeof(VerticalLayoutGroup),typeof(ContentSizeFitter));cg.transform.SetParent(vp.transform,false);RectTransform cr=cg.GetComponent<RectTransform>();cr.anchorMin=new Vector2(0,1);cr.anchorMax=new Vector2(1,1);cr.pivot=new Vector2(.5f,1);cr.offsetMin=Vector2.zero;cr.offsetMax=Vector2.zero;
@@ -601,15 +601,15 @@ namespace CryptoMining
         RectTransform AddCard(RectTransform p,string title,string body,string button,Action action)
         {
             float h=string.IsNullOrEmpty(button)?90:132;GameObject g=new GameObject("Card",typeof(RectTransform),typeof(Image),typeof(VerticalLayoutGroup),typeof(LayoutElement));g.transform.SetParent(p,false);g.GetComponent<Image>().color=panel2;g.GetComponent<LayoutElement>().preferredHeight=h;VerticalLayoutGroup v=g.GetComponent<VerticalLayoutGroup>();v.padding=new RectOffset(10,10,8,8);v.spacing=5;v.childControlWidth=true;v.childForceExpandWidth=true;
-            LText(g.transform,title,9,green,24);LText(g.transform,body,11,white,50);if(!string.IsNullOrEmpty(button)){GameObject b=new GameObject("Button",typeof(RectTransform),typeof(Image),typeof(Button),typeof(LayoutElement));b.transform.SetParent(g.transform,false);b.GetComponent<Image>().color=action!=null?Hex("#285733"):Hex("#2a2f3a");b.GetComponent<LayoutElement>().preferredHeight=36;Button bt=b.GetComponent<Button>();bt.interactable=action!=null;if(action!=null)bt.onClick.AddListener(delegate{action();});LabelFill(b.transform,button,7,action!=null?Color.white:muted,TextAnchor.MiddleCenter);}return g.GetComponent<RectTransform>();
+            LText(g.transform,title,11,green,26);LText(g.transform,body,13,white,58);if(!string.IsNullOrEmpty(button)){GameObject b=new GameObject("Button",typeof(RectTransform),typeof(Image),typeof(Button),typeof(LayoutElement));b.transform.SetParent(g.transform,false);b.GetComponent<Image>().color=action!=null?Hex("#285733"):Hex("#2a2f3a");b.GetComponent<LayoutElement>().preferredHeight=36;Button bt=b.GetComponent<Button>();bt.interactable=action!=null;if(action!=null)bt.onClick.AddListener(delegate{action();});LabelFill(b.transform,button,9,action!=null?Color.white:muted,TextAnchor.MiddleCenter);}return g.GetComponent<RectTransform>();
         }
 
-        Text LText(Transform p,string s,int size,Color c,float h){GameObject g=new GameObject("Text",typeof(RectTransform),typeof(Text),typeof(LayoutElement));g.transform.SetParent(p,false);Text t=g.GetComponent<Text>();t.font=font;t.fontSize=size;t.color=c;t.text=s;t.alignment=TextAnchor.MiddleLeft;t.horizontalOverflow=HorizontalWrapMode.Wrap;t.verticalOverflow=VerticalWrapMode.Overflow;g.GetComponent<LayoutElement>().preferredHeight=h;return t;}
+        Text LText(Transform p,string s,int size,Color c,float h){GameObject g=new GameObject("Text",typeof(RectTransform),typeof(Text),typeof(LayoutElement));g.transform.SetParent(p,false);Text t=g.GetComponent<Text>();t.font=font;t.fontSize=size;t.resizeTextForBestFit=false;t.color=c;t.text=s;t.alignment=TextAnchor.MiddleLeft;t.horizontalOverflow=HorizontalWrapMode.Wrap;t.verticalOverflow=VerticalWrapMode.Overflow;g.GetComponent<LayoutElement>().preferredHeight=h;return t;}
         RectTransform Box(Transform p,string n,Color c,float x,float y,float w,float h){GameObject g=new GameObject(n,typeof(RectTransform),typeof(Image));g.transform.SetParent(p,false);RectTransform r=g.GetComponent<RectTransform>();TL(r,x,y,w,h);g.GetComponent<Image>().color=c;return r;}
         Button Btn(Transform p,string s,int size,Color bgc,Color fg,float x,float y,float w,float h,Action a){GameObject g=new GameObject("Button",typeof(RectTransform),typeof(Image),typeof(Button));g.transform.SetParent(p,false);RectTransform r=g.GetComponent<RectTransform>();TL(r,x,y,w,h);g.GetComponent<Image>().color=bgc;Button b=g.GetComponent<Button>();if(a!=null)b.onClick.AddListener(delegate{a();});LabelFill(g.transform,s,size,fg,TextAnchor.MiddleCenter);return b;}
-        Text Label(RectTransform p,string s,int size,Color c,float x,float y,float w,float h,TextAnchor a){GameObject g=new GameObject("Text",typeof(RectTransform),typeof(Text));g.transform.SetParent(p,false);RectTransform r=g.GetComponent<RectTransform>();TL(r,x,y,w,h);Text t=g.GetComponent<Text>();t.font=font;t.fontSize=size;t.color=c;t.text=s;t.alignment=a;t.horizontalOverflow=HorizontalWrapMode.Wrap;t.verticalOverflow=VerticalWrapMode.Overflow;return t;}
-        Text LabelFill(Transform p,string s,int size,Color c,TextAnchor a){GameObject g=new GameObject("Text",typeof(RectTransform),typeof(Text));g.transform.SetParent(p,false);Fill(g.GetComponent<RectTransform>());Text t=g.GetComponent<Text>();t.font=font;t.fontSize=size;t.color=c;t.text=s;t.alignment=a;return t;}
-        void TL(RectTransform r,float x,float y,float w,float h){r.anchorMin=r.anchorMax=new Vector2(0,1);r.pivot=new Vector2(0,1);r.anchoredPosition=new Vector2(x,-y);r.sizeDelta=new Vector2(w,h);}
+        Text Label(RectTransform p,string s,int size,Color c,float x,float y,float w,float h,TextAnchor a){GameObject g=new GameObject("Text",typeof(RectTransform),typeof(Text));g.transform.SetParent(p,false);RectTransform r=g.GetComponent<RectTransform>();TL(r,x,y,w,h);Text t=g.GetComponent<Text>();t.font=font;t.fontSize=size;t.resizeTextForBestFit=false;t.color=c;t.text=s;t.alignment=a;t.horizontalOverflow=HorizontalWrapMode.Wrap;t.verticalOverflow=VerticalWrapMode.Overflow;return t;}
+        Text LabelFill(Transform p,string s,int size,Color c,TextAnchor a){GameObject g=new GameObject("Text",typeof(RectTransform),typeof(Text));g.transform.SetParent(p,false);Fill(g.GetComponent<RectTransform>());Text t=g.GetComponent<Text>();t.font=font;t.fontSize=size;t.resizeTextForBestFit=false;t.color=c;t.text=s;t.alignment=a;return t;}
+        void TL(RectTransform r,float x,float y,float w,float h){x=Mathf.Round(x);y=Mathf.Round(y);w=Mathf.Round(w);h=Mathf.Round(h);r.anchorMin=r.anchorMax=new Vector2(0,1);r.pivot=new Vector2(0,1);r.anchoredPosition=new Vector2(x,-y);r.sizeDelta=new Vector2(w,h);}
         void Fill(RectTransform r){r.anchorMin=Vector2.zero;r.anchorMax=Vector2.one;r.offsetMin=r.offsetMax=Vector2.zero;}
         int FreeSlot(){for(int i=0;i<8;i++)if(gm.At(i)==null)return i;return-1;}
         void CloseModal(){if(modal!=null)Destroy(modal);modal=null;}
@@ -628,7 +628,7 @@ namespace CryptoMining
         string[] cb={"불 꺼진 작은 방. 오래된 장비 한 대만 남아 있다.","RTX 1090의 팬이 돌기 시작한다. 이 한 장이 시작이다.","채굴한 코인을 가상 시장에서 현금으로 바꿀 수 있다.","GPU와 냉각을 강화하고 새로운 코인을 해금하라.","RTX 6090 QUANTUM과 환생 프로토콜에 도달하라."};
         int ci;bool replay;
         void Cutscene(bool rp){CloseModal();CloseIntro();replay=rp;ci=0;gm.IntroPaused=true;RenderCut();}
-        void RenderCut(){if(intro!=null)Destroy(intro);intro=new GameObject("Cutscene",typeof(RectTransform),typeof(Image));intro.transform.SetParent(canvas.transform,false);Fill(intro.GetComponent<RectTransform>());intro.GetComponent<Image>().color=Hex("#02040a");RectTransform b=Box(intro.transform,"Box",panel2,25,100,430,600);Label(b,"OPENING "+(ci+1)+" / 5",8,cyan,15,10,250,30,TextAnchor.MiddleLeft);Btn(b,"SKIP",7,Hex("#3a2430"),Color.white,330,10,80,32,FinishCut);Label(b,ci==4?"QUANTUM":ci==2?"B E D N 404 Q":ci==1?"GPU":"...",ci==2?20:36,ci==4?green:cyan,20,85,390,170,TextAnchor.MiddleCenter);Label(b,ct[ci],13,gold,20,280,390,35,TextAnchor.MiddleCenter);Label(b,cb[ci],13,Color.white,30,335,370,120,TextAnchor.MiddleCenter);Btn(b,ci==4?"채굴 시작":"계속",9,Hex("#244b32"),Color.white,260,515,145,48,NextCut);}
+        void RenderCut(){if(intro!=null)Destroy(intro);intro=new GameObject("Cutscene",typeof(RectTransform),typeof(Image));intro.transform.SetParent(canvas.transform,false);Fill(intro.GetComponent<RectTransform>());intro.GetComponent<Image>().color=Hex("#02040a");RectTransform b=Box(intro.transform,"Box",panel2,25,100,430,600);Label(b,"OPENING "+(ci+1)+" / 5",10,cyan,15,10,250,30,TextAnchor.MiddleLeft);Btn(b,"SKIP",9,Hex("#3a2430"),Color.white,330,10,80,32,FinishCut);Label(b,ci==4?"QUANTUM":ci==2?"B E D N 404 Q":ci==1?"GPU":"...",ci==2?20:36,ci==4?green:cyan,20,85,390,170,TextAnchor.MiddleCenter);Label(b,ct[ci],16,gold,20,280,390,35,TextAnchor.MiddleCenter);Label(b,cb[ci],15,Color.white,30,335,370,120,TextAnchor.MiddleCenter);Btn(b,ci==4?"채굴 시작":"계속",11,Hex("#244b32"),Color.white,260,515,145,48,NextCut);}
         void NextCut(){if(ci<4){ci++;RenderCut();}else FinishCut();}
         void FinishCut(){PlayerPrefs.SetInt("unity_cutscene_seen_v1",1);PlayerPrefs.Save();bool r=replay;CloseIntro();if(!r&&PlayerPrefs.GetInt("unity_tutorial_seen_v1",0)==0)Tutorial();}
 
@@ -636,7 +636,7 @@ namespace CryptoMining
         string[] tb={"랙 GPU를 클릭하면 장착 GPU가 모두 같이 채굴합니다.","COIN EXCHANGE에서 코인을 팔아 현금을 만드세요.","상위 GPU 보유 시 새 코인이 해금됩니다.","COOL에서 GPU별 공랭/수냉을 장착하세요. 100C면 파산합니다.","OC는 채굴량과 발열을 함께 올립니다. 전기요금도 실제 게임 현금에서 빠집니다.","채굴/판매 계약과 랜덤 급등/급락 이벤트가 있습니다.","QUANTUM과 조건을 달성하면 환생하고 FORK를 얻습니다."};
         int ti;
         void Tutorial(){CloseModal();CloseIntro();ti=0;gm.IntroPaused=true;RenderTut();}
-        void RenderTut(){if(intro!=null)Destroy(intro);intro=new GameObject("Tutorial",typeof(RectTransform),typeof(Image));intro.transform.SetParent(canvas.transform,false);Fill(intro.GetComponent<RectTransform>());intro.GetComponent<Image>().color=new Color(.01f,.02f,.05f,.95f);RectTransform b=Box(intro.transform,"Box",panel,30,150,420,500);Label(b,"TUTORIAL "+(ti+1)+" / 7",8,cyan,15,10,230,30,TextAnchor.MiddleLeft);Btn(b,"건너뛰기",7,Hex("#3a2430"),Color.white,300,10,100,34,FinishTut);Label(b,tt[ti],13,green,20,85,380,45,TextAnchor.MiddleCenter);Label(b,tb[ti],13,Color.white,30,150,360,170,TextAnchor.MiddleCenter);if(ti>0)Btn(b,"이전",8,Hex("#25465c"),Color.white,30,405,150,48,delegate{ti--;RenderTut();});Btn(b,ti==6?"게임 시작":"다음",8,Hex("#285733"),Color.white,240,405,150,48,delegate{if(ti<6){ti++;RenderTut();}else FinishTut();});}
+        void RenderTut(){if(intro!=null)Destroy(intro);intro=new GameObject("Tutorial",typeof(RectTransform),typeof(Image));intro.transform.SetParent(canvas.transform,false);Fill(intro.GetComponent<RectTransform>());intro.GetComponent<Image>().color=new Color(.01f,.02f,.05f,.95f);RectTransform b=Box(intro.transform,"Box",panel,30,150,420,500);Label(b,"TUTORIAL "+(ti+1)+" / 7",10,cyan,15,10,230,30,TextAnchor.MiddleLeft);Btn(b,"건너뛰기",9,Hex("#3a2430"),Color.white,300,10,100,34,FinishTut);Label(b,tt[ti],16,green,20,85,380,45,TextAnchor.MiddleCenter);Label(b,tb[ti],15,Color.white,30,150,360,170,TextAnchor.MiddleCenter);if(ti>0)Btn(b,"이전",10,Hex("#25465c"),Color.white,30,405,150,48,delegate{ti--;RenderTut();});Btn(b,ti==6?"게임 시작":"다음",10,Hex("#285733"),Color.white,240,405,150,48,delegate{if(ti<6){ti++;RenderTut();}else FinishTut();});}
         void FinishTut(){PlayerPrefs.SetInt("unity_tutorial_seen_v1",1);PlayerPrefs.Save();CloseIntro();ShowToast("튜토리얼 완료");}
         void CloseIntro(){if(intro!=null)Destroy(intro);intro=null;if(gm!=null)gm.IntroPaused=false;}
 
