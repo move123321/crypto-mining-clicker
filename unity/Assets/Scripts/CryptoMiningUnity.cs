@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
+using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -102,7 +104,8 @@ namespace CryptoMining
         public event Action Overheated;
 
         float secAcc,saveAcc;
-        string SavePath { get { return Path.Combine(Application.persistentDataPath,"crypto_mining_unity_save_v1.json"); } }
+        string SavePath { get { return Path.Combine(Application.persistentDataPath,"crypto_mining_unity_save_v2.txt"); } }
+        static readonly CultureInfo Inv=CultureInfo.InvariantCulture;
 
         void Awake(){ I=this; Load(); }
         void Update()
@@ -125,7 +128,16 @@ namespace CryptoMining
 
         public void Load()
         {
-            try{ if(File.Exists(SavePath)) S=UnityEngine.JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath)); }catch{}
+            try
+            {
+                if(File.Exists(SavePath)) S=DeserializeState(File.ReadAllText(SavePath));
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("Save load failed: "+e.Message);
+                S=null;
+            }
+
             if(S==null||S.items==null||S.items.Count==0)S=Fresh();
             if(S.coins==null)S.coins=new List<CoinBalance>();
             for(int i=0;i<Catalog.Coins.Length;i++) if(BalanceObj(Catalog.Coins[i].id)==null)S.coins.Add(new CoinBalance{id=Catalog.Coins[i].id});
@@ -135,7 +147,134 @@ namespace CryptoMining
             if(!CoinUnlocked(Catalog.Coin(S.tradeCoinId)))S.tradeCoinId="btcx";
             EnsureContract();
         }
-        public void Save(){ try{File.WriteAllText(SavePath,UnityEngine.JsonUtility.ToJson(S,true));}catch{} }
+
+        public void Save()
+        {
+            if(S==null)return;
+            try{File.WriteAllText(SavePath,SerializeState(S));}
+            catch(Exception e){Debug.LogWarning("Save failed: "+e.Message);}
+        }
+
+        string SerializeState(SaveData s)
+        {
+            StringBuilder b=new StringBuilder();
+            Action<string,string> line=(k,v)=>b.Append(k).Append('=').Append(v??"").Append('\n');
+            line("version",s.version.ToString(Inv));
+            line("rebirths",s.rebirths.ToString(Inv));
+            line("fork",s.fork.ToString(Inv));
+            line("runSeconds",s.runSeconds.ToString(Inv));
+            line("electricityTimer",s.electricityTimer.ToString(Inv));
+            line("contractsCompleted",s.contractsCompleted.ToString(Inv));
+            line("uidCounter",s.uidCounter.ToString(Inv));
+            line("totalClicks",s.totalClicks.ToString(Inv));
+            line("cash",s.cash.ToString("R",Inv));
+            line("totalMined",s.totalMined.ToString("R",Inv));
+            line("running",s.running?"1":"0");
+            line("overclock",s.overclock?"1":"0");
+            line("fever",s.fever?"1":"0");
+            line("feverTime",s.feverTime.ToString(Inv));
+            line("feverCooldown",s.feverCooldown.ToString(Inv));
+            line("miningCoinId",s.miningCoinId);
+            line("tradeCoinId",s.tradeCoinId);
+
+            List<string> items=new List<string>();
+            for(int i=0;i<s.items.Count;i++)
+            {
+                GpuItem g=s.items[i];
+                items.Add(g.uid+","+g.modelId.ToString(Inv)+","+g.temp.ToString("R",Inv)+","+g.coolerId.ToString(Inv)+","+g.slot.ToString(Inv));
+            }
+            line("items",string.Join(";",items.ToArray()));
+
+            List<string> coins=new List<string>();
+            for(int i=0;i<s.coins.Count;i++)
+                coins.Add(s.coins[i].id+","+s.coins[i].amount.ToString("R",Inv));
+            line("coins",string.Join(";",coins.ToArray()));
+            line("forkUnlocked",string.Join(",",s.forkUnlocked.ToArray()));
+
+            if(s.contract==null)line("contract","");
+            else line("contract",s.contract.type+","+s.contract.coinId+","+s.contract.target.ToString("R",Inv)+","+s.contract.progress.ToString("R",Inv)+","+s.contract.reward.ToString("R",Inv));
+            return b.ToString();
+        }
+
+        SaveData DeserializeState(string text)
+        {
+            Dictionary<string,string> m=new Dictionary<string,string>();
+            string[] lines=text.Replace("\r","").Split('\n');
+            for(int i=0;i<lines.Length;i++)
+            {
+                int p=lines[i].IndexOf('=');
+                if(p<=0)continue;
+                m[lines[i].Substring(0,p)]=lines[i].Substring(p+1);
+            }
+
+            SaveData s=new SaveData();
+            s.version=GetInt(m,"version",1);
+            s.rebirths=GetInt(m,"rebirths",0);
+            s.fork=GetInt(m,"fork",0);
+            s.runSeconds=GetInt(m,"runSeconds",0);
+            s.electricityTimer=GetInt(m,"electricityTimer",0);
+            s.contractsCompleted=GetInt(m,"contractsCompleted",0);
+            s.uidCounter=GetInt(m,"uidCounter",2);
+            s.totalClicks=GetLong(m,"totalClicks",0);
+            s.cash=GetDouble(m,"cash",0);
+            s.totalMined=GetDouble(m,"totalMined",0);
+            s.running=GetBool(m,"running",true);
+            s.overclock=GetBool(m,"overclock",false);
+            s.fever=GetBool(m,"fever",false);
+            s.feverTime=GetInt(m,"feverTime",0);
+            s.feverCooldown=GetInt(m,"feverCooldown",20);
+            s.miningCoinId=GetString(m,"miningCoinId","btcx");
+            s.tradeCoinId=GetString(m,"tradeCoinId","btcx");
+
+            s.items.Clear();
+            string items=GetString(m,"items","");
+            if(!string.IsNullOrEmpty(items))
+            {
+                string[] rows=items.Split(';');
+                for(int i=0;i<rows.Length;i++)
+                {
+                    string[] x=rows[i].Split(',');
+                    if(x.Length<5)continue;
+                    s.items.Add(new GpuItem{uid=x[0],modelId=ParseInt(x[1],0),temp=ParseFloat(x[2],30),coolerId=ParseInt(x[3],0),slot=ParseInt(x[4],-1)});
+                }
+            }
+
+            s.coins.Clear();
+            string coins=GetString(m,"coins","");
+            if(!string.IsNullOrEmpty(coins))
+            {
+                string[] rows=coins.Split(';');
+                for(int i=0;i<rows.Length;i++)
+                {
+                    string[] x=rows[i].Split(',');
+                    if(x.Length<2)continue;
+                    s.coins.Add(new CoinBalance{id=x[0],amount=ParseDouble(x[1],0)});
+                }
+            }
+
+            s.forkUnlocked.Clear();
+            string forks=GetString(m,"forkUnlocked","root");
+            string[] forkRows=forks.Split(',');
+            for(int i=0;i<forkRows.Length;i++)if(!string.IsNullOrEmpty(forkRows[i]))s.forkUnlocked.Add(forkRows[i]);
+
+            string contract=GetString(m,"contract","");
+            if(!string.IsNullOrEmpty(contract))
+            {
+                string[] x=contract.Split(',');
+                if(x.Length>=5)s.contract=new ContractState{type=x[0],coinId=x[1],target=ParseDouble(x[2],0),progress=ParseDouble(x[3],0),reward=ParseDouble(x[4],0)};
+            }
+            return s;
+        }
+
+        string GetString(Dictionary<string,string> m,string k,string d){string v;return m.TryGetValue(k,out v)?v:d;}
+        int GetInt(Dictionary<string,string> m,string k,int d){return ParseInt(GetString(m,k,""),d);}
+        long GetLong(Dictionary<string,string> m,string k,long d){long v;return long.TryParse(GetString(m,k,""),NumberStyles.Integer,Inv,out v)?v:d;}
+        double GetDouble(Dictionary<string,string> m,string k,double d){return ParseDouble(GetString(m,k,""),d);}
+        bool GetBool(Dictionary<string,string> m,string k,bool d){string v=GetString(m,k,"");return v=="1"?true:v=="0"?false:d;}
+        int ParseInt(string s,int d){int v;return int.TryParse(s,NumberStyles.Integer,Inv,out v)?v:d;}
+        float ParseFloat(string s,float d){float v;return float.TryParse(s,NumberStyles.Float,Inv,out v)?v:d;}
+        double ParseDouble(string s,double d){double v;return double.TryParse(s,NumberStyles.Float,Inv,out v)?v:d;}
+
         void OnApplicationQuit(){Save();}
         void OnApplicationPause(bool p){if(p)Save();}
 
