@@ -25,10 +25,12 @@ namespace CryptoMining.Editor
 
             if (!File.Exists(ScenePath))
             {
-                Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+                // The editor starts with an unsaved "Untitled" scene.
+                // Creating another scene additively fails in that state, so create
+                // the generated Main scene as the single active scene instead.
+                Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
                 scene.name = "Main";
                 EditorSceneManager.SaveScene(scene, ScenePath);
-                EditorSceneManager.CloseScene(scene, true);
                 AssetDatabase.Refresh();
                 Debug.Log("Crypto Mining: Assets/Scenes/Main.unity created.");
             }
