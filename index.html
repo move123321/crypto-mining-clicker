@@ -6,7 +6,9 @@
 <title>암호화폐 마이닝</title>
 <style>
 :root{--bg:#151a2c;--panel:#202a47;--panel2:#0e1527;--line:#56658c;--cyan:#50dcff;--green:#79f17d;--gold:#ffd365;--red:#ff727d;--orange:#ffae54;--purple:#d383ff;--text:#f2f5ff;--muted:#9aa7c5}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}html,body{margin:0;min-height:100%;background:#151a2c;color:var(--text);font-family:'Press Start 2P','Courier New',monospace}body{display:flex;justify-content:center;min-height:100vh}button{font-family:inherit;cursor:pointer}.app{width:100%;max-width:480px;min-height:100vh;padding:9px 9px 98px;overflow:hidden;background:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(180deg,#39415e,#293149);background-size:14px 14px,14px 14px,auto}.pixel-panel{background:linear-gradient(180deg,#253150,#131b30);border:3px solid var(--line);border-radius:5px;box-shadow:0 4px 0 #0c1120,inset 0 0 0 2px #090f1e}.title{text-align:center;margin:3px 0 8px;color:#fff;font-size:14px;line-height:1.5;text-shadow:2px 2px 0 #000}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}html,body{margin:0;min-height:100%;background:#151a2c;color:var(--text);font-family:'Press Start 2P','Courier New',monospace}body{display:flex;justify-content:center;min-height:100vh}button{font-family:inherit;cursor:pointer}.app{width:100%;max-width:480px;min-height:100vh;padding:9px 9px 98px;overflow:hidden;background:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(180deg,#39415e,#293149);background-size:14px 14px,14px 14px,auto}.pixel-panel{background:linear-gradient(180deg,#253150,#131b30);border:3px solid var(--line);border-radius:5px;box-shadow:0 4px 0 #0c1120,inset 0 0 0 2px #090f1e}.title-row{position:relative}.title{text-align:center;margin:3px 0 8px;color:#fff;font-size:14px;line-height:1.5;text-shadow:2px 2px 0 #000}.tutorial-help{position:absolute;right:2px;top:-2px;width:30px;height:30px;border:2px solid #63dfff;border-radius:4px;background:#16243c;color:#8be9ff;font-size:11px;box-shadow:0 2px 0 #08101d}.tutorial-help:active{transform:translateY(1px)}
+/* TUTORIAL */
+.tutorial-overlay{position:fixed;z-index:12000;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(3,6,13,.91);backdrop-filter:blur(3px)}.tutorial-overlay.show{display:flex}.tutorial-box{width:min(100%,420px);padding:15px;background:linear-gradient(#253451,#11192d);border:4px solid #63dfff;border-radius:6px;box-shadow:inset 0 0 0 2px #080d18,0 8px 0 #050911}.tutorial-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.tutorial-step{color:#8be9ff;font-size:7px}.tutorial-skip{padding:6px 8px;background:#3a2430;border:2px solid #ff7b86;color:#fff;font-size:6px}.tutorial-icon{text-align:center;font-size:42px;margin:5px 0 10px}.tutorial-title{text-align:center;color:#7ff584;font-size:12px;line-height:1.5;margin-bottom:10px}.tutorial-text{min-height:112px;padding:11px;background:#0c1324;border:2px solid #394765;color:#e4e8f2;font-family:'Courier New',monospace;font-size:12px;font-weight:bold;line-height:1.65}.tutorial-progress{display:flex;justify-content:center;gap:6px;margin:12px 0}.tutorial-dot{width:8px;height:8px;background:#38445f;border:1px solid #65749a}.tutorial-dot.active{background:#63dfff;border-color:#b5f4ff}.tutorial-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tutorial-btn{min-height:44px;padding:7px;background:#25465c;border:3px solid #63dfff;color:#fff;font-size:7px}.tutorial-btn.primary{background:#285733;border-color:#80f387}.tutorial-btn:disabled{opacity:.35}
 /* HUD */
 .hud{padding:9px;margin-bottom:9px}.wallet-row{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:9px;margin-bottom:7px;background:#1b2440;border:2px solid #425078;border-radius:4px;box-shadow:inset 0 0 0 2px #0d1425}.btc-group{display:flex;align-items:center;gap:7px;min-width:0}.btc-icon{color:#f5bd4a;font-size:31px;text-shadow:2px 2px 0 #624004}.money{font-size:clamp(18px,6vw,27px);white-space:nowrap;text-shadow:2px 2px 0 #000}.sec{color:#7df087;font-size:9px;white-space:nowrap;text-align:right}.fever{padding:8px;margin-bottom:7px;text-align:center;color:#ffe0a2;font-size:8px;line-height:1.5;background:linear-gradient(#8b591b,#4e2e0d);border:2px solid #f2b451;border-radius:4px;box-shadow:inset 0 0 0 2px rgba(0,0,0,.35)}.sub-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px}.sub-card{padding:8px;background:#171f35;border:2px solid #465375;border-radius:4px;font-size:8px;box-shadow:inset 0 0 0 2px #0a1020}.sub-card:last-child{text-align:right}.fork-green{color:#79f17c}.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.status-card{min-height:67px;padding:8px 6px;background:#171f35;border:2px solid #465375;border-radius:4px;box-shadow:inset 0 0 0 2px #0a1020}.status-label{margin-bottom:6px;color:#cbd2e5;font-size:7px}.status-value{font-size:9px;line-height:1.5;text-shadow:1px 1px 0 #000}.temp-normal{color:#fff}.temp-warning{color:#ffd56a}.temp-danger{color:#ff747e;animation:tempBlink .4s steps(2) infinite}@keyframes tempBlink{50%{opacity:.45}}
 /* ROOM */
@@ -53,7 +55,7 @@
 <body>
 <div class="app">
   <div id="gameDateTime" style="font-size:11px;line-height:1.7;text-align:left;color:#dce5f7"></div>
-  <div class="title">『암호화폐 마이닝』</div>
+  <div class="title-row"><div class="title">『암호화폐 마이닝』</div><button class="tutorial-help" id="tutorialHelp" aria-label="튜토리얼 다시 보기">?</button></div>
   <section class="pixel-panel hud">
     <div class="wallet-row"><div class="btc-group"><div class="btc-icon" id="coinIcon">₿</div><div><div class="money" id="moneyText">0</div><div class="coin-name-mini" id="coinNameText">BTC-X 채굴 중</div></div></div><div class="sec">+<span id="secText">1.0</span> / sec</div></div>
     <div class="fever" id="feverText">◆ BTC FEVER | CHARGING ◆</div>
@@ -71,6 +73,17 @@
   </section>
 
 
+</div>
+
+<div class="tutorial-overlay" id="tutorialOverlay" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+  <div class="tutorial-box">
+    <div class="tutorial-top"><div class="tutorial-step" id="tutorialStep"></div><button class="tutorial-skip" id="tutorialSkip">건너뛰기</button></div>
+    <div class="tutorial-icon" id="tutorialIcon">🖥️</div>
+    <div class="tutorial-title" id="tutorialTitle"></div>
+    <div class="tutorial-text" id="tutorialText"></div>
+    <div class="tutorial-progress" id="tutorialProgress"></div>
+    <div class="tutorial-actions"><button class="tutorial-btn" id="tutorialPrev">[ 이전 ]</button><button class="tutorial-btn primary" id="tutorialNext">[ 다음 ]</button></div>
+  </div>
 </div>
 
 <nav class="bottom-nav">
@@ -521,6 +534,38 @@ function renderForkTree(){const selected=FORK_NODES[state.selectedFork],selected
 function closePopup(){el.menuPopup.classList.remove("show");state.pendingSlot=null;state.inventoryEquipUid=null;state.coolingTargetGpuUid=null;document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));el.gpuBtn.classList.add("active")}
 function checkGameOver(){if(hottestTemp()<100)return;state.running=false;closePopup();el.gameOver.classList.add("show");saveGame()}
 function restartGame(){const progress={rebirths:state.rebirths,fork:state.fork,forkUnlocked:new Set(state.forkUnlocked),legacyFork:state.legacyFork};uidCounter=1;coolUidCounter=1;state={...freshState(),...progress};el.gameOver.classList.remove("show");updateUI();saveGame();showToast("🔄 시스템 재부팅 완료!")}
+const TUTORIAL_KEY="cryptoMiningTutorial_v1";
+const TUTORIAL_STEPS=[
+ {icon:"🖱️",title:"1. GPU를 눌러 채굴",text:"랙에 장착된 GPU를 클릭하면 코인을 채굴합니다.<br><br>GPU가 여러 장이면 클릭 한 번에 장착된 GPU가 모두 같이 채굴합니다."},
+ {icon:"🖥️",title:"2. 코인을 현금으로 판매",text:"방 오른쪽 컴퓨터를 누르면 거래소가 열립니다.<br><br>채굴한 코인을 현재 게임 시세로 팔아 ₩ 현금을 만들고, 그 돈으로 장비를 구매합니다."},
+ {icon:"🛒",title:"3. GPU 업그레이드",text:"[SHOP]에서 GPU를 구매하거나 [GPU]에서 1번 슬롯 GPU를 업그레이드할 수 있습니다.<br><br>상위 GPU를 보유하면 ETHER-X, DOGE-X 같은 새로운 코인도 순서대로 해금됩니다."},
+ {icon:"❄️",title:"4. 온도와 GPU 쿨링",text:"채굴과 오버클럭은 GPU 온도를 올립니다.<br><br>[COOL]에서 GPU 전용 공랭/수냉을 장착하세요. GPU 하나라도 100°C에 도달하면 시스템이 파산합니다."},
+ {icon:"⚡",title:"5. 전력과 오버클럭",text:"[OC]는 채굴 성능을 높이지만 발열도 증가합니다.<br><br>GPU 전력 사용량에 따라 실제 게임 현금에서 전기요금이 주기적으로 차감됩니다."},
+ {icon:"📋",title:"6. 계약과 시장 이벤트",text:"거래소에는 채굴/판매 계약이 있습니다. 목표를 완료하면 현금 보상을 받을 수 있습니다.<br><br>랜덤 이벤트로 해금된 특정 코인이 갑자기 급등하거나 급락할 수도 있습니다."},
+ {icon:"🔱",title:"7. 환생과 FORK",text:"최종 RTX 6090 QUANTUM을 준비하고 환생 조건을 달성하면 FORK를 얻습니다.<br><br>환생하면 이번 회차 장비는 초기화되지만 FORK 업그레이드는 남아 다음 회차 성장을 빠르게 해줍니다."}
+];
+let tutorialIndex=0;
+const tutorialEl={
+ overlay:document.getElementById("tutorialOverlay"),step:document.getElementById("tutorialStep"),icon:document.getElementById("tutorialIcon"),
+ title:document.getElementById("tutorialTitle"),text:document.getElementById("tutorialText"),progress:document.getElementById("tutorialProgress"),
+ prev:document.getElementById("tutorialPrev"),next:document.getElementById("tutorialNext"),skip:document.getElementById("tutorialSkip"),
+ help:document.getElementById("tutorialHelp")
+};
+function tutorialSeen(){try{return localStorage.getItem(TUTORIAL_KEY)==="done"}catch{return false}}
+function markTutorialSeen(){try{localStorage.setItem(TUTORIAL_KEY,"done")}catch{}}
+function renderTutorial(){
+ const s=TUTORIAL_STEPS[tutorialIndex];tutorialEl.step.textContent="TUTORIAL "+(tutorialIndex+1)+" / "+TUTORIAL_STEPS.length;
+ tutorialEl.icon.textContent=s.icon;tutorialEl.title.textContent=s.title;tutorialEl.text.innerHTML=s.text;
+ tutorialEl.progress.innerHTML=TUTORIAL_STEPS.map((_,i)=>'<span class="tutorial-dot '+(i===tutorialIndex?'active':'')+'"></span>').join("");
+ tutorialEl.prev.disabled=tutorialIndex===0;tutorialEl.next.textContent=tutorialIndex===TUTORIAL_STEPS.length-1?"[ 게임 시작 ]":"[ 다음 ]";
+}
+function openTutorial(){if(!state.running)return;closePopup();tutorialIndex=0;renderTutorial();tutorialEl.overlay.classList.add("show")}
+function finishTutorial(){markTutorialSeen();tutorialEl.overlay.classList.remove("show");showToast("✅ 튜토리얼 완료! GPU를 클릭해 시작하세요.")}
+tutorialEl.prev.addEventListener("click",()=>{if(tutorialIndex>0){tutorialIndex--;renderTutorial()}});
+tutorialEl.next.addEventListener("click",()=>{if(tutorialIndex<TUTORIAL_STEPS.length-1){tutorialIndex++;renderTutorial()}else finishTutorial()});
+tutorialEl.skip.addEventListener("click",finishTutorial);
+tutorialEl.help.addEventListener("click",openTutorial);
+
 let toastTimer;function showToast(text){clearTimeout(toastTimer);el.toast.textContent=text;el.toast.classList.add("show");toastTimer=setTimeout(()=>el.toast.classList.remove("show"),1600)}
 el.rackGrid.addEventListener("click",event=>{const gpu=event.target.closest("[data-gpu-uid]");if(gpu){mineGpu(gpu.dataset.gpuUid,event);return}const empty=event.target.closest("[data-empty-slot]");if(empty){state.pendingSlot=Number(empty.dataset.emptySlot);openPopup("shop")}});
 el.popupContent.addEventListener("click",event=>{const forkNode=event.target.closest("[data-fork-node]");if(forkNode){state.selectedFork=forkNode.dataset.forkNode;renderForkTree();return}const b=event.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;if(a==="dismissNews")closePopup();if(a==="eventTrade"){state.tradeCoinId=b.dataset.coin;openPopup("trade")}if(a==="selectTradeCoin")selectTradeCoin(b.dataset.coin);if(a==="setMiningCoin")setMiningCoin(b.dataset.coin);if(a==="claimContract")claimContract();if(a==="sellCoins")sellCoins();if(a==="sellAll")sellCoins(true);if(a==="upgradePrimary"){upgradePrimary();openPopup("gpu")}if(a==="rebirth")rebirthGame();if(a==="selectCoolingGpu")selectCoolingGpu(b.dataset.uid);if(a==="buyGpuCooler")buyGpuCooler(Number(b.dataset.cooler));if(a==="equipGpuCooler")equipGpuCooler(b.dataset.coolingUid,b.dataset.gpuUid);if(a==="equipStockCooler")equipStockCooler(b.dataset.gpuUid);if(a==="cool"){coolGPU();openPopup("cool")}if(a==="oc")toggleOverclock();if(a==="buyGpu")buyGpu(Number(b.dataset.model));if(a==="startEquip")startEquip(b.dataset.uid);if(a==="equipSlot")equipToSlot(b.dataset.uid,Number(b.dataset.slot));if(a==="cancelEquip"){state.inventoryEquipUid=null;openPopup("inventory")}if(a==="unequip")unequip(b.dataset.uid);if(a==="shopForSlot"){state.pendingSlot=Number(b.dataset.slot);openPopup("shop")}if(a==="buyFork")buyForkUpgrade(b.dataset.forkId)});
@@ -535,6 +580,7 @@ window.addEventListener("beforeunload",saveGame);
 window.addEventListener("pagehide",saveGame);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveGame()});
 updateUI();
+if(!tutorialSeen())setTimeout(openTutorial,250);
 </script>
 </body>
 </html>
