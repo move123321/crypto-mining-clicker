@@ -19,6 +19,11 @@ public class WebGameUI:MonoBehaviour {
  static Sprite FanSprite(){return ArtSprite("CryptoMining/GpuFan",ref fanSprite);}
  static Sprite GpuBodySprite(){return ArtSprite("CryptoMining/GpuBody",ref gpuBodySprite);}
  static TMP_FontAsset CreateUiFont(){
+  var bundled=Resources.Load<Font>("CryptoMining/Fonts/NotoSansCJKkr-Regular");
+  if(bundled!=null){
+   var asset=TMP_FontAsset.CreateFontAsset(bundled);
+   if(asset!=null){asset.isMultiAtlasTexturesEnabled=true;asset.fallbackFontAssetTable=new List<TMP_FontAsset>();if(TMP_Settings.defaultFontAsset!=null)asset.fallbackFontAssetTable.Add(TMP_Settings.defaultFontAsset);return asset;}
+  }
   foreach(var family in new[]{"Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR","Arial"}){
    var asset=TMP_FontAsset.CreateFontAsset(family,"Regular",90);
    if(asset!=null){asset.isMultiAtlasTexturesEnabled=true;asset.fallbackFontAssetTable=new List<TMP_FontAsset>();if(TMP_Settings.defaultFontAsset!=null)asset.fallbackFontAssetTable.Add(TMP_Settings.defaultFontAsset);return asset;}
