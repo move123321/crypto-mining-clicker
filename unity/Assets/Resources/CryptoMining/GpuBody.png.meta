@@ -1,0 +1,1079 @@
+fileFormatVersion: 2
+guid: 78a3fe7075a95d949b97443b3a9f53b9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6086222677770043283
+    second: GpuBody_0
+  - first:
+      213: -7255413280419611459
+    second: GpuBody_1
+  - first:
+      213: 7931143143393931515
+    second: GpuBody_2
+  - first:
+      213: -3132201402356676915
+    second: GpuBody_3
+  - first:
+      213: -8098618466982236832
+    second: GpuBody_4
+  - first:
+      213: 8518241502461743495
+    second: GpuBody_5
+  - first:
+      213: 9085203890820662640
+    second: GpuBody_6
+  - first:
+      213: 8172845911593762199
+    second: GpuBody_7
+  - first:
+      213: -7085379515306735281
+    second: GpuBody_8
+  - first:
+      213: 8980956644749067332
+    second: GpuBody_9
+  - first:
+      213: -6977364238952297399
+    second: GpuBody_10
+  - first:
+      213: 3116823256613762375
+    second: GpuBody_11
+  - first:
+      213: -3429329816528216936
+    second: GpuBody_12
+  - first:
+      213: -4711740484083982183
+    second: GpuBody_13
+  - first:
+      213: 1237644253023848452
+    second: GpuBody_14
+  - first:
+      213: -49831664658987005
+    second: GpuBody_15
+  - first:
+      213: -5958107577043545142
+    second: GpuBody_16
+  - first:
+      213: 6293047585003445414
+    second: GpuBody_17
+  - first:
+      213: -3831711616557707272
+    second: GpuBody_18
+  - first:
+      213: -2735860104542938253
+    second: GpuBody_19
+  - first:
+      213: 7938713896656829723
+    second: GpuBody_20
+  - first:
+      213: -84666947408921220
+    second: GpuBody_21
+  - first:
+      213: -1416735228351610814
+    second: GpuBody_22
+  - first:
+      213: -4697814742201273065
+    second: GpuBody_23
+  - first:
+      213: 14802604636622692
+    second: GpuBody_24
+  - first:
+      213: -3630748863374109129
+    second: GpuBody_25
+  - first:
+      213: -3034864876760768721
+    second: GpuBody_26
+  - first:
+      213: 5254120133294141717
+    second: GpuBody_27
+  - first:
+      213: 5463307270797975187
+    second: GpuBody_28
+  - first:
+      213: -8372024721520984962
+    second: GpuBody_29
+  - first:
+      213: -622845706840769627
+    second: GpuBody_30
+  - first:
+      213: -8517149019856514134
+    second: GpuBody_31
+  - first:
+      213: -2414239693848287211
+    second: GpuBody_32
+  - first:
+      213: 8514613287839857292
+    second: GpuBody_33
+  - first:
+      213: -5431562015263603815
+    second: GpuBody_34
+  - first:
+      213: -3787752207159233406
+    second: GpuBody_35
+  - first:
+      213: -2091788238929184524
+    second: GpuBody_36
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: GpuBody_0
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 1483
+        height: 1001
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39ff86c774b967450800000000000000
+      internalID: 6086222677770043283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_1
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 999
+        width: 31
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dbcffe1ff089f4b90800000000000000
+      internalID: -7255413280419611459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_2
+      rect:
+        serializedVersion: 2
+        x: 398
+        y: 1013
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf035ccfaa4111e60800000000000000
+      internalID: 7931143143393931515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_3
+      rect:
+        serializedVersion: 2
+        x: 462
+        y: 917
+        width: 113
+        height: 87
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc6cc8f6b6f2884d0800000000000000
+      internalID: -3132201402356676915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_4
+      rect:
+        serializedVersion: 2
+        x: 640
+        y: 993
+        width: 97
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06dea10a96deb9f80800000000000000
+      internalID: -8098618466982236832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_5
+      rect:
+        serializedVersion: 2
+        x: 736
+        y: 994
+        width: 23
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 781d831d38fd63670800000000000000
+      internalID: 8518241502461743495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_6
+      rect:
+        serializedVersion: 2
+        x: 763
+        y: 991
+        width: 32
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 075cc50adc0251e70800000000000000
+      internalID: 9085203890820662640
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_7
+      rect:
+        serializedVersion: 2
+        x: 798
+        y: 993
+        width: 111
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79dbc841e08cb6170800000000000000
+      internalID: 8172845911593762199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_8
+      rect:
+        serializedVersion: 2
+        x: 952
+        y: 991
+        width: 7
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f49005beedcabad90800000000000000
+      internalID: -7085379515306735281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_9
+      rect:
+        serializedVersion: 2
+        x: 958
+        y: 989
+        width: 25
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 444c3793c74c2ac70800000000000000
+      internalID: 8980956644749067332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_10
+      rect:
+        serializedVersion: 2
+        x: 1002
+        y: 907
+        width: 199
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94c0cbc313c6b2f90800000000000000
+      internalID: -6977364238952297399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_11
+      rect:
+        serializedVersion: 2
+        x: 1270
+        y: 982
+        width: 169
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 745b32efc3e214b20800000000000000
+      internalID: 3116823256613762375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_12
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 943
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89c1e2483b29860d0800000000000000
+      internalID: -3429329816528216936
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_13
+      rect:
+        serializedVersion: 2
+        x: 918
+        y: 949
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 990e85c5ef88c9eb0800000000000000
+      internalID: -4711740484083982183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_14
+      rect:
+        serializedVersion: 2
+        x: 615
+        y: 919
+        width: 10
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4084acb04eefc2110800000000000000
+      internalID: 1237644253023848452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_15
+      rect:
+        serializedVersion: 2
+        x: 866
+        y: 929
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3084f617d56fe4ff0800000000000000
+      internalID: -49831664658987005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_16
+      rect:
+        serializedVersion: 2
+        x: 888
+        y: 924
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac391c0e9bc805da0800000000000000
+      internalID: -5958107577043545142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_17
+      rect:
+        serializedVersion: 2
+        x: 894
+        y: 915
+        width: 9
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ac92c2cf65655750800000000000000
+      internalID: 6293047585003445414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_18
+      rect:
+        serializedVersion: 2
+        x: 904
+        y: 934
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ff0755069603dac0800000000000000
+      internalID: -3831711616557707272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_19
+      rect:
+        serializedVersion: 2
+        x: 462
+        y: 919
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37b1e89eab5480ad0800000000000000
+      internalID: -2735860104542938253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_20
+      rect:
+        serializedVersion: 2
+        x: 478
+        y: 895
+        width: 17
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1dffa75a3afb2e60800000000000000
+      internalID: 7938713896656829723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_21
+      rect:
+        serializedVersion: 2
+        x: 544
+        y: 913
+        width: 15
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7d79732cd333def0800000000000000
+      internalID: -84666947408921220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_22
+      rect:
+        serializedVersion: 2
+        x: 578
+        y: 911
+        width: 25
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2400255e0deb65ce0800000000000000
+      internalID: -1416735228351610814
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_23
+      rect:
+        serializedVersion: 2
+        x: 928
+        y: 919
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 715ff7ec1620eceb0800000000000000
+      internalID: -4697814742201273065
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_24
+      rect:
+        serializedVersion: 2
+        x: 966
+        y: 917
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46fcd17f3e6943000800000000000000
+      internalID: 14802604636622692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_25
+      rect:
+        serializedVersion: 2
+        x: 592
+        y: 887
+        width: 13
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 736dee1352dfc9dc0800000000000000
+      internalID: -3630748863374109129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_26
+      rect:
+        serializedVersion: 2
+        x: 1116
+        y: 903
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2f5d57597ef1e5d0800000000000000
+      internalID: -3034864876760768721
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_27
+      rect:
+        serializedVersion: 2
+        x: 504
+        y: 865
+        width: 10
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 511b9387c626ae840800000000000000
+      internalID: 5254120133294141717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_28
+      rect:
+        serializedVersion: 2
+        x: 568
+        y: 53
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39ed8b6540191db40800000000000000
+      internalID: 5463307270797975187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_29
+      rect:
+        serializedVersion: 2
+        x: 574
+        y: 65
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7cf3f66fd790db80800000000000000
+      internalID: -8372024721520984962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_30
+      rect:
+        serializedVersion: 2
+        x: 614
+        y: 62
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5abf0ed21253b57f0800000000000000
+      internalID: -622845706840769627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_31
+      rect:
+        serializedVersion: 2
+        x: 696
+        y: 63
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa3d26c97120dc980800000000000000
+      internalID: -8517149019856514134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_32
+      rect:
+        serializedVersion: 2
+        x: 1018
+        y: 43
+        width: 27
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51866852ac5ee7ed0800000000000000
+      internalID: -2414239693848287211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_33
+      rect:
+        serializedVersion: 2
+        x: 1086
+        y: 53
+        width: 29
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8af3854cabf92670800000000000000
+      internalID: 8514613287839857292
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_34
+      rect:
+        serializedVersion: 2
+        x: 592
+        y: 15
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99345b0ff173f94b0800000000000000
+      internalID: -5431562015263603815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_35
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 21
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 284721b9f633f6bc0800000000000000
+      internalID: -3787752207159233406
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: GpuBody_36
+      rect:
+        serializedVersion: 2
+        x: 910
+        y: 23
+        width: 9
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f83941fda978f2e0800000000000000
+      internalID: -2091788238929184524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      GpuBody_0: 6086222677770043283
+      GpuBody_1: -7255413280419611459
+      GpuBody_10: -6977364238952297399
+      GpuBody_11: 3116823256613762375
+      GpuBody_12: -3429329816528216936
+      GpuBody_13: -4711740484083982183
+      GpuBody_14: 1237644253023848452
+      GpuBody_15: -49831664658987005
+      GpuBody_16: -5958107577043545142
+      GpuBody_17: 6293047585003445414
+      GpuBody_18: -3831711616557707272
+      GpuBody_19: -2735860104542938253
+      GpuBody_2: 7931143143393931515
+      GpuBody_20: 7938713896656829723
+      GpuBody_21: -84666947408921220
+      GpuBody_22: -1416735228351610814
+      GpuBody_23: -4697814742201273065
+      GpuBody_24: 14802604636622692
+      GpuBody_25: -3630748863374109129
+      GpuBody_26: -3034864876760768721
+      GpuBody_27: 5254120133294141717
+      GpuBody_28: 5463307270797975187
+      GpuBody_29: -8372024721520984962
+      GpuBody_3: -3132201402356676915
+      GpuBody_30: -622845706840769627
+      GpuBody_31: -8517149019856514134
+      GpuBody_32: -2414239693848287211
+      GpuBody_33: 8514613287839857292
+      GpuBody_34: -5431562015263603815
+      GpuBody_35: -3787752207159233406
+      GpuBody_36: -2091788238929184524
+      GpuBody_4: -8098618466982236832
+      GpuBody_5: 8518241502461743495
+      GpuBody_6: 9085203890820662640
+      GpuBody_7: 8172845911593762199
+      GpuBody_8: -7085379515306735281
+      GpuBody_9: 8980956644749067332
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
