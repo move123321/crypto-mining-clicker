@@ -15,6 +15,17 @@ public class WebGameUI:MonoBehaviour {
  static readonly Color Bg=C("151a2c"),Panel=C("202a47"),Dark=C("0e1527"),Cyan=C("50dcff"),Green=C("79f17d"),Gold=C("ffd365"),Red=C("ff727d"),Muted=C("9aa7c5"),White=C("f2f5ff");
  static Color C(string s){Color c;ColorUtility.TryParseHtmlString("#"+s,out c);return c;}
  static Sprite fanSprite,gpuBodySprite;
+ static readonly Sprite[] navSprites=new Sprite[6];
+ static Sprite NavSprite(int index){
+  if(navSprites[index]!=null)return navSprites[index];
+  var atlas=Resources.Load<Texture2D>("CryptoMining/NavIcons");
+  if(atlas==null)return null;
+  atlas.filterMode=FilterMode.Bilinear;
+  float cellWidth=atlas.width/3f,cellHeight=atlas.height/2f;
+  var area=new UnityEngine.Rect((index%3)*cellWidth,(1-index/3)*cellHeight,cellWidth,cellHeight);
+  navSprites[index]=Sprite.Create(atlas,area,new Vector2(.5f,.5f),100);
+  return navSprites[index];
+ }
  static Sprite ArtSprite(string path,ref Sprite cache){if(cache!=null)return cache;var tex=Resources.Load<Texture2D>(path);if(tex==null)return null;tex.filterMode=FilterMode.Bilinear;cache=Sprite.Create(tex,new UnityEngine.Rect(0,0,tex.width,tex.height),new Vector2(.5f,.5f),100);return cache;}
  static Sprite FanSprite(){return ArtSprite("CryptoMining/GpuFan",ref fanSprite);}
  static Sprite GpuBodySprite(){return ArtSprite("CryptoMining/GpuBody",ref gpuBodySprite);}
@@ -67,7 +78,16 @@ public class WebGameUI:MonoBehaviour {
  var e=Box(hud,"Electricity",309,164,143,60,Dark,C("465375"));Text(e,"ELECTRICITY",8,5,127,18,10,Muted);bill=Text(e,"",8,25,127,26,13,Red);
  var room=Box(body,"Mining Room",9,309,462,500,C("cbb8a8"),C("88746f"),3);Box(room,"Floor",3,320,456,177,C("ded0c2"));Box(room,"Wood trim",3,3,456,18,C("654533"));rack=Box(room,"Rack",8,163,224,322,C("626775"),C("30343d"),4);
  var desk=Rect(room,"Trading Desk",252,266,192,220);Box(desk,"Desk top",0,85,192,32,C("71623d"));Box(desk,"Left leg",8,112,38,108,C("71623d"));Box(desk,"Right leg",146,112,38,108,C("71623d"));Box(desk,"Monitor stand",82,60,28,42,C("3b4155"));var monitor=Button(desk,"",49,0,94,69,()=>Open("trade"),C("737988"));var mr=monitor.GetComponent<RectTransform>();Box(mr,"Screen",7,7,80,55,C("070e13")).GetComponent<Image>().raycastTarget=false;Text(mr,"₿",7,7,80,34,27,Green,TextAnchor.MiddleCenter);Text(mr,"코인 판매",7,40,80,17,10,Green,TextAnchor.MiddleCenter);
- var nav=Box(screen,"Bottom Navigation",0,774,480,80,C("090f1e"),C("56658c"));string[] names={"GPU","INV","OC","COOL","SHOP","FORK"},icons={"▣","▤","↗","❄","＋","⋈"},pages={"gpu","inventory","oc","cool","shop","fork"};for(int i=0;i<6;i++){string key=pages[i];Button(nav,icons[i]+"\n["+names[i]+"]",5+i*79,7,74,65,()=>{pendingSlot=-1;Open(key);},C("56658c"),12);}
+ var nav=Box(screen,"Bottom Navigation",0,774,480,80,C("090f1e"),C("56658c"));
+ string[] names={"GPU","INV","OC","COOL","SHOP","FORK"},pages={"gpu","inventory","oc","cool","shop","fork"};
+ for(int i=0;i<6;i++){
+  string key=pages[i];
+  var button=Button(nav,"",5+i*79,7,74,65,()=>{pendingSlot=-1;Open(key);},C("56658c"),12);
+  var tile=button.GetComponent<RectTransform>();
+  var icon=Paint(Rect(tile,"Menu Icon",17,3,40,40),Color.white);
+  icon.sprite=NavSprite(i);icon.preserveAspect=true;icon.raycastTarget=false;
+  Text(tile,names[i],4,44,66,17,11,White,TextAnchor.MiddleCenter);
+ }
  toast=Text(screen,"",20,714,440,48,13,White,TextAnchor.MiddleCenter);toast.outlineColor=Bg;toast.outlineWidth=.12f;toast.transform.SetAsLastSibling();toast.gameObject.SetActive(false);
  }
  void Refresh(){if(money==null||g.S==null)return;var c=g.MiningCoin();coinIcon.text=new[]{"₿","Ξ","Ð","✦","404","Q"}[Array.IndexOf(Catalog.Coins,c)];money.text=N(g.Balance(c.id));coin.text=c.name+" 채굴 중";rate.text="+"+D(g.TotalAuto())+" / sec";cash.text="₩ 현금 "+N(g.S.cash);fork.text="⋈ FORK "+g.S.fork;temp.text=Mathf.FloorToInt(g.Hottest())+"°C";temp.color=g.Hottest()>=85?Red:g.Hottest()>=65?Gold:White;power.text=g.TotalPower()+"W";bill.text="-₩"+g.ElectricityPerMinute()+"/min";fever.text=g.S.fever?"◆ MINING FEVER | ×"+(g.HasFork("fever")?3:2)+" | "+g.S.feverTime+"s ◆":"◆ MINING FEVER | CHARGING | "+g.S.feverCooldown+"s ◆";date.text=DateTime.UtcNow.AddHours(9).ToString("yyyy. MM. dd. HH:mm:ss")+" · 한국 시간";
@@ -79,8 +99,8 @@ var fan=Rect(body,"Fan",0,0,23,23);fan.pivot=new Vector2(.5f,.5f);fan.anchoredPo
  IEnumerator FloatRoutine(Text t){float a=0;while(a<.9f){a+=Time.unscaledDeltaTime;t.rectTransform.anchoredPosition+=Vector2.up*35*Time.unscaledDeltaTime;t.color=new Color(Green.r,Green.g,Green.b,1-a/.9f);yield return null;}Destroy(t.gameObject);}
  void Toast(string s){if(toastRoutine!=null)StopCoroutine(toastRoutine);toastRoutine=StartCoroutine(ToastTime(s));}
  IEnumerator ToastTime(string s){toast.text=s;toast.transform.SetAsLastSibling();toast.gameObject.SetActive(true);yield return new WaitForSecondsRealtime(1.6f);toast.gameObject.SetActive(false);}
- float y; RectTransform Card(string title,string detail,float h=110){var r=Box(content,title,0,y,412,h,Dark,C("394765"));Text(r,title,10,7,392,26,14,Green);Text(r,detail,10,37,392,h-44,12);y+=h+9;return r;}
- void ActionCard(string title,string detail,string label,Action a,Color? accent=null,float h=158){var r=Card(title,detail,h);Button(r,label,10,h-44,392,34,a,accent);}
+ float y; RectTransform Card(string title,string detail,float h=110,float detailHeight=-1){var r=Box(content,title,0,y,412,h,Dark,C("394765"));Text(r,title,10,7,392,26,14,Green);if(!string.IsNullOrEmpty(detail))Text(r,detail,10,37,392,detailHeight>=0?detailHeight:h-44,12,White,TextAnchor.UpperLeft);y+=h+9;return r;}
+ void ActionCard(string title,string detail,string label,Action a,Color? accent=null,float h=158){var r=Card(title,detail,h,h-89);Button(r,label,10,h-44,392,34,a,accent);}
  void LiveText(Text t,Func<string> f){Action a=()=>{if(t!=null)t.text=f();};live.Add(a);a();}
  void Open(string type){if(!g.S.running)return;Close(false);page=type;string title=type=="gpu"?"GPU MANAGER":type=="inventory"?"GPU INVENTORY":type=="oc"?"OVERCLOCK":type=="cool"?"GPU COOLING LAB":type=="shop"?"HARDWARE SHOP":type=="fork"?"FORK UPGRADE TREE":type=="news"?"코인 시장 속보":"MULTI COIN EXCHANGE";
  modal=Box(screen,"Modal",0,0,480,854,new Color(.01f,.02f,.05f,.94f));var box=Box(modal,"Popup",20,32,440,746,Panel,C("56658c"),3);Text(box,title,12,8,354,35,16,Cyan);Button(box,"×",387,8,40,35,()=>Close(),Red,22);ScrollRect sc;content=Scroll(box,14,55,412,675,out sc);y=0;
@@ -94,7 +114,15 @@ var fan=Rect(body,"Fan",0,0,23,23);fan.pivot=new Vector2(.5f,.5f);fan.anchoredPo
  void Cool(){var r=ActionCardTemp();foreach(var it in g.Equipped())ActionCard("SLOT "+(it.slot+1)+" · "+Catalog.GPU(it.modelId).name,"TEMP "+Mathf.FloorToInt(it.temp)+"°C\n"+Catalog.Cooler(it.coolerId).name,it.uid==coolTarget?"선택됨":"변경",()=>{coolTarget=it.uid;Open("cool");},Cyan);
  var target=g.Find(coolTarget);if(target!=null&&target.slot>=0){ActionCard("선택 GPU · "+Catalog.GPU(target.modelId).name,"현재: "+Catalog.Cooler(target.coolerId).name,"[ 기본 듀얼팬 장착 ]",()=>{g.StockCooler(target.uid);Open("cool");});foreach(var unit in g.S.coolingItems){var mounted=g.Find(unit.gpuUid);ActionCard(Catalog.Cooler(unit.coolerId).name,unit.gpuUid==null?"보관":mounted==null?"보관":Catalog.GPU(mounted.modelId).name+" 장착","장착",unit.gpuUid==target.uid?null:(Action)(()=>{g.EquipCooler(unit.uid,target.uid);Open("cool");}));}}
  foreach(var cl in Catalog.Coolers){if(cl.id==0)continue;bool unlocked=g.CoolerUnlocked(cl);ActionCard(cl.name,cl.desc+"\n자동 냉각 -"+(cl.rate*(g.HasFork("cooling")?1.15:1)).ToString("0.00")+"°C/s · ₩"+N(cl.cost)+"\n"+(unlocked?"인증 완료":"운영 "+g.Duration(Mathf.FloorToInt(cl.unlockSeconds*g.CycleFactor()))+" 후 해금"),unlocked?"구매":"잠금",unlocked&&g.S.cash>=cl.cost?(Action)(()=>{g.BuyCooler(coolTarget,cl.id);Open("cool");}):null,null,185);}}
- RectTransform ActionCardTemp(){var r=Card("RACK TEMPERATURE","냉각장치는 GPU마다 따로 장착됩니다.\n100°C 도달 시 파산합니다.",180);var t=Text(r,"",10,84,392,36,13,Cyan);LiveText(t,()=>"최고 "+Mathf.FloorToInt(g.Hottest())+"°C · 장착 GPU "+g.Equipped().Count+"개");Button(r,"[ 랙 전체 긴급 냉각 ]",10,134,392,34,()=>{g.EmergencyCool();},Cyan);return r;}
+ RectTransform ActionCardTemp(){
+  // Keep description, live readings and action in separate non-overlapping rows.
+  var r=Card("RACK TEMPERATURE","",194);
+  Text(r,"냉각장치는 GPU마다 따로 장착됩니다.\n100°C 도달 시 파산합니다.",10,43,392,42,12,White,TextAnchor.UpperLeft);
+  var t=Text(r,"",10,95,392,26,13,Cyan,TextAnchor.UpperLeft);
+  LiveText(t,()=>"최고 "+Mathf.FloorToInt(g.Hottest())+"°C · 장착 GPU "+g.Equipped().Count+"개");
+  Button(r,"[ 랙 전체 긴급 냉각 ]",10,146,392,36,()=>{g.EmergencyCool();},Cyan);
+  return r;
+ }
  void Shop(){Card("RIG CERTIFICATION",Certification()+"\n"+(pendingSlot>=0?"SLOT "+(pendingSlot+1)+"에 바로 장착":"구매한 GPU는 인벤토리에 보관됩니다.")+"\n보유 ₩"+N(g.S.cash),158);foreach(var m in Catalog.GPUs){bool u=g.Certified(m);ActionCard(m.name,"CLICK "+N(m.click)+" · AUTO "+D(m.autoMine)+"/s · "+m.power+"W\n가격 ₩"+N(m.price)+"\n"+(u?"해금됨":"운영 "+g.Duration(g.RequiredSeconds(m))+" + 누적 "+N(m.unlockMined)),u?"구매":"잠금",u&&g.S.cash>=m.price?(Action)(()=>{if(g.BuyGpu(m.id,pendingSlot))pendingSlot=-1;Open("shop");}):null,null,176);}}
  static readonly string[] ids={"root","cooling","click","auto","oc","fork","fever"},nodeNames={"MINING CORE","THERMAL SHIELD","CLICK ENGINE","AUTO HASH","STABLE OC","MINING MASTERY","FEVER CORE"},req={"","root","root","root","click","auto","cooling"},desc={"모든 FORK 업그레이드의 시작점입니다.","모든 장착 GPU의 발열을 20% 감소시키고 냉각을 강화합니다.","GPU 클릭 채굴량이 25% 증가합니다.","랙 전체 자동 채굴량이 30% 증가합니다.","오버클럭 보너스를 +30%에서 +50%로 강화합니다.","클릭 및 자동 채굴 수익이 영구적으로 10% 증가합니다.","FEVER 배율을 ×2에서 ×3으로, 지속시간을 25초로 강화합니다."};
  void Fork(){ActionCard("환생 · 완료 "+g.S.rebirths+"회","QUANTUM "+g.QuantumCount()+" / "+g.RebirthReq()+" · 운영 "+g.Duration(g.S.runSeconds)+" / "+g.Duration(g.RebirthSeconds())+"\n초기화: 돈, GPU, 쿨러, 이번 회차 기록\n유지: 환생 횟수, FORK, 해금한 업그레이드","[ 환생 · FORK +1 ]",g.CanRebirth()?(Action)(()=>{g.Rebirth();Open("fork");}):null,C("d383ff"),190);Card("FORK NETWORK","보유 FORK "+g.S.fork+" · 각 노드 해금 비용 1",80);var tree=Box(content,"Tech Tree",0,y,412,430,C("0d0f12"),C("343945"));float[] xs={177,79,79,275,275,177,177},ys={177,86,270,86,270,28,326};for(int i=1;i<7;i++){int parent=Array.IndexOf(ids,req[i]);Line(tree,new Vector2(xs[parent]+29,ys[parent]+29),new Vector2(xs[i]+29,ys[i]+29),g.HasFork(ids[i])?Green:C("777d86"),3);}for(int i=0;i<7;i++){int j=i;bool have=g.HasFork(ids[i]);bool available=have||g.HasFork(req[i]);Button(tree,new[]{"CORE","SHIELD","CLICK","AUTO","OC","FORK","FEVER"}[i]+"\n"+(i==0?"":"1"),xs[i],ys[i],58,58,()=>{selectedNode=ids[j];Open("fork");},selectedNode==ids[i]?Cyan:have?Green:available?Gold:C("353b48"),9);}y+=439;int k=Array.IndexOf(ids,selectedNode);ActionCard(nodeNames[k],desc[k]+"\nCOST : "+(k==0?0:1)+" FORK",g.HasFork(selectedNode)?"UNLOCKED":!g.HasFork(req[k])?"선행 노드 필요":"[ 업그레이드 해금 ]",!g.HasFork(selectedNode)&&g.HasFork(req[k])&&g.S.fork>=1?(Action)(()=>{g.BuyFork(ids[k],req[k]);Open("fork");}):null,C("d383ff"));}
