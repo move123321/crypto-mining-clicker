@@ -123,7 +123,25 @@ var fan=Rect(body,"Fan",0,0,23,23);fan.pivot=new Vector2(.5f,.5f);fan.anchoredPo
   Button(r,"[ 랙 전체 긴급 냉각 ]",10,146,392,36,()=>{g.EmergencyCool();},Cyan);
   return r;
  }
- void Shop(){Card("RIG CERTIFICATION",Certification()+"\n"+(pendingSlot>=0?"SLOT "+(pendingSlot+1)+"에 바로 장착":"구매한 GPU는 인벤토리에 보관됩니다.")+"\n보유 ₩"+N(g.S.cash),158);foreach(var m in Catalog.GPUs){bool u=g.Certified(m);ActionCard(m.name,"CLICK "+N(m.click)+" · AUTO "+D(m.autoMine)+"/s · "+m.power+"W\n가격 ₩"+N(m.price)+"\n"+(u?"해금됨":"운영 "+g.Duration(g.RequiredSeconds(m))+" + 누적 "+N(m.unlockMined)),u?"구매":"잠금",u&&g.S.cash>=m.price?(Action)(()=>{if(g.BuyGpu(m.id,pendingSlot))pendingSlot=-1;Open("shop");}):null,null,176);}}
+ void Shop(){
+  Card("RIG CERTIFICATION",Certification()+"\n"+(pendingSlot>=0?"SLOT "+(pendingSlot+1)+"에 바로 장착":"구매한 GPU는 인벤토리에 보관됩니다.")+"\n보유 ₩"+N(g.S.cash),158);
+  foreach(var m in Catalog.GPUs){
+   bool u=g.Certified(m);
+   var card=Card(m.name,"",190);
+   string detail="CLICK "+N(m.click)+" · AUTO "+D(m.autoMine)+"/s\n전력 "+m.power+"W\n가격 ₩"+N(m.price)+"\n"+(u?"해금됨":"운영 "+g.Duration(g.RequiredSeconds(m))+" + 누적 "+N(m.unlockMined));
+   Text(card,detail,10,40,222,98,12,White,TextAnchor.UpperLeft);
+   // Use the same body and fan artwork as the mining rack, at a larger size.
+   var preview=Rect(card,"GPU Preview",250,51,152,76);
+   var bodyImage=Paint(preview,Color.white);bodyImage.sprite=GpuBodySprite();bodyImage.preserveAspect=true;bodyImage.raycastTarget=false;
+   for(int f=0;f<2;f++){
+    float centerX=(f==0?65f:137f)/192f*152f,centerY=35f/96f*76f;
+    var fan=Rect(preview,"Preview Fan",0,0,39,39);
+    fan.pivot=new Vector2(.5f,.5f);fan.anchoredPosition=new Vector2(centerX,-centerY);
+    var fanImage=Paint(fan,Color.white);fanImage.sprite=FanSprite();fanImage.preserveAspect=true;fanImage.raycastTarget=false;
+   }
+   Button(card,u?"구매":"잠금",10,146,392,34,u&&g.S.cash>=m.price?(Action)(()=>{if(g.BuyGpu(m.id,pendingSlot))pendingSlot=-1;Open("shop");}):null);
+  }
+ }
  static readonly string[] ids={"root","cooling","click","auto","oc","fork","fever"},nodeNames={"MINING CORE","THERMAL SHIELD","CLICK ENGINE","AUTO HASH","STABLE OC","MINING MASTERY","FEVER CORE"},req={"","root","root","root","click","auto","cooling"},desc={"모든 FORK 업그레이드의 시작점입니다.","모든 장착 GPU의 발열을 20% 감소시키고 냉각을 강화합니다.","GPU 클릭 채굴량이 25% 증가합니다.","랙 전체 자동 채굴량이 30% 증가합니다.","오버클럭 보너스를 +30%에서 +50%로 강화합니다.","클릭 및 자동 채굴 수익이 영구적으로 10% 증가합니다.","FEVER 배율을 ×2에서 ×3으로, 지속시간을 25초로 강화합니다."};
  void Fork(){ActionCard("환생 · 완료 "+g.S.rebirths+"회","QUANTUM "+g.QuantumCount()+" / "+g.RebirthReq()+" · 운영 "+g.Duration(g.S.runSeconds)+" / "+g.Duration(g.RebirthSeconds())+"\n초기화: 돈, GPU, 쿨러, 이번 회차 기록\n유지: 환생 횟수, FORK, 해금한 업그레이드","[ 환생 · FORK +1 ]",g.CanRebirth()?(Action)(()=>{g.Rebirth();Open("fork");}):null,C("d383ff"),190);Card("FORK NETWORK","보유 FORK "+g.S.fork+" · 각 노드 해금 비용 1",80);var tree=Box(content,"Tech Tree",0,y,412,430,C("0d0f12"),C("343945"));float[] xs={177,79,79,275,275,177,177},ys={177,86,270,86,270,28,326};for(int i=1;i<7;i++){int parent=Array.IndexOf(ids,req[i]);Line(tree,new Vector2(xs[parent]+29,ys[parent]+29),new Vector2(xs[i]+29,ys[i]+29),g.HasFork(ids[i])?Green:C("777d86"),3);}for(int i=0;i<7;i++){int j=i;bool have=g.HasFork(ids[i]);bool available=have||g.HasFork(req[i]);Button(tree,new[]{"CORE","SHIELD","CLICK","AUTO","OC","FORK","FEVER"}[i]+"\n"+(i==0?"":"1"),xs[i],ys[i],58,58,()=>{selectedNode=ids[j];Open("fork");},selectedNode==ids[i]?Cyan:have?Green:available?Gold:C("353b48"),9);}y+=439;int k=Array.IndexOf(ids,selectedNode);ActionCard(nodeNames[k],desc[k]+"\nCOST : "+(k==0?0:1)+" FORK",g.HasFork(selectedNode)?"UNLOCKED":!g.HasFork(req[k])?"선행 노드 필요":"[ 업그레이드 해금 ]",!g.HasFork(selectedNode)&&g.HasFork(req[k])&&g.S.fork>=1?(Action)(()=>{g.BuyFork(ids[k],req[k]);Open("fork");}):null,C("d383ff"));}
  void Line(Transform p,Vector2 a,Vector2 b,Color c,float width){Vector2 delta=b-a;var r=Box(p,"Line",a.x,a.y,delta.magnitude,width,c);r.pivot=new Vector2(0,.5f);r.localRotation=Quaternion.Euler(0,0,-Mathf.Atan2(delta.y,delta.x)*Mathf.Rad2Deg);r.GetComponent<Image>().raycastTarget=false;}
