@@ -70,7 +70,7 @@ public class WebGameUI:MonoBehaviour {
  void Build(){if(FindFirstObjectByType<EventSystem>()==null)new GameObject("EventSystem",typeof(EventSystem),typeof(InputSystemUIInputModule));var cv=new GameObject("Web Game Canvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));canvas=cv.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;canvas.pixelPerfect=false;var scaler=cv.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(480,854);scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.Expand;var backdrop=Rect(cv.transform,"Backdrop",0,0,480,854);Fill(backdrop);Paint(backdrop,C("0b101d"));screen=Box(cv.transform,"Mobile 480 x 854",0,0,480,854,Bg);screen.anchorMin=screen.anchorMax=new Vector2(.5f,.5f);screen.pivot=new Vector2(.5f,.5f);screen.anchoredPosition=Vector2.zero;
  ScrollRect scroll;body=Scroll(screen,0,0,480,774,out scroll);body.sizeDelta=new Vector2(480,817);Paint(body,C("303a54"));for(int i=0;i<35;i++){Box(body,"Grid",i*14,0,1,817,new Color(1,1,1,.025f));}for(int i=0;i<59;i++)Box(body,"Grid",0,i*14,480,1,new Color(1,1,1,.025f));
  date=Text(body,"",10,6,450,19,11);Text(body,"『암호화폐 마이닝』",60,28,340,30,19,White,TextAnchor.MiddleCenter);Button(body,"▶",397,28,30,30,()=>Opening(true),Gold);Button(body,"?",436,28,30,30,Tutorial,Cyan,16);
- var hud=Box(body,"HUD",9,66,462,234,C("253150"),C("56658c"),3);var wallet=Box(hud,"Wallet",10,10,442,62,C("1b2440"),C("425078"));coinIcon=Text(wallet,"₿",10,6,38,44,34,Gold);money=Text(wallet,"0",53,3,240,38,27);coin=Text(wallet,"BTC-X 채굴 중",53,39,225,17,11,Cyan);rate=Text(wallet,"+1.0 / sec",287,18,142,28,14,Green,TextAnchor.MiddleRight);
+ var hud=Box(body,"HUD",9,66,462,234,C("253150"),C("56658c"),3);var wallet=Box(hud,"Wallet",10,10,442,62,C("1b2440"),C("425078"));BuildWalletContents(wallet);
  var f=Box(hud,"Fever",10,80,442,34,C("684113"),C("f2b451"));fever=Text(f,"",5,2,432,30,12,Gold,TextAnchor.MiddleCenter);
  var cashBox=Box(hud,"Cash",10,122,218,34,Dark,C("465375"));cash=Text(cashBox,"",10,3,198,28,13);var forkBox=Box(hud,"Fork",234,122,218,34,Dark,C("465375"));fork=Text(forkBox,"",10,3,198,28,13,Green,TextAnchor.MiddleRight);
  var t=Box(hud,"Temp",10,164,143,60,Dark,C("465375"));Text(t,"TEMP",8,5,127,18,11,Muted);temp=Text(t,"",8,25,127,26,15);
@@ -90,6 +90,19 @@ public class WebGameUI:MonoBehaviour {
  }
  toast=Text(screen,"",20,714,440,48,13,White,TextAnchor.MiddleCenter);toast.outlineColor=Bg;toast.outlineWidth=.12f;toast.transform.SetAsLastSibling();toast.gameObject.SetActive(false);
  }
+ void BuildWalletContents(RectTransform wallet){
+  var badge=Rect(wallet,"Wallet coin",10,10,38,38);
+  badge.gameObject.AddComponent<TradeCoinGraphic>().raycastTarget=false;
+  coinIcon=Text(badge,"B",0,0,38,38,22,C("70400c"),TextAnchor.MiddleCenter);
+  coinIcon.fontStyle=FontStyles.Bold;coinIcon.textWrappingMode=TextWrappingModes.NoWrap;
+  coinIcon.enableAutoSizing=true;coinIcon.fontSizeMin=10;coinIcon.fontSizeMax=22;
+  coinIcon.overflowMode=TextOverflowModes.Overflow;
+  money=Text(wallet,"0",57,2,222,39,27,White,TextAnchor.MiddleLeft);
+  money.textWrappingMode=TextWrappingModes.NoWrap;money.enableAutoSizing=true;
+  money.fontSizeMin=12;money.fontSizeMax=27;money.overflowMode=TextOverflowModes.Ellipsis;
+  coin=Text(wallet,"BTC-X 채굴 중",57,41,222,17,11,Cyan);
+  rate=Text(wallet,"+1.0 / sec",287,18,142,28,14,Green,TextAnchor.MiddleRight);
+ }
  void DecorateTradeMonitor(RectTransform monitor){
   var display=Box(monitor,"Trading display",6,6,82,57,C("0c202c"));
   display.GetComponent<Image>().raycastTarget=false;
@@ -108,7 +121,7 @@ public class WebGameUI:MonoBehaviour {
   var label=Text(display,"코인 판매",4,42,74,12,9,Green,TextAnchor.MiddleCenter);
   label.textWrappingMode=TextWrappingModes.NoWrap;label.overflowMode=TextOverflowModes.Overflow;
  }
- void Refresh(){if(money==null||g.S==null)return;var c=g.MiningCoin();coinIcon.text=new[]{"₿","Ξ","Ð","✦","404","Q"}[Array.IndexOf(Catalog.Coins,c)];money.text=N(g.Balance(c.id));coin.text=c.name+" 채굴 중";rate.text="+"+D(g.TotalAuto())+" / sec";cash.text="₩ 현금 "+N(g.S.cash);fork.text="⋈ FORK "+g.S.fork;temp.text=Mathf.FloorToInt(g.Hottest())+"°C";temp.color=g.Hottest()>=85?Red:g.Hottest()>=65?Gold:White;power.text=g.TotalPower()+"W";bill.text="-₩"+g.ElectricityPerMinute()+"/min";fever.text=g.S.fever?"◆ MINING FEVER | ×"+(g.HasFork("fever")?3:2)+" | "+g.S.feverTime+"s ◆":"◆ MINING FEVER | CHARGING | "+g.S.feverCooldown+"s ◆";date.text=DateTime.UtcNow.AddHours(9).ToString("yyyy. MM. dd. HH:mm:ss")+" · 한국 시간";
+ void Refresh(){if(money==null||g.S==null)return;var c=g.MiningCoin();coinIcon.text=new[]{"B","E","D","N","404","Q"}[Array.IndexOf(Catalog.Coins,c)];money.text=N(g.Balance(c.id));coin.text=c.name+" 채굴 중";rate.text="+"+D(g.TotalAuto())+" / sec";cash.text="₩ 현금 "+N(g.S.cash);fork.text="⋈ FORK "+g.S.fork;temp.text=Mathf.FloorToInt(g.Hottest())+"°C";temp.color=g.Hottest()>=85?Red:g.Hottest()>=65?Gold:White;power.text=g.TotalPower()+"W";bill.text="-₩"+g.ElectricityPerMinute()+"/min";fever.text=g.S.fever?"◆ MINING FEVER | ×"+(g.HasFork("fever")?3:2)+" | "+g.S.feverTime+"s ◆":"◆ MINING FEVER | CHARGING | "+g.S.feverCooldown+"s ◆";date.text=DateTime.UtcNow.AddHours(9).ToString("yyyy. MM. dd. HH:mm:ss")+" · 한국 시간";
  string key="";for(int i=0;i<8;i++){var it=g.At(i);key+=it==null?"-":it.uid+":"+it.modelId+":"+it.coolerId;key+="|";}if(key!=rackKey){rackKey=key;BuildRack();}for(int i=0;i<rackTemps.Count;i++)if(rackTemps[i]!=null){var gpu=g.At(i);rackTemps[i].text=gpu==null?"":Mathf.FloorToInt(gpu.temp)+"°C";}foreach(var update in live.ToArray())update();}
 void BuildRack(){foreach(Transform child in rack)Destroy(child.gameObject);fans.Clear();rackTemps.Clear();for(int i=0;i<8;i++){int slot=i;var gpu=g.At(i);float x=10+(i%2)*106,y=12+(i/2)*76;var b=Button(rack,gpu==null?"[추가하기]":"",x,y,98,68,gpu==null?(Action)(()=>{pendingSlot=slot;Open("shop");}):()=>{double gain=g.ClickMine(gpu.uid);if(gain>0)FloatGain(gain);},gpu==null?C("29412e"):C("414c61"),10);var r=b.GetComponent<RectTransform>();Box(r,"LED",9,60,80,3,Green).GetComponent<Image>().raycastTarget=false;if(gpu==null){rackTemps.Add(null);continue;}var model=Catalog.GPU(gpu.modelId);var body=Rect(r,"GPU body",4,15,90,45);var bodyImage=Paint(body,Color.white);bodyImage.sprite=GpuBodySprite();bodyImage.preserveAspect=true;bodyImage.raycastTarget=false;Text(r,model.name,5,2,89,13,8,White);rackTemps.Add(Text(r,"",61,2,31,13,8,Cyan,TextAnchor.MiddleRight));if(gpu.coolerId>=3){var water=Box(r,"Waterblock",12,23,74,29,C("10465c"),Cyan);water.GetComponent<Image>().raycastTarget=false;Text(water,"◈ WATER",2,2,70,25,11,Cyan,TextAnchor.MiddleCenter);}else for(int f=0;f<2;f++){// Centers measured in the 192 x 96 body texture. Keep rotors in body coordinates.
 float centerX=(f==0?65f:137f)/192f*90f,centerY=35f/96f*45f;
