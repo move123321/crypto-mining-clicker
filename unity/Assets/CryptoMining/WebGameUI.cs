@@ -77,7 +77,7 @@ public class WebGameUI:MonoBehaviour {
  var p=Box(hud,"Power",160,164,142,60,Dark,C("465375"));Text(p,"POWER",8,5,126,18,11,Muted);power=Text(p,"",8,25,126,26,15,Gold);
  var e=Box(hud,"Electricity",309,164,143,60,Dark,C("465375"));Text(e,"ELECTRICITY",8,5,127,18,10,Muted);bill=Text(e,"",8,25,127,26,13,Red);
  var room=Box(body,"Mining Room",9,309,462,500,C("cbb8a8"),C("88746f"),3);Box(room,"Floor",3,320,456,177,C("ded0c2"));Box(room,"Wood trim",3,3,456,18,C("654533"));rack=Box(room,"Rack",8,163,224,322,C("626775"),C("30343d"),4);
- var desk=Rect(room,"Trading Desk",252,266,192,220);Box(desk,"Desk top",0,85,192,32,C("71623d"));Box(desk,"Left leg",8,112,38,108,C("71623d"));Box(desk,"Right leg",146,112,38,108,C("71623d"));Box(desk,"Monitor stand",82,60,28,42,C("3b4155"));var monitor=Button(desk,"",49,0,94,69,()=>Open("trade"),C("737988"));var mr=monitor.GetComponent<RectTransform>();Box(mr,"Screen",7,7,80,55,C("070e13")).GetComponent<Image>().raycastTarget=false;Text(mr,"₿",7,7,80,34,27,Green,TextAnchor.MiddleCenter);Text(mr,"코인 판매",7,40,80,17,10,Green,TextAnchor.MiddleCenter);
+ var desk=Rect(room,"Trading Desk",252,266,192,220);Box(desk,"Desk top",0,85,192,32,C("71623d"));Box(desk,"Left leg",8,112,38,108,C("71623d"));Box(desk,"Right leg",146,112,38,108,C("71623d"));Box(desk,"Monitor stand",82,60,28,42,C("3b4155"));var monitor=Button(desk,"",49,0,94,69,()=>Open("trade"),C("737988"));var mr=monitor.GetComponent<RectTransform>();DecorateTradeMonitor(mr);
  var nav=Box(screen,"Bottom Navigation",0,774,480,80,C("090f1e"),C("56658c"));
  string[] names={"GPU","INV","OC","COOL","SHOP","FORK"},pages={"gpu","inventory","oc","cool","shop","fork"};
  for(int i=0;i<6;i++){
@@ -89,6 +89,24 @@ public class WebGameUI:MonoBehaviour {
   Text(tile,names[i],4,44,66,17,11,White,TextAnchor.MiddleCenter);
  }
  toast=Text(screen,"",20,714,440,48,13,White,TextAnchor.MiddleCenter);toast.outlineColor=Bg;toast.outlineWidth=.12f;toast.transform.SetAsLastSibling();toast.gameObject.SetActive(false);
+ }
+ void DecorateTradeMonitor(RectTransform monitor){
+  var display=Box(monitor,"Trading display",6,6,82,57,C("0c202c"));
+  display.GetComponent<Image>().raycastTarget=false;
+  Box(display,"Header accent",5,4,14,1,Cyan).GetComponent<Image>().raycastTarget=false;
+  Box(display,"Online light",72,4,4,2,Green).GetComponent<Image>().raycastTarget=false;
+  for(int i=0;i<3;i++)Box(display,"Chart grid",42,16+i*9,33,1,C("193642")).GetComponent<Image>().raycastTarget=false;
+  int[] heights={6,11,8,16,22};
+  for(int i=0;i<heights.Length;i++)Box(display,"Chart bar",43+i*6,38-heights[i],4,heights[i],i==2?C("499cab"):Green).GetComponent<Image>().raycastTarget=false;
+  var coin=Rect(display,"Gold coin",7,9,31,31);
+  coin.gameObject.AddComponent<TradeCoinGraphic>().raycastTarget=false;
+  var symbol=Text(coin,"B",0,0,31,31,20,C("70400c"),TextAnchor.MiddleCenter);
+  symbol.fontStyle=FontStyles.Bold;symbol.overflowMode=TextOverflowModes.Overflow;
+  Box(coin,"Coin upper stroke",14,4,2,4,C("70400c")).GetComponent<Image>().raycastTarget=false;
+  Box(coin,"Coin lower stroke",14,23,2,4,C("70400c")).GetComponent<Image>().raycastTarget=false;
+  Box(display,"Sell label background",4,42,74,12,C("183d38")).GetComponent<Image>().raycastTarget=false;
+  var label=Text(display,"코인 판매",4,42,74,12,9,Green,TextAnchor.MiddleCenter);
+  label.textWrappingMode=TextWrappingModes.NoWrap;label.overflowMode=TextOverflowModes.Overflow;
  }
  void Refresh(){if(money==null||g.S==null)return;var c=g.MiningCoin();coinIcon.text=new[]{"₿","Ξ","Ð","✦","404","Q"}[Array.IndexOf(Catalog.Coins,c)];money.text=N(g.Balance(c.id));coin.text=c.name+" 채굴 중";rate.text="+"+D(g.TotalAuto())+" / sec";cash.text="₩ 현금 "+N(g.S.cash);fork.text="⋈ FORK "+g.S.fork;temp.text=Mathf.FloorToInt(g.Hottest())+"°C";temp.color=g.Hottest()>=85?Red:g.Hottest()>=65?Gold:White;power.text=g.TotalPower()+"W";bill.text="-₩"+g.ElectricityPerMinute()+"/min";fever.text=g.S.fever?"◆ MINING FEVER | ×"+(g.HasFork("fever")?3:2)+" | "+g.S.feverTime+"s ◆":"◆ MINING FEVER | CHARGING | "+g.S.feverCooldown+"s ◆";date.text=DateTime.UtcNow.AddHours(9).ToString("yyyy. MM. dd. HH:mm:ss")+" · 한국 시간";
  string key="";for(int i=0;i<8;i++){var it=g.At(i);key+=it==null?"-":it.uid+":"+it.modelId+":"+it.coolerId;key+="|";}if(key!=rackKey){rackKey=key;BuildRack();}for(int i=0;i<rackTemps.Count;i++)if(rackTemps[i]!=null){var gpu=g.At(i);rackTemps[i].text=gpu==null?"":Mathf.FloorToInt(gpu.temp)+"°C";}foreach(var update in live.ToArray())update();}
@@ -163,6 +181,20 @@ var fan=Rect(body,"Fan",0,0,23,23);fan.pivot=new Vector2(.5f,.5f);fan.anchoredPo
  void Tutorial(){if(!g.S.running)return;Close();introIndex=0;RenderTutorial();}
  void RenderTutorial(){StopIntro();g.IntroPaused=true;intro=Box(screen,"Tutorial",0,0,480,854,new Color(.01f,.02f,.05f,.97f));var b=Box(intro,"Tutorial Card",30,155,420,534,Panel,Cyan,4);Text(b,"TUTORIAL "+(introIndex+1)+" / 7",16,13,263,32,12,Cyan);Button(b,"건너뛰기",306,14,98,32,FinishTutorial,Red,11);Text(b,tutTitles[introIndex],20,85,380,55,21,Green,TextAnchor.MiddleCenter);Text(b,tutText[introIndex],26,158,368,231,17);Text(b,new string('■',introIndex+1)+new string('□',6-introIndex),20,407,380,28,14,Cyan,TextAnchor.MiddleCenter);Button(b,"[ 이전 ]",20,463,180,47,introIndex>0?(Action)(()=>{introIndex--;RenderTutorial();}):null,Cyan);Button(b,introIndex==6?"[ 시작 ]":"[ 다음 ]",220,463,180,47,()=>{if(introIndex<6){introIndex++;RenderTutorial();}else FinishTutorial();});}
  void FinishTutorial(){PlayerPrefs.SetInt("webport_tutorial",1);PlayerPrefs.Save();StopIntro();Toast("튜토리얼 완료! GPU를 클릭해 시작하세요.");}
+}
+[RequireComponent(typeof(CanvasRenderer))]
+public class TradeCoinGraphic:MaskableGraphic {
+ protected override void OnPopulateMesh(VertexHelper vh){
+  vh.Clear();var bounds=rectTransform.rect;float radius=Mathf.Min(bounds.width,bounds.height)*.5f;
+  Disc(vh,bounds.center,radius,new Color(.48f,.26f,.05f));
+  Disc(vh,bounds.center+Vector2.up*.8f,radius*.92f,new Color(1f,.82f,.35f));
+  Disc(vh,bounds.center,radius*.76f,new Color(.79f,.46f,.08f));
+  Disc(vh,bounds.center,radius*.67f,new Color(1f,.71f,.19f));
+ }
+ static void Disc(VertexHelper vh,Vector2 center,float radius,Color color){
+  int start=vh.currentVertCount;vh.AddVert(center,color,Vector2.zero);
+  for(int i=0;i<=64;i++){float angle=i*Mathf.PI*2/64;vh.AddVert(center+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*radius,color,Vector2.zero);if(i>0)vh.AddTriangle(start,start+i,start+i+1);}
+ }
 }
 [RequireComponent(typeof(CanvasRenderer))]
 public class CandleChart:MaskableGraphic {
