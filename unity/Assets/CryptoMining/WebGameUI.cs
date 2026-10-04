@@ -10,8 +10,10 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 namespace CryptoMining {
 public class WebGameUI:MonoBehaviour {
- GameManager g; MarketManager market; TMP_FontAsset font; Canvas canvas; RectTransform screen,body,rack,modal,content,intro; Text money,coinIcon,coin,rate,cash,fork,temp,power,bill,fever,toast; float uiTick;
- readonly List<Action> live=new List<Action>(); readonly List<RectTransform> fans=new List<RectTransform>(); readonly List<Text> rackTemps=new List<Text>(); string rackKey="",page="",coolTarget=null,equipUid=null,selectedNode="root"; int pendingSlot=-1; Coroutine toastRoutine,typing; Text typed; string fullCaption; bool typingNow; int introIndex; bool replay;
+ GameManager g; MarketManager market; TMP_FontAsset font; Canvas canvas; RectTransform screen,body,modal,content,intro; Text money,coinIcon,coin,rate,cash,fork,temp,power,bill,fever,toast; float uiTick;
+ readonly List<Action> live=new List<Action>(); readonly List<RectTransform> fans=new List<RectTransform>(); readonly List<Text> rackTemps=new List<Text>(); string rackKey="",page="",coolTarget=null,equipUid=null,selectedNode="root"; int selectedRack,pendingSlot=-1; Coroutine toastRoutine,typing; Text typed; string fullCaption; bool typingNow; int introIndex; bool replay;
+ readonly List<RectTransform> roomRacks=new List<RectTransform>();
+ RectTransform roomFrame,roomWorld;RoomPan roomPan;string roomKey="";
  static readonly Color Bg=C("151a2c"),Panel=C("202a47"),Dark=C("0e1527"),Cyan=C("50dcff"),Green=C("79f17d"),Gold=C("ffd365"),Red=C("ff727d"),Muted=C("9aa7c5"),White=C("f2f5ff");
  static Color C(string s){Color c;ColorUtility.TryParseHtmlString("#"+s,out c);return c;}
  static Sprite fanSprite;
@@ -67,7 +69,7 @@ public class WebGameUI:MonoBehaviour {
  void Fill(RectTransform r){r.anchorMin=Vector2.zero;r.anchorMax=Vector2.one;r.offsetMin=r.offsetMax=Vector2.zero;}
  RectTransform Scroll(Transform p,float x,float y,float w,float h,out ScrollRect sc){var outer=Rect(p,"Scroll",x,y,w,h);sc=outer.gameObject.AddComponent<ScrollRect>();var vp=Rect(outer,"Viewport",0,0,w,h);Paint(vp,new Color(0,0,0,0));vp.gameObject.AddComponent<RectMask2D>();var cr=Rect(vp,"Content",0,0,w,0);sc.viewport=vp;sc.content=cr;sc.horizontal=false;sc.movementType=ScrollRect.MovementType.Clamped;sc.scrollSensitivity=35;return cr;}
  void Build(){if(FindFirstObjectByType<EventSystem>()==null)new GameObject("EventSystem",typeof(EventSystem),typeof(InputSystemUIInputModule));var cv=new GameObject("Web Game Canvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));canvas=cv.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;canvas.pixelPerfect=false;var scaler=cv.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(480,854);scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.Expand;var backdrop=Rect(cv.transform,"Backdrop",0,0,480,854);Fill(backdrop);Paint(backdrop,C("0b101d"));screen=Box(cv.transform,"Mobile 480 x 854",0,0,480,854,Bg);screen.anchorMin=screen.anchorMax=new Vector2(.5f,.5f);screen.pivot=new Vector2(.5f,.5f);screen.anchoredPosition=Vector2.zero;
- ScrollRect scroll;body=Scroll(screen,0,0,480,774,out scroll);body.sizeDelta=new Vector2(480,817);Paint(body,C("303a54"));for(int i=0;i<35;i++){Box(body,"Grid",i*14,0,1,817,new Color(1,1,1,.025f));}for(int i=0;i<59;i++)Box(body,"Grid",0,i*14,480,1,new Color(1,1,1,.025f));
+ body=Box(screen,"Fixed HUD and room",0,0,480,774,C("303a54"));for(int i=0;i<35;i++){Box(body,"Grid",i*14,0,1,817,new Color(1,1,1,.025f));}for(int i=0;i<59;i++)Box(body,"Grid",0,i*14,480,1,new Color(1,1,1,.025f));
  var music=GetComponent<MiningMusic>();if(music==null)music=gameObject.AddComponent<MiningMusic>();var sound=Button(body,music.Muted?"음악 켜기":"음악 끄기",10,4,92,22,null,Cyan,10);sound.interactable=true;sound.onClick.AddListener(()=>{music.Toggle();sound.GetComponentInChildren<Text>().text=music.Muted?"음악 켜기":"음악 끄기";});Text(body,"『암호화폐 마이닝』",60,28,340,30,19,White,TextAnchor.MiddleCenter);Button(body,"▶",397,28,30,30,()=>Opening(true),Gold);Button(body,"?",436,28,30,30,Tutorial,Cyan,16);
  var hud=Box(body,"HUD",9,66,462,234,C("253150"),C("56658c"),3);var wallet=Box(hud,"Wallet",10,10,442,62,C("1b2440"),C("425078"));BuildWalletContents(wallet);
  var f=Box(hud,"Fever",10,80,442,34,C("684113"),C("f2b451"));fever=Text(f,"",5,2,432,30,12,Gold,TextAnchor.MiddleCenter);
@@ -75,8 +77,7 @@ public class WebGameUI:MonoBehaviour {
  var t=Box(hud,"Temp",10,164,143,60,Dark,C("465375"));Text(t,"온도",8,5,127,18,11,Muted);temp=Text(t,"",8,25,127,26,15);
  var p=Box(hud,"Power",160,164,142,60,Dark,C("465375"));Text(p,"전력",8,5,126,18,11,Muted);power=Text(p,"",8,25,126,26,15,Gold);
  var e=Box(hud,"Electricity",309,164,143,60,Dark,C("465375"));Text(e,"전기요금",8,5,127,18,10,Muted);bill=Text(e,"",8,25,127,26,13,Red);
- var room=Box(body,"Mining Room",9,309,462,500,C("cbb8a8"),C("88746f"),3);Box(room,"Floor",3,320,456,177,C("ded0c2"));Box(room,"Wood trim",3,3,456,18,C("654533"));rack=Box(room,"Rack",8,163,224,322,C("626775"),C("30343d"),4);
- var desk=Rect(room,"Trading Desk",252,266,192,220);Box(desk,"Desk top",0,85,192,32,C("71623d"));Box(desk,"Left leg",8,112,38,108,C("71623d"));Box(desk,"Right leg",146,112,38,108,C("71623d"));Box(desk,"Monitor stand",82,60,28,42,C("3b4155"));var monitor=Button(desk,"",49,0,94,69,()=>Open("trade"),C("737988"));var mr=monitor.GetComponent<RectTransform>();DecorateTradeMonitor(mr);
+ roomFrame=Rect(body,"Room frame",9,309,462,456);BuildRoom();
  var nav=Box(screen,"Bottom Navigation",0,774,480,80,C("090f1e"),C("56658c"));
  string[] names={"장착 관리","보관함","오버클럭","냉각","상점","포크"},pages={"gpu","inventory","oc","cool","shop","fork"};
  for(int i=0;i<6;i++){
@@ -121,9 +122,61 @@ public class WebGameUI:MonoBehaviour {
   label.textWrappingMode=TextWrappingModes.NoWrap;label.overflowMode=TextOverflowModes.Overflow;
  }
  void Refresh(){if(money==null||g.S==null)return;var c=g.MiningCoin();coinIcon.text=new[]{"B","E","D","N","404","Q"}[Array.IndexOf(Catalog.Coins,c)];money.text=N(g.Balance(c.id));coin.text=c.name+" 채굴 중";rate.text="+"+D(g.TotalAuto())+" / 초";cash.text="₩ 현금 "+N(g.S.cash);fork.text="포크 "+g.S.fork;temp.text=Mathf.FloorToInt(g.Hottest())+"°C";temp.color=g.Hottest()>=85?Red:g.Hottest()>=65?Gold:White;power.text=g.TotalPower()+"W";bill.text="-₩"+g.ElectricityPerMinute()+"/분";fever.text=g.S.fever?"◆ 채굴 집중 | ×"+(g.HasFork("fever")?3:2)+" | "+g.S.feverTime+"초 ◆":"◆ 채굴 집중 | 준비 중 | "+g.S.feverCooldown+"초 ◆";
- string key="";for(int i=0;i<8;i++){var it=g.At(i);key+=it==null?"-":it.uid+":"+it.modelId+":"+it.coolerId;key+="|";}if(key!=rackKey){rackKey=key;BuildRack();}for(int i=0;i<rackTemps.Count;i++)if(rackTemps[i]!=null){var gpu=g.At(i);rackTemps[i].text=gpu==null?"":Mathf.FloorToInt(gpu.temp)+"°C";}foreach(var update in live.ToArray())update();}
-void BuildRack(){foreach(Transform child in rack)Destroy(child.gameObject);fans.Clear();rackTemps.Clear();for(int i=0;i<8;i++){int slot=i;var gpu=g.At(i);float x=10+(i%2)*106,y=12+(i/2)*76;var b=Button(rack,gpu==null?"[추가하기]":"",x,y,98,68,gpu==null?(Action)(()=>{pendingSlot=slot;Open("shop");}):()=>{double gain=g.ClickMine(gpu.uid);if(gain>0)FloatGain(gain);},gpu==null?C("29412e"):C("414c61"),10);var r=b.GetComponent<RectTransform>();Box(r,"LED",9,63,80,2,Green).GetComponent<Image>().raycastTarget=false;if(gpu==null){rackTemps.Add(null);continue;}var model=Catalog.GPU(gpu.modelId);var body=Rect(r,"GPU body",4,14,90,37);GpuCardArt.Build(body,gpu.modelId,FanSprite(),fans,false);Text(r,model.name,5,2,89,13,8,White);rackTemps.Add(Text(r,"",61,51,31,11,8,Cyan,TextAnchor.MiddleRight));}}
-
+ string layout=g.S.propertyId+":"+g.S.racksInstalled;if(layout!=roomKey)BuildRoom();string key=layout;for(int i=0;i<g.SlotCapacity();i++){var it=g.At(i);key+=it==null?"-":it.uid+":"+it.modelId+":"+it.coolerId;key+="|";}if(key!=rackKey){rackKey=key;BuildRack();}for(int i=0;i<rackTemps.Count;i++)if(rackTemps[i]!=null){var gpu=g.At(i);rackTemps[i].text=gpu==null?"":Mathf.FloorToInt(gpu.temp)+"°C";}foreach(var update in live.ToArray())update();}
+ void ClearChildren(Transform parent){foreach(Transform child in parent){child.gameObject.SetActive(false);Destroy(child.gameObject);}}
+ void FocusRack(int index){Canvas.ForceUpdateCanvases();roomPan.StopMovement();roomPan.horizontalNormalizedPosition=index==0?0:1;}
+ Button RoomButton(Transform parent,string label,float x,float y,float w,float h,Action action,Color? accent=null,int size=12){return Button(parent,label,x,y,w,h,()=>{if(roomPan.CanTap)action();},accent,size);}
+ void BuildRoom(){
+  float position=roomPan==null?0:roomPan.horizontalNormalizedPosition;
+  ClearChildren(roomFrame);roomRacks.Clear();roomKey=g.S.propertyId+":"+g.S.racksInstalled;rackKey="";
+  Box(roomFrame,"Header",0,0,462,51,C("243847"),C("71818b"));
+  Text(roomFrame,g.PropertyName()+" · 랙 "+g.S.racksInstalled+" / "+g.PropertyRackLimit(),12,4,300,22,14,Gold);
+  Text(roomFrame,g.S.propertyId==0?"부동산에서 더 넓은 방으로 이사하세요":"방을 좌우로 밀어 이동 · GPU는 가볍게 누르기",12,28,310,18,10,White);
+  Button(roomFrame,"부동산 / 확장",324,7,128,36,()=>Open("estate"),Gold,12);
+  var viewport=Rect(roomFrame,"Horizontal room viewport",0,52,462,400);Paint(viewport,C("cbb8a8"));viewport.gameObject.AddComponent<RectMask2D>();roomPan=viewport.gameObject.AddComponent<RoomPan>();
+  float width=g.PropertyRackLimit()*462;roomWorld=Box(viewport,"Room world",0,0,width,400,g.S.propertyId==0?C("cbb8a8"):C("c0d1d4"));
+  roomPan.viewport=viewport;roomPan.content=roomWorld;roomPan.horizontal=true;roomPan.vertical=false;roomPan.movementType=ScrollRect.MovementType.Clamped;roomPan.scrollSensitivity=35;roomPan.decelerationRate=.12f;
+  Box(roomWorld,"Floor",0,238,width,162,g.S.propertyId==0?C("ded0c2"):C("a4b3b4"));Box(roomWorld,"Skirting",0,234,width,5,C("637879"));
+  for(int i=0;i<g.PropertyRackLimit();i++){
+   float x=i*462;Box(roomWorld,"Ceiling trim",x,0,462,8,C("516875"));
+   var window=Box(roomWorld,"Window",x+267,20,165,91,C("d5f2fa"),C("506d7c"),5);Box(window,"Window bar",80,3,5,85,C("506d7c"));Box(window,"Window bar",3,42,159,4,C("506d7c"));
+   Text(roomWorld,"채굴 랙 "+(i+1),x+13,24,224,27,16,C("233f4b"));
+   if(i<g.S.racksInstalled){var panel=Box(roomWorld,"Rack "+(i+1),x+12,58,224,322,C("626775"),C("30343d"),4);roomRacks.Add(panel);}
+   else {
+    var pad=Box(roomWorld,"Empty rack space",x+12,58,224,322,C("8fa7ad"),C("506875"),3);
+    Text(pad,"추가 랙 설치 공간\n\nGPU 슬롯 8개\n랙 전용 쿨러 1개\n\n설치비 ₩"+N(GameManager.ExtraRackCost),12,34,200,208,16,C("203b46"),TextAnchor.MiddleCenter);
+    RoomButton(pad,"랙 구매 및 설치",12,264,200,42,()=>{if(g.BuyRack()){Close();FocusRack(1);}},Gold);
+   }
+   if(i==0){var desk=Rect(roomWorld,"Trading Desk",252,162,192,220);Box(desk,"Desk top",0,85,192,32,C("71623d"));Box(desk,"Left leg",8,112,38,108,C("71623d"));Box(desk,"Right leg",146,112,38,108,C("71623d"));Box(desk,"Monitor stand",82,60,28,42,C("3b4155"));var monitor=RoomButton(desk,"",49,0,94,69,()=>Open("trade"),C("737988"));DecorateTradeMonitor(monitor.GetComponent<RectTransform>());}
+   else {var bench=Box(roomWorld,"Workbench",x+270,228,158,24,C("647c86"));Box(roomWorld,"Workbench leg",x+281,252,15,116,C("435b66"));Box(roomWorld,"Workbench leg",x+403,252,15,116,C("435b66"));Text(roomWorld,"장비 확장 구역",x+253,169,190,35,16,C("294752"),TextAnchor.MiddleCenter);}
+   if(g.S.propertyId>0){int destination=i==0?1:0;RoomButton(roomWorld,i==0?"다음 공간 →":"← 첫 공간",x+268,118,164,32,()=>FocusRack(destination),Cyan,12);}
+  }
+  Canvas.ForceUpdateCanvases();roomPan.horizontalNormalizedPosition=position;
+ }
+ void BuildRack(){
+  fans.Clear();rackTemps.Clear();
+  for(int rIndex=0;rIndex<roomRacks.Count;rIndex++){
+   var rack=roomRacks[rIndex];ClearChildren(rack);
+   for(int i=0;i<8;i++){
+    int slot=rIndex*8+i;var gpu=g.At(slot);float x=10+(i%2)*106,y=12+(i/2)*76;
+    var b=RoomButton(rack,gpu==null?"[추가하기]":"",x,y,98,68,gpu==null?(Action)(()=>{pendingSlot=slot;Open("shop");}):()=>{double gain=g.ClickMine(gpu.uid);if(gain>0)FloatGain(gain);},gpu==null?C("29412e"):C("414c61"),10);
+    var frame=b.GetComponent<RectTransform>();Box(frame,"LED",9,63,80,2,Green).GetComponent<Image>().raycastTarget=false;
+    if(gpu==null){rackTemps.Add(null);continue;}var model=Catalog.GPU(gpu.modelId);
+    GpuCardArt.Build(Rect(frame,"GPU body",4,14,90,37),gpu.modelId,FanSprite(),fans,false);Text(frame,model.name,5,2,89,13,8,White);rackTemps.Add(Text(frame,"",61,51,31,11,8,Cyan,TextAnchor.MiddleRight));
+   }
+  }
+ }
+ void Estate(){
+  Card("현재 공간 · "+g.PropertyName(),"설치된 랙 "+g.S.racksInstalled+"개 · 최대 "+g.PropertyRackLimit()+"개\nGPU 장착 공간 "+g.SlotCapacity()+"개 · 보유 현금 ₩"+N(g.S.cash),100);
+  var art=Card("원룸 작업실","",190);Box(art,"Room preview",12,42,388,132,C("b7ced4"),Cyan);Box(art,"Preview floor",16,125,380,44,C("8c9fa4"));
+  for(int i=0;i<2;i++){var rr=Box(art,"Rack preview",40+i*188,61,88,99,C("293f4e"),C("637c89"));for(int row=0;row<4;row++)Box(rr,"Slots",7,8+row*22,74,14,C("4c7d80"));}
+  if(g.S.propertyId==0)ActionCard("공간 확장 · ₩"+N(GameManager.StudioCost),"작은 방 → 원룸 작업실\n기존 GPU·쿨러·랙을 그대로 이전합니다.\n추가 랙과 GPU는 별도 구매입니다.","원룸 작업실 구매",()=>{if(g.BuyStudio()){Close();FocusRack(1);}},Gold,180);
+  else if(g.S.racksInstalled<2)ActionCard("두 번째 랙 · ₩"+N(GameManager.ExtraRackCost),"오른쪽 공간에 빈 랙을 설치합니다.\nGPU 8개 추가 장착 · 쿨러는 랙별로 장착합니다.","랙 구매 및 설치",()=>{if(g.BuyRack()){Close();FocusRack(1);}},Green,160);
+  else ActionCard("원룸 작업실 확장 완료","랙 2개 · 최대 GPU 16개 장착 가능","두 번째 랙 보기",()=>{Close();FocusRack(1);},Cyan,140);
+  Card("확장 안내","방 안을 좌우로 밀면 이동합니다.\nGPU를 짧게 누르면 채굴하고, 끌면 화면만 이동합니다.\n구매한 부동산과 랙은 환생 후에도 유지됩니다.",117);
+ }
+ void RackSelector(string target){selectedRack=Mathf.Clamp(selectedRack,0,g.S.racksInstalled-1);for(int i=0;i<g.S.racksInstalled;i++){int idx=i;Button(content,"랙 "+(i+1)+(i==selectedRack?" · 선택됨":""),i*210,y,202,36,()=>{selectedRack=idx;Open(target);},i==selectedRack?Gold:Cyan);}y+=46;}
+ string SlotName(int slot){return "랙 "+(slot/8+1)+" · 슬롯 "+(slot%8+1);}
  void FloatGain(double n){var t=Text(screen,"+"+N(n)+" "+g.MiningCoin().name,45,470,220,32,19,Green,TextAnchor.MiddleCenter);StartCoroutine(FloatRoutine(t));}
  IEnumerator FloatRoutine(Text t){float a=0;while(a<.9f){a+=Time.unscaledDeltaTime;t.rectTransform.anchoredPosition+=Vector2.up*35*Time.unscaledDeltaTime;t.color=new Color(Green.r,Green.g,Green.b,1-a/.9f);yield return null;}Destroy(t.gameObject);}
  void Toast(string s){if(toastRoutine!=null)StopCoroutine(toastRoutine);toastRoutine=StartCoroutine(ToastTime(s));}
@@ -131,9 +184,9 @@ void BuildRack(){foreach(Transform child in rack)Destroy(child.gameObject);fans.
  float y; RectTransform Card(string title,string detail,float h=110,float detailHeight=-1){var r=Box(content,title,0,y,412,h,Dark,C("394765"));Text(r,title,10,7,392,26,14,Green);if(!string.IsNullOrEmpty(detail))Text(r,detail,10,37,392,detailHeight>=0?detailHeight:h-44,12,White,TextAnchor.UpperLeft);y+=h+9;return r;}
  void ActionCard(string title,string detail,string label,Action a,Color? accent=null,float h=158){var r=Card(title,detail,h,h-89);Button(r,label,10,h-44,392,34,a,accent);}
  void LiveText(Text t,Func<string> f){Action a=()=>{if(t!=null)t.text=f();};live.Add(a);a();}
- void Open(string type){if(!g.S.running&&type!="trade")return;Close(false);page=type;string title=type=="gpu"?"장착 관리":type=="inventory"?"장비 보관함":type=="oc"?"오버클럭":type=="cool"?"랙 냉각 연구소":type=="shop"?"장비 상점":type=="fork"?"포크 업그레이드":type=="news"?"채굴 경제신문":"코인 거래소";
+ void Open(string type){if(!g.S.running&&type!="trade")return;Close(false);page=type;string title=type=="gpu"?"장착 관리":type=="inventory"?"장비 보관함":type=="oc"?"오버클럭":type=="cool"?"랙 냉각 연구소":type=="shop"?"장비 상점":type=="fork"?"포크 업그레이드":type=="news"?"채굴 경제신문":type=="estate"?"부동산 · 공간 확장":"코인 거래소";
  modal=Box(screen,"Modal",0,0,480,854,new Color(.01f,.02f,.05f,.94f));var box=Box(modal,"Popup",20,type=="news"?190:32,440,type=="news"?422:746,Panel,C("56658c"),3);Text(box,title,12,8,354,35,16,Cyan);var closeButton=Button(box,"X",387,8,40,35,()=>Close(),Red,18);var closeLabel=closeButton.GetComponentInChildren<Text>();closeLabel.fontStyle=FontStyles.Bold;closeLabel.textWrappingMode=TextWrappingModes.NoWrap;closeLabel.overflowMode=TextOverflowModes.Overflow;ScrollRect sc;content=Scroll(box,14,55,412,type=="news"?352:675,out sc);y=0;
- switch(type){case "gpu":GPU();break;case "inventory":Inventory();break;case "oc":OC();break;case "cool":Cool();break;case "shop":Shop();break;case "fork":Fork();break;case "trade":Trade();break;case "news":NewsContent();break;}content.sizeDelta=new Vector2(412,y+8);Refresh();}
+ switch(type){case "estate":Estate();break;case "gpu":GPU();break;case "inventory":Inventory();break;case "oc":OC();break;case "cool":Cool();break;case "shop":Shop();break;case "fork":Fork();break;case "trade":Trade();break;case "news":NewsContent();break;}content.sizeDelta=new Vector2(412,y+8);Refresh();}
  public void Close(bool reset=true){live.Clear();if(modal!=null){modal.gameObject.SetActive(false);Destroy(modal.gameObject);}modal=null;page="";if(reset){pendingSlot=-1;equipUid=null;coolTarget=null;}}
  string Certification(){int t=g.RigTier();if(t==8)return "QUANTUM 인증 완료 · 모든 GPU 등급 해금";var n=Catalog.GPUs[t+1];return "현재 "+Catalog.GPUs[t].name+" 인증 · 다음 "+n.name+"\n운영 "+g.Duration(g.S.runSeconds)+" / "+g.Duration(g.RequiredSeconds(n))+"\n누적 채굴 "+N(g.S.totalMined)+" / "+N(n.unlockMined);}
  void GpuTile(GpuItem item,string title,string label,Action action){
@@ -142,14 +195,14 @@ void BuildRack(){foreach(Transform child in rack)Destroy(child.gameObject);fans.
   GpuCardArt.Build(Rect(r,"GPU Preview",250,38,152,76),item.modelId,FanSprite());
   Button(r,label,10,122,392,34,action);
  }
- void GPU(){
-  Card("장착 현황",g.Equipped().Count+" / 8개 가동 · 자동 채굴 "+D(g.TotalAuto())+"/초\n총 전력 "+g.TotalPower()+"W · 장착 해제 및 업그레이드",92);
+ void GPU(){RackSelector("gpu");
+  Card("장착 현황",g.Equipped().Count+" / "+g.SlotCapacity()+"개 가동 · 자동 채굴 "+D(g.TotalAuto())+"/초\n총 전력 "+g.TotalPower()+"W · 장착 해제 및 업그레이드",92);
   Card("장비 인증",Certification(),123);
-  var primary=g.At(0);var next=primary!=null&&primary.modelId<8?Catalog.GPUs[primary.modelId+1]:null;
-  ActionCard("1번 슬롯 업그레이드",next==null?"1번 슬롯 GPU가 없거나 최종 등급입니다.":Catalog.GPU(primary.modelId).name+" → "+next.name+"\n₩"+N(Catalog.GPU(primary.modelId).upgradeCost),"업그레이드",next!=null?(Action)(()=>{g.UpgradePrimary();Open("gpu");}):null);
-  for(int i=0;i<8;i++){int slot=i;var item=g.At(i);
-   if(item==null)ActionCard("슬롯 "+(i+1),"비어 있음","GPU 구매",()=>{pendingSlot=slot;Open("shop");},Cyan,126);
-   else GpuTile(item,"슬롯 "+(i+1)+" · "+Catalog.Cooler(item.coolerId).name,"보관함으로 이동",()=>{g.Unequip(item.uid);Open("gpu");});
+  var primary=g.At(selectedRack*8);var next=primary!=null&&primary.modelId<8?Catalog.GPUs[primary.modelId+1]:null;
+  ActionCard("랙 "+(selectedRack+1)+" · 1번 슬롯 업그레이드",next==null?"1번 슬롯 GPU가 없거나 최종 등급입니다.":Catalog.GPU(primary.modelId).name+" → "+next.name+"\n₩"+N(Catalog.GPU(primary.modelId).upgradeCost),"업그레이드",next!=null?(Action)(()=>{g.UpgradePrimary(selectedRack);Open("gpu");}):null);
+  for(int i=0;i<8;i++){int slot=selectedRack*8+i;var item=g.At(slot);
+   if(item==null)ActionCard(SlotName(slot),"비어 있음","GPU 구매",()=>{pendingSlot=slot;Open("shop");},Cyan,126);
+   else GpuTile(item,SlotName(slot)+" · "+Catalog.Cooler(item.coolerId).name,"보관함으로 이동",()=>{g.Unequip(item.uid);Open("gpu");});
   }
  }
  void Inventory(){
@@ -157,12 +210,13 @@ void BuildRack(){foreach(Transform child in rack)Destroy(child.gameObject);fans.
   if(g.S.items.Count==0)ActionCard("다시 시작할 장비가 없나요?","최종 장비를 잃었을 때 기본 GPU를 지원받을 수 있습니다.","기본 GPU 지원받기",()=>{g.EmergencyStarter();Open("inventory");});
   var selected=g.Find(equipUid);
   if(selected!=null){Card("장착 슬롯 선택",Catalog.GPU(selected.modelId).name+" · 기존 GPU는 보관함으로 이동합니다.",86);
-   for(int i=0;i<8;i++){int slot=i;var old=g.At(i);Button(content,"슬롯 "+(i+1)+" · "+(old==null?"비어 있음":Catalog.GPU(old.modelId).name),(i%2)*210,y,202,50,()=>{g.Equip(selected.uid,slot);equipUid=null;Open("inventory");},old==null?Cyan:Gold,11);if(i%2==1)y+=58;}
+   for(int i=0;i<g.SlotCapacity();i++){int slot=i;var old=g.At(i);Button(content,SlotName(i)+" · "+(old==null?"비어 있음":Catalog.GPU(old.modelId).name),(i%2)*210,y,202,50,()=>{g.Equip(selected.uid,slot);equipUid=null;Open("inventory");},old==null?Cyan:Gold,11);if(i%2==1)y+=58;}
    Button(content,"선택 취소",0,y,412,36,()=>{equipUid=null;Open("inventory");},Red);y+=45;
   }
   foreach(var item in g.S.items)if(item.slot<0)GpuTile(item,"보관 중","장착 위치 선택",()=>{equipUid=item.uid;Open("inventory");});
   if(g.S.items.Count==g.Equipped().Count)Card("보관 중인 GPU 없음","상점에서 추가 구매한 장비가 이곳에 표시됩니다.",83);
-  foreach(var unit in g.S.coolingItems){bool active=g.S.activeCoolingUid==unit.uid;ActionCard(Catalog.Cooler(unit.coolerId).name,active?"현재 랙에 사용 중":"보관 중 · 장착하면 기존 랙 쿨러와 교체됩니다.",active?"사용 중":"랙에 장착",active?null:(Action)(()=>{g.EquipCooler(unit.uid,null);Open("inventory");}),Cyan,128);}
+  foreach(var unit in g.S.coolingItems){int mounted=g.CoolerRack(unit.uid);ActionCard(Catalog.Cooler(unit.coolerId).name,mounted>=0?"랙 "+(mounted+1)+"에서 사용 중":"보관 중 · 냉각 메뉴에서 장착할 랙을 선택하세요.","랙 냉각 관리",()=>Open("cool"),Cyan,128);}
+
  }
  void OC(){ActionCard("오버클럭 상태 · "+(g.S.overclock?"활성":"꺼짐"),"현재 자동 채굴 "+D(g.TotalAuto())+"/초\n성능 증가 +"+(g.HasFork("oc")?50:30)+"%\n성능과 장착 GPU의 발열 속도가 함께 증가합니다.",g.S.overclock?"[ 오버클럭 끄기 ]":"[ 오버클럭 켜기 ]",()=>{g.ToggleOC();if(g.S.running)Open("oc");},Gold,180);}
  void CoolerArt(Transform parent,int level){
@@ -171,20 +225,21 @@ void BuildRack(){foreach(Transform child in rack)Destroy(child.gameObject);fans.
   for(int i=0;i<2;i++){var fan=Paint(Rect(r,"Cooler fan",10+i*53,10,49,49),Color.white);fan.sprite=FanSprite();fan.raycastTarget=false;}
   Text(r,"냉각 "+Mathf.Min(4,level)+"행",3,48,119,19,10,Cyan,TextAnchor.MiddleCenter);
  }
- void Cool(){
-  var status=Card("랙 냉각 시스템","",169);
-  var reading=Text(status,"",10,39,392,73,13);LiveText(reading,()=>"쿨러 1개로 위쪽 행부터 함께 냉각합니다.\n1단계는 1행(2개), 최대 4행(8개) 적용.\n현재 "+g.CoolingRows()+"행 적용 · 최고 "+Mathf.FloorToInt(g.Hottest())+"°C");
-  Button(status,"랙 전체 긴급 냉각",10,123,392,34,()=>g.EmergencyCool(),Cyan);
-  for(int row=0;row<4;row++)Card((row+1)+"행 · 슬롯 "+(row*2+1)+"–"+(row*2+2),row<g.CoolingRows()?Catalog.Cooler(g.RackCoolerLevel()).name+" 적용 중":"기본 냉각 · 랙 쿨러 미적용",76);
-  foreach(var cl in Catalog.Coolers){if(cl.id==0)continue;bool unlocked=g.CoolerUnlocked(cl);var owned=g.S.coolingItems.Find(x=>x.coolerId==cl.id);bool active=g.RackCoolerLevel()==cl.id;
+ void Cool(){RackSelector("cool");
+  var status=Card("랙 "+(selectedRack+1)+" 냉각 시스템","",169);
+  var reading=Text(status,"",10,39,392,73,13);LiveText(reading,()=>"쿨러 1개로 위쪽 행부터 함께 냉각합니다.\n1단계는 1행(2개), 최대 4행(8개) 적용.\n현재 "+g.CoolingRows(selectedRack)+"행 적용 · 전체 최고 "+Mathf.FloorToInt(g.Hottest())+"°C");
+  Button(status,"모든 랙 긴급 냉각",10,123,392,34,()=>g.EmergencyCool(),Cyan);
+  for(int row=0;row<4;row++)Card((row+1)+"행 · 슬롯 "+(row*2+1)+"–"+(row*2+2),row<g.CoolingRows(selectedRack)?Catalog.Cooler(g.RackCoolerLevel(selectedRack)).name+" 적용 중":"기본 냉각 · 랙 쿨러 미적용",76);
+  foreach(var unit in g.S.coolingItems){int mounted=g.CoolerRack(unit.uid);if(mounted>=0&&mounted!=selectedRack)ActionCard(Catalog.Cooler(unit.coolerId).name,"현재 랙 "+(mounted+1)+"에서 사용 중입니다.\n이동하면 기존 랙의 냉각은 해제됩니다.","선택한 랙으로 이동",()=>{g.EquipCoolerToRack(unit.uid,selectedRack);Open("cool");},Gold,146);}
+  foreach(var cl in Catalog.Coolers){if(cl.id==0)continue;bool unlocked=g.CoolerUnlocked(cl);var owned=g.S.coolingItems.Find(x=>x.coolerId==cl.id&&g.CoolerRack(x.uid)<0);bool active=g.RackCoolerLevel(selectedRack)==cl.id;
    var card=Card(cl.name,"",185);CoolerArt(card,cl.id);
    Text(card,"최대 "+Mathf.Min(4,cl.id)+"행 · GPU "+(Mathf.Min(4,cl.id)*2)+"개\n냉각 -"+cl.rate.ToString("0.00")+"°C/초\n₩"+N(cl.cost)+"\n"+(unlocked?"구매 가능":"운영 "+g.Duration(Mathf.FloorToInt(cl.unlockSeconds*g.CycleFactor()))+" 필요"),10,38,250,100,12);
-   Action action=active?null:owned!=null?(Action)(()=>{g.EquipCooler(owned.uid,null);Open("cool");}):unlocked&&g.S.cash>=cl.cost?(Action)(()=>{g.BuyCooler(null,cl.id);Open("cool");}):null;
+   Action action=active?null:owned!=null?(Action)(()=>{g.EquipCoolerToRack(owned.uid,selectedRack);Open("cool");}):unlocked&&g.S.cash>=cl.cost?(Action)(()=>{g.BuyCooler(null,cl.id,selectedRack);Open("cool");}):null;
    Button(card,active?"현재 사용 중":owned!=null?"보유 쿨러 장착":unlocked?"구매하고 랙에 장착":"인증 잠금",10,141,392,34,action,Cyan);
   }
  }
  void Shop(){
-  Card("장비 인증",Certification()+"\n"+(pendingSlot>=0?"슬롯 "+(pendingSlot+1)+"에 바로 장착":"구매한 GPU는 보관함에 보관됩니다.")+"\n보유 ₩"+N(g.S.cash),158);
+  Card("장비 인증",Certification()+"\n"+(pendingSlot>=0?SlotName(pendingSlot)+"에 바로 장착":"구매한 GPU는 보관함에 보관됩니다.")+"\n보유 ₩"+N(g.S.cash),158);
   foreach(var m in Catalog.GPUs){
    bool u=g.Certified(m);
    var card=Card(m.name,"",190);
@@ -215,7 +270,7 @@ void BuildRack(){foreach(Transform child in rack)Destroy(child.gameObject);fans.
  void RebirthDialog(){
   Close();modal=Box(screen,"Rebirth confirmation",0,0,480,854,new Color(.01f,.02f,.05f,.96f));var r=Box(modal,"Conditions",25,180,430,420,Panel,Cyan);
   bool ready=g.CanRebirth();Text(r,ready?"환생할 준비가 되었습니다":"조건을 달성하지 못했습니다",18,15,394,45,20,ready?Green:Gold);
-  Text(r,"최종 GPU 장착: "+g.QuantumCount()+" / "+g.RebirthReq()+"개\n운영 시간: "+g.Duration(g.S.runSeconds)+" / "+g.Duration(g.RebirthSeconds())+"\n남은 시간: "+Mathf.CeilToInt(Mathf.Max(0,g.RebirthSeconds()-g.S.runSeconds)/60f)+"분\n\n초기화: 현금, 코인, GPU, 쿨러, 회차 기록\n유지: 환생 횟수, 포크, 영구 업그레이드",20,78,390,216,15);
+  Text(r,"최종 GPU 장착: "+g.QuantumCount()+" / "+g.RebirthReq()+"개\n운영 시간: "+g.Duration(g.S.runSeconds)+" / "+g.Duration(g.RebirthSeconds())+"\n남은 시간: "+Mathf.CeilToInt(Mathf.Max(0,g.RebirthSeconds()-g.S.runSeconds)/60f)+"분\n\n초기화: 현금, 코인, GPU, 쿨러, 회차 기록\n유지: 부동산·랙, 환생 횟수, 포크, 영구 업그레이드",20,78,390,216,15);
   if(ready)Button(r,"환생하기 · 포크 +1",20,308,390,42,()=>{g.Rebirth();Open("fork");},Green);
   Button(r,ready?"취소":"확인",20,363,390,40,()=>Open("fork"),Cyan);
  }
