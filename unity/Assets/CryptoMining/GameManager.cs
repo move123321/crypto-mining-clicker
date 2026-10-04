@@ -47,7 +47,7 @@ namespace CryptoMining
     [Serializable]
     public class SaveData
     {
-        public int version=1,rebirths,fork,runSeconds,electricityTimer,contractsCompleted,uidCounter=2;
+        public int version=2,rebirths,fork,runSeconds,electricityTimer,contractsCompleted,uidCounter=2;
         public long totalClicks;
         public double cash,totalMined;
         public bool running=true,overclock,fever;
@@ -60,6 +60,10 @@ namespace CryptoMining
         public List<CoolingItem> coolingItems=new List<CoolingItem>();
         public List<MarketSeries> markets=new List<MarketSeries>();
         public int coolUidCounter=1;
+        public string activeCoolingUid;
+        public bool repairPending;
+        public float electricityMultiplier=1, gpuPriceMultiplier=1;
+        public int electricityOfferUntil, gpuOfferUntil;
     }
 
     public static class Catalog
@@ -87,11 +91,11 @@ namespace CryptoMining
 
         public static readonly CoolerDef[] Coolers = {
             new CoolerDef(0,"기본 듀얼팬",0,0,0,"GPU 기본 쿨러"),
-            new CoolerDef(1,"트리플팬 공랭",.35f,3000,0,"3팬 GPU 공랭"),
-            new CoolerDef(2,"베이퍼 챔버",.75f,25000,1800,"고급 공랭"),
-            new CoolerDef(3,"GPU HYBRID AIO",1.2f,180000,3600,"GPU 일체형 수냉"),
-            new CoolerDef(4,"FULL COVER 수냉",1.75f,1200000,5400,"코어/VRAM/VRM 수냉"),
-            new CoolerDef(5,"CUSTOM LOOP GPU",2.5f,6000000,7800,"최상급 GPU 커스텀 수냉")
+            new CoolerDef(1,"트리플팬 공랭",.35f,3000,0,"1행 · 최대 GPU 2개 냉각"),
+            new CoolerDef(2,"베이퍼 챔버",.75f,25000,1800,"2행 · 최대 GPU 4개 냉각"),
+            new CoolerDef(3,"일체형 수냉",1.2f,180000,3600,"3행 · 최대 GPU 6개 냉각"),
+            new CoolerDef(4,"전면 수냉",1.75f,1200000,5400,"4행 · 최대 GPU 8개 냉각"),
+            new CoolerDef(5,"맞춤형 수냉",2.5f,6000000,7800,"4행 · 최대 GPU 8개 강화 냉각")
         };
 
         public static GPUDef GPU(int id){ return id>=0&&id<GPUs.Length?GPUs[id]:GPUs[0]; }
@@ -110,6 +114,8 @@ namespace CryptoMining
 
         public bool SaveEnabled=true;
         float secAcc,saveAcc;
+        bool appPaused,appFocused=true;
+        public bool SimulationActive => S!=null && S.running && !IntroPaused && !appPaused && appFocused;
         string SavePath { get { return Path.Combine(Application.persistentDataPath,"crypto_mining_unity6_web_v1.json"); } }
         static readonly CultureInfo Inv=CultureInfo.InvariantCulture;
 
@@ -118,7 +124,7 @@ namespace CryptoMining
         {
             saveAcc+=Time.unscaledDeltaTime;
             if(saveAcc>=3){saveAcc=0;Save();}
-            if(!S.running||IntroPaused)return;
+            if(!SimulationActive){secAcc=0;return;}
             secAcc+=Time.unscaledDeltaTime;
             while(secAcc>=1){secAcc-=1;Tick();}
         }
@@ -144,7 +150,7 @@ namespace CryptoMining
                 S=null;
             }
 
-            if(S==null||S.items==null||S.items.Count==0)S=Fresh();
+            if(S==null||S.items==null)S=Fresh();
             if(S.coolingItems==null)S.coolingItems=new List<CoolingItem>();
             if(S.markets==null)S.markets=new List<MarketSeries>();
             if(S.coins==null)S.coins=new List<CoinBalance>();
@@ -153,6 +159,7 @@ namespace CryptoMining
             if(!S.forkUnlocked.Contains("root"))S.forkUnlocked.Add("root");
             if(!CoinUnlocked(Catalog.Coin(S.miningCoinId)))S.miningCoinId="btcx";
             if(!CoinUnlocked(Catalog.Coin(S.tradeCoinId)))S.tradeCoinId="btcx";
+            MigrateSave();
             EnsureContract();
         }
 
@@ -164,10 +171,12 @@ namespace CryptoMining
         }
 
         void OnApplicationQuit(){Save();}
-        void OnApplicationPause(bool p){if(p)Save();}
+        void OnApplicationPause(bool p){appPaused=p;secAcc=0;if(p)Save();}
+        void OnApplicationFocus(bool focus){appFocused=focus;secAcc=0;if(!focus)Save();}
 
         public void Tick()
         {
+            if(!SimulationActive)return;
             S.runSeconds++;
             S.electricityTimer++;
             if(S.electricityTimer>=60){S.electricityTimer=0;S.cash=Math.Max(0,S.cash-ElectricityPerMinute());}
@@ -179,7 +188,7 @@ namespace CryptoMining
                 GpuItem g=eq[i]; GPUDef m=Catalog.GPU(g.modelId);
                 double baseGain=m.autoMine*AutoMul(),gain=baseGain*coin.mineRate;
                 AddCoin(coin.id,gain); S.totalMined+=baseGain; ProgressContract("mine",coin.id,gain);
-                float heat=(.32f+m.id*.08f)*HeatMul(); if(S.overclock)heat*=1.3f;
+                float heat=(40f/600f)*(1+m.id*.12f)*HeatMul(); if(S.overclock)heat*=1.3f;
                 g.temp=Mathf.Max(25,g.temp+heat-Cooling(g));
             }
             for(int i=0;i<S.items.Count;i++)if(S.items[i].slot<0)S.items[i].temp=Mathf.Max(25,S.items[i].temp-.35f);
@@ -188,27 +197,27 @@ namespace CryptoMining
 
         void FeverTick()
         {
-            if(S.fever){S.feverTime--;if(S.feverTime<=0){S.fever=false;S.feverCooldown=35;Say("MINING FEVER 종료");}}
-            else{S.feverCooldown--;if(S.feverCooldown<=0){S.fever=true;S.feverTime=HasFork("fever")?25:20;Say(HasFork("fever")?"MINING FEVER x3":"MINING FEVER x2");}}
+            if(S.fever){S.feverTime--;if(S.feverTime<=0){S.fever=false;S.feverCooldown=35;Say("채굴 집중 종료");}}
+            else{S.feverCooldown--;if(S.feverCooldown<=0){S.fever=true;S.feverTime=HasFork("fever")?25:20;Say(HasFork("fever")?"채굴 집중 x3":"채굴 집중 x2");}}
         }
 
         public double ClickMine(string uid)
         {
-            GpuItem clicked=Find(uid); if(clicked==null||clicked.slot<0||!S.running||IntroPaused)return 0;
+            GpuItem clicked=Find(uid); if(clicked==null||clicked.slot<0||!SimulationActive)return 0;
             CoinDef coin=MiningCoin(); double total=0,work=0; List<GpuItem> eq=Equipped();
             for(int i=0;i<eq.Count;i++)
             {
                 GpuItem g=eq[i];GPUDef m=Catalog.GPU(g.modelId);double b=m.click*ClickMul(),gain=Math.Floor(b*coin.mineRate);total+=gain;work+=b;
-                float heat=(.85f+m.id*.11f)*HeatMul();if(S.overclock)heat*=1.3f;g.temp+=heat;
+                float heat=(.12f+m.id*.025f)*HeatMul();if(S.overclock)heat*=1.3f;g.temp+=heat;
             }
             AddCoin(coin.id,total);S.totalMined+=work;S.totalClicks++;ProgressContract("mine",coin.id,total);CheckHeat();Fire();return total;
         }
 
         public bool BuyGpu(int id,int slot=-1)
         {
-            GPUDef m=Catalog.GPU(id);if(!Certified(m)){Say("GPU 인증 조건 미달");return false;}if(S.cash<m.price){Say("현금 부족");return false;}
-            S.cash-=m.price;GpuItem g=new GpuItem{uid="gpu_"+S.uidCounter++,modelId=id,temp=30,coolerId=0,slot=-1};S.items.Add(g);
-            if(slot>=0&&slot<8&&At(slot)==null)g.slot=slot;Say(m.name+" 구매 완료");Save();Fire();return true;
+            GPUDef m=Catalog.GPU(id);if(!Certified(m)){Say("GPU 인증 조건 미달");return false;}if(S.cash<GpuPrice(id)){Say("현금 부족");return false;}
+            S.cash-=GpuPrice(id);GpuItem g=new GpuItem{uid="gpu_"+S.uidCounter++,modelId=id,temp=30,coolerId=0,slot=-1};S.items.Add(g);
+            if(slot>=0&&slot<8&&At(slot)==null)g.slot=slot;SyncCoolers();Say(m.name+" 구매 완료");Save();Fire();return true;
         }
 
         public bool UpgradePrimary()
@@ -218,25 +227,54 @@ namespace CryptoMining
             S.cash-=cur.upgradeCost;g.modelId++;g.temp=Mathf.Max(30,g.temp-8);Say(next.name+" 업그레이드");Save();Fire();return true;
         }
 
-        public void Equip(string uid,int slot){GpuItem g=Find(uid);if(g==null||slot<0||slot>7)return;GpuItem old=At(slot);if(old!=null)old.slot=-1;g.slot=slot;Save();Fire();}
-        public void Unequip(string uid){GpuItem g=Find(uid);if(g!=null){g.slot=-1;Save();Fire();}}
+        public void Equip(string uid,int slot){GpuItem g=Find(uid);if(g==null||slot<0||slot>7)return;GpuItem old=At(slot);if(old!=null)old.slot=-1;g.slot=slot;SyncCoolers();Save();Fire();}
+        public void Unequip(string uid){GpuItem g=Find(uid);if(g!=null){g.slot=-1;SyncCoolers();Save();Fire();}}
 
         public bool BuyCooler(string uid,int coolerId)
         {
             CoolerDef c=Catalog.Cooler(coolerId);if(!S.running||coolerId<=0||!CoolerUnlocked(c)||S.cash<c.cost){Say("현금 또는 냉각 인증 조건 부족");return false;}
             S.cash-=c.cost;var unit=new CoolingItem{uid="cool_"+S.coolUidCounter++,coolerId=coolerId};S.coolingItems.Add(unit);
-            var g=Find(uid);if(g!=null&&g.slot>=0)EquipCooler(unit.uid,uid);Say(c.name+" 구매 완료");Save();Fire();return true;
+            EquipCooler(unit.uid,null);Say(c.name+" 구매 및 랙 장착 완료");return true;
         }
         public void EquipCooler(string coolingUid,string gpuUid)
         {
-            var g=Find(gpuUid);var c=S.coolingItems.Find(x=>x.uid==coolingUid);if(g==null||g.slot<0||c==null)return;
-            foreach(var x in S.coolingItems)if(x.gpuUid==gpuUid)x.gpuUid=null;
-            c.gpuUid=gpuUid;SyncCoolers();Save();Fire();
+            if(!S.running||!S.coolingItems.Exists(x=>x.uid==coolingUid))return;
+            S.activeCoolingUid=coolingUid;SyncCoolers();Save();Fire();
         }
-        public void StockCooler(string uid){foreach(var c in S.coolingItems)if(c.gpuUid==uid)c.gpuUid=null;SyncCoolers();Save();Fire();}
-        void SyncCoolers(){foreach(var g in S.items){var c=S.coolingItems.Find(x=>x.gpuUid==g.uid);g.coolerId=c==null?0:c.coolerId;}}
+        public void StockCooler(string uid){S.activeCoolingUid=null;SyncCoolers();Save();Fire();}
+        public int RackCoolerLevel(){var c=S.coolingItems.Find(x=>x.uid==S.activeCoolingUid);return c==null?0:c.coolerId;}
+        public int CoolingRows(){return Mathf.Min(4,RackCoolerLevel());}
+        void SyncCoolers(){int level=RackCoolerLevel();foreach(var g in S.items)g.coolerId=g.slot>=0&&g.slot/2<CoolingRows()?level:0;}
+        public void MigrateSave(){
+            if(S.version<2){
+                foreach(var g in S.items)if(g.coolerId>0&&!S.coolingItems.Exists(x=>x.gpuUid==g.uid))
+                    S.coolingItems.Add(new CoolingItem{uid="cool_"+S.coolUidCounter++,coolerId=g.coolerId,gpuUid=g.uid});
+                CoolingItem best=null;
+                foreach(var c in S.coolingItems)if(!string.IsNullOrEmpty(c.gpuUid)&&(best==null||c.coolerId>best.coolerId))best=c;
+                S.activeCoolingUid=best==null?null:best.uid;
+                S.electricityMultiplier=S.gpuPriceMultiplier=1;
+            }
+            S.version=2;S.repairPending=!S.running;
+            foreach(var c in S.coolingItems)c.gpuUid=null;
+            SyncCoolers();
+        }
+        public double GpuPrice(int id){return Math.Round(Catalog.GPU(id).price*(S.runSeconds<S.gpuOfferUntil?Mathf.Max(.5f,S.gpuPriceMultiplier):1));}
+        public double RepairCost(){double value=0;foreach(var gpu in Equipped())value+=Catalog.GPU(gpu.modelId).price;return Math.Max(500,Math.Round(value*.08));}
+        public bool ResolveOverheat(bool repair){
+            if(!S.repairPending)return false;
+            if(repair){if(S.cash<RepairCost()){Say("수리비가 부족합니다. 코인을 판매하거나 장비 포기를 선택하세요.");return false;}S.cash-=RepairCost();}
+            else {var cards=Equipped();if(cards.Count>0){var lost=cards[UnityEngine.Random.Range(0,cards.Count)];S.items.Remove(lost);Say(Catalog.GPU(lost.modelId).name+" 고장으로 폐기");}}
+            foreach(var gpu in S.items)gpu.temp=30;
+            S.repairPending=false;S.running=true;S.overclock=false;secAcc=0;SyncCoolers();Save();Fire();return true;
+        }
+        public void EmergencyStarter(){
+            if(!S.running||S.items.Count!=0)return;
+            // A lost final card must not trap an otherwise valid save in a dead end.
+            S.items.Add(new GpuItem{uid="gpu_"+S.uidCounter++,modelId=0,slot=0,temp=30});
+            SyncCoolers();Say("재시작 지원 GPU를 받았습니다.");Save();Fire();
+        }
 
-        public void ToggleOC(){S.overclock=!S.overclock;if(S.overclock){List<GpuItem> eq=Equipped();for(int i=0;i<eq.Count;i++)eq[i].temp+=3*HeatMul();}Say(S.overclock?"OC ON":"OC OFF");CheckHeat();Fire();}
+        public void ToggleOC(){if(!SimulationActive)return;S.overclock=!S.overclock;if(S.overclock){List<GpuItem> eq=Equipped();for(int i=0;i<eq.Count;i++)eq[i].temp+=3*HeatMul();}Say(S.overclock?"오버클럭 켜짐":"오버클럭 꺼짐");CheckHeat();Fire();}
         public void EmergencyCool(){List<GpuItem> eq=Equipped();float a=UnityEngine.Random.Range(16,24)+(HasFork("cooling")?5:0);for(int i=0;i<eq.Count;i++)eq[i].temp=Mathf.Max(25,eq[i].temp-a);Say("긴급 냉각 -"+Mathf.RoundToInt(a)+"C");Fire();}
 
         public void SetMiningCoin(string id){CoinDef c=Catalog.Coin(id);if(!CoinUnlocked(c)){Say("상위 GPU 필요");return;}S.miningCoinId=id;Save();Fire();}
@@ -260,7 +298,7 @@ namespace CryptoMining
         public bool HasFork(string id){return S.forkUnlocked.Contains(id);}
         public bool BuyFork(string id,string req)
         {
-            if(HasFork(id)||S.fork<1||(!string.IsNullOrEmpty(req)&&!HasFork(req)))return false;S.fork--;S.forkUnlocked.Add(id);Save();Fire();Say(id+" 해금");return true;
+            if(HasFork(id)||S.fork<1||(!string.IsNullOrEmpty(req)&&!HasFork(req)))return false;S.fork--;S.forkUnlocked.Add(id);Save();Fire();Say("포크 업그레이드 해금");return true;
         }
 
         public int RebirthReq(){int[] a={1,2,3,4,6,8};return a[Mathf.Min(S.rebirths,a.Length-1)];}
@@ -269,7 +307,7 @@ namespace CryptoMining
         public bool CanRebirth(){return S.running&&QuantumCount()>=RebirthReq()&&S.runSeconds>=RebirthSeconds();}
         public void Rebirth()
         {
-            if(!CanRebirth())return;int r=S.rebirths+1,f=S.fork+1;List<string> forks=new List<string>(S.forkUnlocked);var marketHistory=S.markets;S=Fresh();S.markets=marketHistory;S.rebirths=r;S.fork=f;S.forkUnlocked=forks;EnsureContract();Save();Fire();Say("환생 완료 FORK +1");
+            if(!CanRebirth())return;int r=S.rebirths+1,f=S.fork+1;List<string> forks=new List<string>(S.forkUnlocked);var marketHistory=S.markets;S=Fresh();S.markets=marketHistory;S.rebirths=r;S.fork=f;S.forkUnlocked=forks;EnsureContract();Save();Fire();Say("환생 완료 · 포크 +1");
         }
         public void Restart(){int r=S.rebirths,f=S.fork;List<string> forks=new List<string>(S.forkUnlocked);var marketHistory=S.markets;S=Fresh();S.markets=marketHistory;S.rebirths=r;S.fork=f;S.forkUnlocked=forks;EnsureContract();Save();Fire();}
 
@@ -301,11 +339,11 @@ namespace CryptoMining
         public double TotalAuto(){double n=0;List<GpuItem> l=Equipped();for(int i=0;i<l.Count;i++)n+=Catalog.GPU(l[i].modelId).autoMine;return n*AutoMul()*MiningCoin().mineRate;}
         public double TotalHash(){double n=0;List<GpuItem> l=Equipped();for(int i=0;i<l.Count;i++)n+=Catalog.GPU(l[i].modelId).hash;return n*AutoMul();}
         public int TotalPower(){int n=0;List<GpuItem> l=Equipped();for(int i=0;i<l.Count;i++)n+=Catalog.GPU(l[i].modelId).power;return n;}
-        public int ElectricityPerMinute(){return Mathf.Max(0,Mathf.RoundToInt(TotalPower()/42f));}
+        public int ElectricityPerMinute(){return Mathf.Max(0,Mathf.RoundToInt(TotalPower()/15f*(S.runSeconds<S.electricityOfferUntil?Mathf.Max(.5f,S.electricityMultiplier):1)));}
         public float Hottest(){float h=25;List<GpuItem> l=Equipped();for(int i=0;i<l.Count;i++)h=Mathf.Max(h,l[i].temp);return h;}
         public string Duration(int s){int h=s/3600,m=(s%3600)/60;return h>0?h+"시간 "+m+"분":m+"분";}
 
-        void CheckHeat(){if(Hottest()>=100&&S.running){S.running=false;Save();if(Overheated!=null)Overheated();}}
+        void CheckHeat(){if(Hottest()>=100&&S.running){S.running=false;S.repairPending=true;Save();if(Overheated!=null)Overheated();}}
         void Say(string m){if(Toast!=null)Toast(m);}
         void Fire(){if(Changed!=null)Changed();}
     }
