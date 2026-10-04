@@ -31,3 +31,7 @@ Unity 6000.0.73f1에서 `-batchmode -quit -projectPath <project> -executeMethod 
 - 저장 형식 1/2는 첫 번째 랙으로 자동 이전. 형식 3은 부동산, 두 랙 및 각 쿨러 장착 상태를 보존.
 
 `-executeMethod EstateChecks.Run`으로 기존 79개 검사와 확장 관련 21개 검사를 함께 실행할 수 있다.
+
+## 출시 준비 · 1.3.0
+
+저장 복구 및 손상 보호, 긴급 냉각 120초 제한, 모바일 안전 영역, 뒤로 가기, 음악/효과음 설정, 성장 목표, 앱 아이콘, 출시 AAB 빌드 경로를 추가했습니다. 남은 실기기·계정 작업은 Release/RELEASE_READINESS.md에 정리했습니다.

@@ -66,6 +66,7 @@ namespace CryptoMining
         public bool repairPending;
         public float electricityMultiplier=1, gpuPriceMultiplier=1;
         public int electricityOfferUntil, gpuOfferUntil;
+        public int emergencyCoolUntil;
     }
 
     public static class Catalog
@@ -115,9 +116,10 @@ namespace CryptoMining
         public event Action Overheated;
 
         public bool SaveEnabled=true;
+        public bool SaveBlocked;public string SaveNotice="";
         float secAcc,saveAcc;
         bool appPaused,appFocused=true;
-        public bool SimulationActive => S!=null && S.running && !IntroPaused && !appPaused && appFocused;
+        public bool SimulationActive => S!=null && S.running && !SaveBlocked && !IntroPaused && !appPaused && appFocused;
         string SavePath { get { return Path.Combine(Application.persistentDataPath,"crypto_mining_unity6_web_v1.json"); } }
         static readonly CultureInfo Inv=CultureInfo.InvariantCulture;
 
@@ -142,16 +144,7 @@ namespace CryptoMining
 
         public void Load()
         {
-            try
-            {
-                if(File.Exists(SavePath)) S=JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath));
-            }
-            catch(Exception e)
-            {
-                Debug.LogWarning("Save load failed: "+e.Message);
-                S=null;
-            }
-
+            S=SaveStore.Load(SavePath,out SaveNotice,out SaveBlocked);
             if(S==null||S.items==null)S=Fresh();
             if(S.coolingItems==null)S.coolingItems=new List<CoolingItem>();
             if(S.markets==null)S.markets=new List<MarketSeries>();
@@ -167,9 +160,9 @@ namespace CryptoMining
 
         public void Save()
         {
-            if(S==null||!SaveEnabled)return;
-            try{Directory.CreateDirectory(Application.persistentDataPath);string tmp=SavePath+".tmp";File.WriteAllText(tmp,JsonUtility.ToJson(S));if(File.Exists(SavePath))File.Copy(SavePath,SavePath+".bak",true);File.Copy(tmp,SavePath,true);File.Delete(tmp);}
-            catch(Exception e){Debug.LogWarning("Save failed: "+e.Message);}
+            if(S==null||!SaveEnabled||SaveBlocked)return;
+            try{SaveStore.Write(SavePath,S);}
+            catch(Exception e){SaveNotice="저장에 실패했습니다. 저장 공간을 확인하세요.";Debug.LogWarning("Save failed: "+e.Message);}
         }
 
         void OnApplicationQuit(){Save();}
@@ -299,7 +292,9 @@ namespace CryptoMining
         }
 
         public void ToggleOC(){if(!SimulationActive)return;S.overclock=!S.overclock;if(S.overclock){List<GpuItem> eq=Equipped();for(int i=0;i<eq.Count;i++)eq[i].temp+=3*HeatMul(eq[i]);}Say(S.overclock?"오버클럭 켜짐":"오버클럭 꺼짐");CheckHeat();Fire();}
-        public void EmergencyCool(){List<GpuItem> eq=Equipped();float a=UnityEngine.Random.Range(16,24)+(HasFork("cooling")?5:0);for(int i=0;i<eq.Count;i++)eq[i].temp=Mathf.Max(25,eq[i].temp-a);Say("긴급 냉각 -"+Mathf.RoundToInt(a)+"C");Fire();}
+        public int EmergencyCoolRemaining(){return Mathf.Max(0,S.emergencyCoolUntil-S.runSeconds);}
+        public void EmergencyCool(){if(!SimulationActive||EmergencyCoolRemaining()>0)return;S.emergencyCoolUntil=S.runSeconds+120;List<GpuItem> eq=Equipped();float a=20+(HasFork("cooling")?5:0);for(int i=0;i<eq.Count;i++)eq[i].temp=Mathf.Max(25,eq[i].temp-a);Say("긴급 냉각 -"+a+"°C · 재사용 120초");Save();Fire();}
+
 
         public void SetMiningCoin(string id){CoinDef c=Catalog.Coin(id);if(!CoinUnlocked(c)){Say("상위 GPU 필요");return;}S.miningCoinId=id;Save();Fire();}
         public void SetTradeCoin(string id){CoinDef c=Catalog.Coin(id);if(CoinUnlocked(c)){S.tradeCoinId=id;Fire();}}

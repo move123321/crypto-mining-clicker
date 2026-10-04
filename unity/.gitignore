@@ -11,3 +11,8 @@
 *.slnx
 
 /.port-*
+
+# Local release signing credentials
+*.jks
+*.keystore
+*.p12
