@@ -283,7 +283,7 @@ public class WebGameUI:MonoBehaviour {
  void NewsContent(){
   var paper=Box(content,"News newspaper",0,0,412,237,C("eee8d9"),C("9f947d"));
   Text(paper,"채굴 경제신문",14,10,384,33,24,C("263239"));Box(paper,"Rule",14,49,384,2,C("263239"));
-  Text(paper,market.NewsCategory+" · 게임 속 가상 소식",14,58,384,24,12,C("53656a"));
+  Text(paper,market.NewsCategory+" · 채굴 경제신문",14,58,384,24,12,C("53656a"));
   Text(paper,market.NewsTitle,14,90,384,54,20,C("203438"));
   Text(paper,market.NewsBody,14,151,384,76,14,C("34484a"),TextAnchor.UpperLeft);
   y=249;Button(content,market.NewsCategory=="장비 소식"?"상점 보기":market.NewsCategory=="전력 소식"?"장착 관리 보기":"거래소 보기",0,y,412,40,()=>Open(market.NewsCategory=="장비 소식"?"shop":market.NewsCategory=="전력 소식"?"gpu":"trade"),Gold);y+=48;Button(content,"확인",0,y,412,40,()=>Close(),Cyan);y+=44;
