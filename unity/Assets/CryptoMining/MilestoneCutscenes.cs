@@ -11,7 +11,7 @@ public partial class WebGameUI {
   // The purchase/rebirth is already committed. Skipping never changes rewards.
   g.S.seenMilestones|=bit;g.Save();
   Close();StopIntro();g.IntroPaused=true;
-  intro=Box(screen,"Milestone",0,0,480,854,C("080d19"));
+  intro=Box(screen,"Milestone",0,0,480,854,C("080d19"));intro.GetComponent<UnityEngine.UI.Image>().raycastTarget=true;
   Text(intro,"MILESTONE / "+(rebirth?"02":"01"),32,100,320,28,12,Cyan);
   Button(intro,"건너뛰기",340,96,108,36,StopIntro,Muted,12);
   Text(intro,rebirth?"새로운 시작":"더 넓은 작업실로",32,157,416,55,27,Gold);

@@ -19,6 +19,7 @@ public static class VerifyMilestoneUI {
   foreach(bool rebirth in new[]{false,true}){
    Call(ui,"PlayMilestone",rebirth);
    if(!g.IntroPaused||Get(ui,"intro")==null)throw new Exception("Milestone must pause simulation");
+   if(!((RectTransform)Get(ui,"intro")).GetComponent<UnityEngine.UI.Image>().raycastTarget)throw new Exception("Milestone overlay must block taps behind it");
    var intro=(RectTransform)Get(ui,"intro");
    var scene=(RectTransform)intro.Find("Milestone stage/Animated scene");scene.anchoredPosition=Vector2.zero;scene.GetComponent<CanvasGroup>().alpha=1;
    Canvas.ForceUpdateCanvases();foreach(var text in canvas.GetComponentsInChildren<TextMeshProUGUI>())text.ForceMeshUpdate();Canvas.ForceUpdateCanvases();camera.Render();camera.Render();RenderTexture.active=render;var shot=new Texture2D(1080,2400,TextureFormat.RGB24,false);shot.ReadPixels(new Rect(0,0,1080,2400),0,0);shot.Apply();File.WriteAllBytes(Path.GetFullPath("../milestone-"+(rebirth?"rebirth":"studio")+".png"),shot.EncodeToPNG());UnityEngine.Object.DestroyImmediate(shot);

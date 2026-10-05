@@ -10,10 +10,18 @@ public static class ReleaseLayoutAudit {
  static void Call(object obj,string name,params object[] args){obj.GetType().GetMethod(name,flags).Invoke(obj,args);}
  static object Get(object obj,string name){return obj.GetType().GetField(name,flags).GetValue(obj);}
  static void Set(object obj,string name,object value){obj.GetType().GetField(name,flags).SetValue(obj,value);}
+ static void SetField(object obj,string name,object value){obj.GetType().GetField(name,BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic).SetValue(obj,value);}
+ static TMP_Text FindLabel(Canvas canvas,string value){foreach(var text in canvas.GetComponentsInChildren<TMP_Text>(true))if(text.text==value)return text;return null;}
  public static void Run(){
   var host=new GameObject("Release UI checks");var g=host.AddComponent<GameManager>();GameManager.I=g;g.SaveEnabled=false;g.S=new SaveData{cash=99999999,runSeconds=20000,totalMined=99999999,propertyId=1,racksInstalled=2};g.S.items.Add(new GpuItem{uid="gpu_1",slot=0,temp=55});g.S.forkUnlocked.Add("root");
   var market=host.AddComponent<MarketManager>();MarketManager.I=market;market.Init();g.EnsureContract();var ui=host.AddComponent<WebGameUI>();Set(ui,"g",g);Set(ui,"market",market);Set(ui,"font",typeof(WebGameUI).GetMethod("CreateUiFont",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null));Call(ui,"Build");Call(ui,"Refresh");
   var canvas=(Canvas)Get(ui,"canvas");canvas.GetComponent<MobileSafeArea>().enabled=false;
+  foreach(var image in canvas.GetComponentsInChildren<Image>(true))if(image.GetComponent<Button>()!=null&&!image.raycastTarget)throw new Exception("Button graphic must receive input: "+image.name);
+  var grid=canvas.transform.Find("Mobile 480 x 854/Fixed HUD and room/Grid");if(grid==null||grid.GetComponent<Image>().raycastTarget)throw new Exception("Decorative grid must ignore raycasts");
+  SetField(g.S,"runSeconds",1700);Call(ui,"Open","cool");if(FindLabel(canvas,"인증 잠금")==null)throw new Exception("Cooler must initially show locked state");
+  SetField(g.S,"runSeconds",1800);Call(ui,"Refresh");if(FindLabel(canvas,"구매하고 랙에 장착")==null)throw new Exception("Cooler unlock updates while menu remains open");
+  SetField(g.S,"cash",0);Call(ui,"Refresh");if(FindLabel(canvas,"현금 부족")==null)throw new Exception("Cooler affordability updates while menu remains open");
+  ui.Close();Call(ui,"Refresh");
   var camera=new GameObject("Camera",typeof(Camera)).GetComponent<Camera>();var render=new RenderTexture(1080,2400,24);camera.targetTexture=render;canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=camera;canvas.planeDistance=10;var scaler=canvas.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ConstantPixelSize;scaler.scaleFactor=2;
   var screen=(RectTransform)Get(ui,"screen");var safe=new Rect(0,90,1080,2210);screen.localScale=MobileSafeArea.Fit(safe,2);screen.anchoredPosition=(safe.center-new Vector2(540,1200))/2;
   int overflows=0;

@@ -364,7 +364,7 @@ namespace CryptoMining
         public double TotalHash(){double n=0;List<GpuItem> l=Equipped();for(int i=0;i<l.Count;i++)n+=Catalog.GPU(l[i].modelId).hash;return n*AutoMul();}
         public int TotalPower(){int n=0;List<GpuItem> l=Equipped();for(int i=0;i<l.Count;i++)n+=Catalog.GPU(l[i].modelId).power;return n;}
         public int ElectricityPerMinute(){return Mathf.Max(0,Mathf.RoundToInt(TotalPower()/15f*(S.runSeconds<S.electricityOfferUntil?Mathf.Max(.5f,S.electricityMultiplier):1)));}
-        public float Hottest(){float h=25;List<GpuItem> l=Equipped();for(int i=0;i<l.Count;i++)h=Mathf.Max(h,l[i].temp);return h;}
+        public float Hottest(){float h=25;int capacity=SlotCapacity();for(int slot=0;slot<capacity;slot++){var gpu=At(slot);if(gpu!=null)h=Mathf.Max(h,gpu.temp);}return h;}
         public string Duration(int s){int h=s/3600,m=(s%3600)/60;return h>0?h+"시간 "+m+"분":m+"분";}
 
         void CheckHeat(){if(Hottest()>=100&&S.running){S.running=false;S.repairPending=true;Save();if(Overheated!=null)Overheated();}}
