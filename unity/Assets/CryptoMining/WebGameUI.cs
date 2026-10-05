@@ -261,7 +261,11 @@ public partial class WebGameUI:MonoBehaviour {
   foreach(var unit in g.S.coolingItems){int mounted=g.CoolerRack(unit.uid);if(mounted>=0&&mounted!=selectedRack)ActionCard(Catalog.Cooler(unit.coolerId).name,"현재 랙 "+(mounted+1)+"에서 사용 중입니다.\n이동하면 기존 랙의 냉각은 해제됩니다.","선택한 랙으로 이동",()=>{g.EquipCoolerToRack(unit.uid,selectedRack);Open("cool");},Gold,146);}
   foreach(var cl in Catalog.Coolers){if(cl.id==0)continue;bool unlocked=g.CoolerUnlocked(cl);var owned=g.S.coolingItems.Find(x=>x.coolerId==cl.id&&g.CoolerRack(x.uid)<0);bool active=g.RackCoolerLevel(selectedRack)==cl.id;
    var card=Card(cl.name,"",185);CoolerArt(card,cl.id);
-   Text(card,"최대 "+Mathf.Min(4,cl.id)+"행 · GPU "+(Mathf.Min(4,cl.id)*2)+"개\n냉각 -"+cl.rate.ToString("0.00")+"°C/초\n₩"+N(cl.cost)+"\n"+(unlocked?"구매 가능":"운영 "+g.Duration(Mathf.FloorToInt(cl.unlockSeconds*g.CycleFactor()))+" 필요"),10,38,250,100,12);
+   var description=Text(card,"",10,38,250,100,12);
+   LiveText(description,()=>{
+    string status=active?"현재 랙 사용 중":owned!=null?"보유 쿨러 · 장착 가능":!g.CoolerUnlocked(cl)?"운영 "+g.Duration(Mathf.FloorToInt(cl.unlockSeconds*g.CycleFactor()))+" 필요":g.S.cash<cl.cost?"해금 완료 · 현금 부족":"구매 가능 · 현금 충분";
+    return "최대 "+Mathf.Min(4,cl.id)+"행 · GPU "+(Mathf.Min(4,cl.id)*2)+"개\n냉각 -"+cl.rate.ToString("0.00")+"°C/초\n₩"+N(cl.cost)+"\n"+status;
+   });
    int coolerId=cl.id;string coolerUid=owned==null?null:owned.uid;
    var button=Button(card,"",10,141,392,34,()=>{if(g.RackCoolerLevel(selectedRack)==coolerId)return;var spare=string.IsNullOrEmpty(coolerUid)?null:g.S.coolingItems.Find(x=>x.uid==coolerUid);if(spare!=null){g.EquipCoolerToRack(coolerUid,selectedRack);Open("cool");}else if(g.CoolerUnlocked(cl)&&g.S.cash>=cl.cost&&g.BuyCooler(null,coolerId,selectedRack))Open("cool");},Cyan);
    var buttonLabel=button.GetComponentInChildren<Text>();live.Add(()=>{bool inUse=g.RackCoolerLevel(selectedRack)==coolerId;bool hasSpare=!string.IsNullOrEmpty(coolerUid)&&g.S.coolingItems.Exists(x=>x.uid==coolerUid);bool canBuy=g.CoolerUnlocked(cl)&&g.S.cash>=cl.cost;button.interactable=g.S.running&&!inUse&&(hasSpare||canBuy);buttonLabel.text=inUse?"현재 사용 중":hasSpare?"보유 쿨러 장착":!g.CoolerUnlocked(cl)?"인증 잠금":g.S.cash<cl.cost?"현금 부족":"구매하고 랙에 장착";});
