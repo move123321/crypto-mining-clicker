@@ -48,6 +48,7 @@ namespace CryptoMining
     public class SaveData
     {
         public int version=3,rebirths,fork,runSeconds,electricityTimer,contractsCompleted,uidCounter=2;
+        public int seenMilestones;
         public long totalClicks;
         public double cash,totalMined;
         public bool running=true,overclock,fever;
@@ -326,9 +327,9 @@ namespace CryptoMining
         public bool CanRebirth(){return S.running&&QuantumCount()>=RebirthReq()&&S.runSeconds>=RebirthSeconds();}
         public void Rebirth()
         {
-            if(!CanRebirth())return;int r=S.rebirths+1,f=S.fork+1;List<string> forks=new List<string>(S.forkUnlocked);var marketHistory=S.markets;int property=S.propertyId,racks=S.racksInstalled;S=Fresh();S.propertyId=property;S.racksInstalled=racks;S.markets=marketHistory;S.rebirths=r;S.fork=f;S.forkUnlocked=forks;EnsureContract();Save();Fire();Say("환생 완료 · 포크 +1");
+            if(!CanRebirth())return;int r=S.rebirths+1,f=S.fork+1;List<string> forks=new List<string>(S.forkUnlocked);var marketHistory=S.markets;int property=S.propertyId,racks=S.racksInstalled,seen=S.seenMilestones;S=Fresh();S.seenMilestones=seen;S.propertyId=property;S.racksInstalled=racks;S.markets=marketHistory;S.rebirths=r;S.fork=f;S.forkUnlocked=forks;EnsureContract();Save();Fire();Say("환생 완료 · 포크 +1");
         }
-        public void Restart(){int r=S.rebirths,f=S.fork;List<string> forks=new List<string>(S.forkUnlocked);var marketHistory=S.markets;int property=S.propertyId,racks=S.racksInstalled;S=Fresh();S.propertyId=property;S.racksInstalled=racks;S.markets=marketHistory;S.rebirths=r;S.fork=f;S.forkUnlocked=forks;EnsureContract();Save();Fire();}
+        public void Restart(){int r=S.rebirths,f=S.fork;List<string> forks=new List<string>(S.forkUnlocked);var marketHistory=S.markets;int property=S.propertyId,racks=S.racksInstalled,seen=S.seenMilestones;S=Fresh();S.seenMilestones=seen;S.propertyId=property;S.racksInstalled=racks;S.markets=marketHistory;S.rebirths=r;S.fork=f;S.forkUnlocked=forks;EnsureContract();Save();Fire();}
 
         public List<GpuItem> Equipped(){List<GpuItem> l=new List<GpuItem>();for(int s=0;s<SlotCapacity();s++){GpuItem g=At(s);if(g!=null)l.Add(g);}return l;}
         public GpuItem At(int slot){for(int i=0;i<S.items.Count;i++)if(S.items[i].slot==slot)return S.items[i];return null;}

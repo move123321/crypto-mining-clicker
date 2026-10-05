@@ -10,7 +10,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem;
 namespace CryptoMining {
-public class WebGameUI:MonoBehaviour {
+public partial class WebGameUI:MonoBehaviour {
  GameManager g; MarketManager market; TMP_FontAsset font; Canvas canvas; RectTransform screen,body,modal,content,intro; Text money,coinIcon,coin,rate,cash,fork,temp,power,bill,fever,toast; float uiTick;
  readonly List<Action> live=new List<Action>(); readonly List<RectTransform> fans=new List<RectTransform>(); readonly List<Text> rackTemps=new List<Text>(); string rackKey="",page="",coolTarget=null,equipUid=null,selectedNode="root"; int selectedRack,pendingSlot=-1; Coroutine toastRoutine,typing; Text typed; string fullCaption; bool typingNow; int introIndex; bool replay;
  readonly List<RectTransform> roomRacks=new List<RectTransform>();
@@ -198,7 +198,7 @@ public class WebGameUI:MonoBehaviour {
   Card("현재 공간 · "+g.PropertyName(),"설치된 랙 "+g.S.racksInstalled+"개 · 최대 "+g.PropertyRackLimit()+"개\nGPU 장착 공간 "+g.SlotCapacity()+"개 · 보유 현금 ₩"+N(g.S.cash),100);
   var art=Card("원룸 작업실","",190);Box(art,"Room preview",12,42,388,132,C("b7ced4"),Cyan);Box(art,"Preview floor",16,125,380,44,C("8c9fa4"));
   for(int i=0;i<2;i++){var rr=Box(art,"Rack preview",40+i*188,61,88,99,C("293f4e"),C("637c89"));for(int row=0;row<4;row++)Box(rr,"Slots",7,8+row*22,74,14,C("4c7d80"));}
-  if(g.S.propertyId==0)ActionCard("공간 확장 · ₩"+N(GameManager.StudioCost),"작은 방 → 원룸 작업실\n기존 GPU·쿨러·랙을 그대로 이전합니다.\n추가 랙과 GPU는 별도 구매입니다.","원룸 작업실 구매",()=>{if(g.BuyStudio()){Close();FocusRack(1);}},Gold,180);
+  if(g.S.propertyId==0)ActionCard("공간 확장 · ₩"+N(GameManager.StudioCost),"작은 방 → 원룸 작업실\n기존 GPU·쿨러·랙을 그대로 이전합니다.\n추가 랙과 GPU는 별도 구매입니다.","원룸 작업실 구매",()=>{if(g.BuyStudio()){Close();FocusRack(1);PlayMilestone(false);}},Gold,180);
   else if(g.S.racksInstalled<2)ActionCard("두 번째 랙 · ₩"+N(GameManager.ExtraRackCost),"오른쪽 공간에 빈 랙을 설치합니다.\nGPU 8개 추가 장착 · 쿨러는 랙별로 장착합니다.","랙 구매 및 설치",()=>{if(g.BuyRack()){Close();FocusRack(1);}},Green,160);
   else ActionCard("원룸 작업실 확장 완료","랙 2개 · 최대 GPU 16개 장착 가능","두 번째 랙 보기",()=>{Close();FocusRack(1);},Cyan,140);
   Card("확장 안내","방 안을 좌우로 밀면 이동합니다.\nGPU를 짧게 누르면 채굴하고, 끌면 화면만 이동합니다.\n구매한 부동산과 랙은 환생 후에도 유지됩니다.",117);
@@ -299,7 +299,7 @@ public class WebGameUI:MonoBehaviour {
   Close();modal=Box(screen,"Rebirth confirmation",0,0,480,854,new Color(.01f,.02f,.05f,.96f));var r=Box(modal,"Conditions",25,180,430,420,Panel,Cyan);
   bool ready=g.CanRebirth();Text(r,ready?"환생할 준비가 되었습니다":"조건을 달성하지 못했습니다",18,15,394,45,20,ready?Green:Gold);
   Text(r,"최종 GPU 장착: "+g.QuantumCount()+" / "+g.RebirthReq()+"개\n운영 시간: "+g.Duration(g.S.runSeconds)+" / "+g.Duration(g.RebirthSeconds())+"\n남은 시간: "+Mathf.CeilToInt(Mathf.Max(0,g.RebirthSeconds()-g.S.runSeconds)/60f)+"분\n\n초기화: 현금, 코인, GPU, 쿨러, 회차 기록\n유지: 부동산·랙, 환생 횟수, 포크, 영구 업그레이드",20,78,390,216,15);
-  if(ready)Button(r,"환생하기 · 포크 +1",20,308,390,42,()=>{g.Rebirth();Open("fork");},Green);
+  if(ready)Button(r,"환생하기 · 포크 +1",20,308,390,42,()=>{int before=g.S.rebirths;g.Rebirth();if(before==0&&g.S.rebirths==1)PlayMilestone(true);else Open("fork");},Green);
   Button(r,ready?"취소":"확인",20,363,390,40,()=>Open("fork"),Cyan);
  }
  void Line(Transform p,Vector2 a,Vector2 b,Color c,float width){Vector2 delta=b-a;var r=Box(p,"Line",a.x,a.y,delta.magnitude,width,c);r.pivot=new Vector2(0,.5f);r.localRotation=Quaternion.Euler(0,0,-Mathf.Atan2(delta.y,delta.x)*Mathf.Rad2Deg);r.GetComponent<Image>().raycastTarget=false;}
@@ -327,7 +327,7 @@ public class WebGameUI:MonoBehaviour {
  // Original opening and tutorial copy, retained from index.html.
  static readonly string[] cutLabels={"시스템 시작","장비 가동","시장 연결","장비 확장","최종 목표"},cutTitles={"낡은 채굴실","첫 번째 GPU","가상 코인 시장 접속","더 강한 장비","목표: QUANTUM"},cutArt={"●\n전력 꺼짐\n...\n신호 감지","▣\nRTX 1090\n온도 30°C\n상태: 가동 중","₿ Ξ Ð ✦ Q\n시장 연결 : 연결됨\n시세 변동 : 활성","▣  ▣  ▣\nGPU / 냉각 / 전력\n나만의 채굴실","⚛\nRTX 6090 QUANTUM\n환생 시스템\n잠김"},cutText={"불 꺼진 작은 방.\n책상 위에는 오래된 채굴 장비 한 대만 남아 있다.","전원을 넣자 RTX 1090의 팬이 천천히 돌기 시작한다.\n이 한 장이 모든 것의 시작이다.","채굴한 코인은 시장에서 현금으로 바꿀 수 있다.\n하지만 시세는 계속 움직이고, 어떤 코인은 갑자기 폭등하거나 급락한다.","더 좋은 GPU를 사고, 냉각을 강화하고, 새로운 코인을 해금하라.\n작은 랙은 점점 거대한 채굴 시스템으로 변한다.","최종 목표는 RTX 6090 QUANTUM과 환생 프로토콜.\n지금부터 첫 번째 채굴을 시작한다."};
  static readonly string[] tutTitles={"1. GPU를 눌러 채굴","2. 코인을 현금으로 판매","3. GPU 업그레이드","4. 온도와 GPU 쿨링","5. 전력과 오버클럭","6. 계약과 시장 이벤트","7. 환생과 포크"},tutText={"랙에 장착된 GPU를 클릭하면 코인을 채굴합니다.\n\nGPU가 여러 장이면 클릭 한 번에 장착된 GPU가 모두 같이 채굴합니다.","방 오른쪽 컴퓨터를 누르면 거래소가 열립니다.\n\n채굴한 코인을 현재 게임 시세로 팔아 ₩ 현금을 만들고, 그 돈으로 장비를 구매합니다.","[상점]에서 GPU를 구매하거나 [장착 관리]에서 1번 슬롯 GPU를 업그레이드할 수 있습니다.\n\n상위 GPU를 보유하면 ETHER-X, DOGE-X 같은 새로운 코인도 순서대로 해금됩니다.","채굴과 오버클럭은 GPU 온도를 올립니다.\n\n[냉각]에서 랙 쿨러를 장착하세요. 1단계는 1행, 최대 4행을 냉각합니다. 100°C가 되면 수리비를 내거나 GPU 1개를 포기할 수 있습니다.","[오버클럭]는 채굴 성능을 높이지만 발열도 증가합니다.\n\nGPU 전력 사용량에 따라 실제 게임 현금에서 전기요금이 주기적으로 차감됩니다.","거래소에는 채굴/판매 계약이 있습니다. 목표를 완료하면 현금 보상을 받을 수 있습니다.\n\n랜덤 이벤트로 해금된 코인 시세, 전기요금, GPU 구매 가격이 일시적으로 변합니다.","최종 RTX 6090 QUANTUM을 준비하고 환생 조건을 달성하면 포크를 얻습니다.\n\n환생하면 이번 회차 장비는 초기화되지만 포크 업그레이드는 남아 다음 회차 성장을 빠르게 해줍니다."};
- void StopIntro(){if(typing!=null)StopCoroutine(typing);typingNow=false;if(intro!=null){intro.gameObject.SetActive(false);Destroy(intro.gameObject);}intro=null;g.IntroPaused=false;}
+ void StopIntro(){if(milestoneRoutine!=null){StopCoroutine(milestoneRoutine);milestoneRoutine=null;}if(typing!=null)StopCoroutine(typing);typingNow=false;if(intro!=null){intro.gameObject.SetActive(false);Destroy(intro.gameObject);}intro=null;g.IntroPaused=false;}
  void Opening(bool rp){if(!g.S.running)return;Close();replay=rp;introIndex=0;RenderOpening();}
  void RenderOpening(){StopIntro();g.IntroPaused=true;intro=Box(screen,"Opening",0,0,480,854,C("02040a"));var b=Box(intro,"Cutscene",25,148,430,535,Dark,C("303a50"),3);Text(b,cutLabels[introIndex],12,8,300,28,12,Cyan);Button(b,"건너뛰기",347,8,70,29,FinishOpening,Red,10);Box(b,"Visual",3,44,424,220,introIndex==2?C("241b39"):introIndex==4?C("123e3a"):C("14283e"));Text(b,cutArt[introIndex],18,68,394,176,22,Green,TextAnchor.MiddleCenter);Text(b,cutTitles[introIndex],16,280,398,33,18,Gold);typed=Text(b,"",16,321,398,125,16);fullCaption=cutText[introIndex];typing=StartCoroutine(TypeCaption());Text(b,new string('■',introIndex+1)+new string('□',4-introIndex),16,466,185,40,13,Cyan);Button(b,introIndex==4?"[ 채굴 시작 ]":"[ 계속 ]",260,470,151,42,()=>{if(typingNow){StopCoroutine(typing);typed.text=fullCaption;typingNow=false;}else if(introIndex<4){introIndex++;RenderOpening();}else FinishOpening();});}
  IEnumerator TypeCaption(){typingNow=true;for(int i=0;i<=fullCaption.Length;i++){typed.text=fullCaption.Substring(0,i);yield return new WaitForSecondsRealtime(.022f);}typingNow=false;}
