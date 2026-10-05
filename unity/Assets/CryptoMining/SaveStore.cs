@@ -8,9 +8,13 @@ public static class SaveStore {
   data=null;if(!File.Exists(path))return false;
   try {var json=File.ReadAllText(path);if(!json.Contains("\"items\"")||!json.Contains("\"version\""))return false;
    var s=JsonUtility.FromJson<SaveData>(json);if(s==null||s.version<1||s.version>3||s.items==null||s.coins==null||!Finite(s.cash)||s.cash<0||!Finite(s.totalMined))return false;
+   // Unity serializes a null inline class as an empty object in older saves.
+   if(s.contract!=null&&string.IsNullOrEmpty(s.contract.type)&&string.IsNullOrEmpty(s.contract.coinId)&&s.contract.target==0&&s.contract.progress==0&&s.contract.reward==0)s.contract=null;
+   if(s.contract!=null){var c=s.contract;if((c.type!="mine"&&c.type!="sell")||Array.Find(Catalog.Coins,x=>x.id==c.coinId)==null||!Finite(c.target)||c.target<=0||!Finite(c.progress)||c.progress<0||c.progress>c.target||!Finite(c.reward)||c.reward<0)return false;}
    var ids=new HashSet<string>();var slots=new HashSet<int>();foreach(var gpu in s.items)if(gpu==null||string.IsNullOrEmpty(gpu.uid)||!ids.Add(gpu.uid)||gpu.modelId<0||gpu.modelId>8||!Finite(gpu.temp)||gpu.slot < -1||gpu.slot>15||(gpu.slot>=0&&!slots.Add(gpu.slot)))return false;
    foreach(var coin in s.coins)if(coin==null||!Finite(coin.amount)||coin.amount<0)return false;
-   if(s.coolingItems!=null)foreach(var cooler in s.coolingItems)if(cooler==null||string.IsNullOrEmpty(cooler.uid)||cooler.coolerId<1||cooler.coolerId>5)return false;
+   var coolerIds=new HashSet<string>();
+   if(s.coolingItems!=null)foreach(var cooler in s.coolingItems)if(cooler==null||string.IsNullOrEmpty(cooler.uid)||!coolerIds.Add(cooler.uid)||cooler.coolerId<1||cooler.coolerId>5)return false;
    if(s.markets!=null)foreach(var market in s.markets){if(market==null||market.candles==null||market.candles.Count==0)return false;foreach(var candle in market.candles)if(candle==null||!Finite(candle.open)||!Finite(candle.close)||!Finite(candle.high)||!Finite(candle.low)||candle.close<=0)return false;}
    data=s;return true;
   }catch(Exception){return false;}
