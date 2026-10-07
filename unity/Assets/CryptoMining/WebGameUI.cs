@@ -59,9 +59,9 @@ public partial class WebGameUI:MonoBehaviour {
  static string N(double n){return Math.Floor(n).ToString("N0",CultureInfo.InvariantCulture);}
  static string D(double n){return n.ToString("0.0",CultureInfo.InvariantCulture);}
  void Awake(){g=GetComponent<GameManager>();if(g==null)g=gameObject.AddComponent<GameManager>();market=GetComponent<MarketManager>();if(market==null)market=gameObject.AddComponent<MarketManager>();}
- void Start(){font=CreateUiFont();Build();g.Changed+=Refresh;g.Toast+=Toast;g.Overheated+=GameOver;market.Changed+=Refresh;market.Event+=News;market.ModalOpen=()=>modal!=null||intro!=null;Refresh();if(g.SaveBlocked)StorageIssue();else if(!g.S.running)GameOver();else if(PlayerPrefs.GetInt("webport_opening",0)==0)Opening(false);else if(PlayerPrefs.GetInt("webport_tutorial",0)==0)Tutorial();}
+ void Start(){ApplyDisplaySettings();font=CreateUiFont();Build();g.Changed+=Refresh;g.Toast+=Toast;g.Overheated+=GameOver;market.Changed+=Refresh;market.Event+=News;market.ModalOpen=()=>modal!=null||intro!=null;Refresh();if(g.SaveBlocked)StorageIssue();else if(!g.S.running)GameOver();else if(PlayerPrefs.GetInt("webport_opening",0)==0)Opening(false);else if(PlayerPrefs.GetInt("webport_tutorial",0)==0)Tutorial();}
  void OnDestroy(){if(g!=null){g.Changed-=Refresh;g.Toast-=Toast;g.Overheated-=GameOver;}if(market!=null){market.Changed-=Refresh;market.Event-=News;}if(canvas!=null)Destroy(canvas.gameObject);}
- void Update(){if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)HandleBack();float hottest=g.Hottest();if(modal==null&&intro==null&&g.S.running){float speed=hottest>=65?720:280;float step=-speed*Time.unscaledDeltaTime;foreach(var f in fans)if(f!=null)f.Rotate(0,0,step);}uiTick+=Time.unscaledDeltaTime;if(uiTick>=.2f){uiTick=0;Refresh();}}
+ void Update(){if(Keyboard.current!=null&&Keyboard.current.escapeKey.wasPressedThisFrame)HandleBack();float hottest=g.Hottest();if(modal==null&&intro==null&&g.S.running&&PlayerPrefs.GetInt("mining_fan_animation",1)==1){float speed=hottest>=65?720:280;float step=-speed*Time.unscaledDeltaTime;foreach(var f in fans)if(f!=null)f.Rotate(0,0,step);}uiTick+=Time.unscaledDeltaTime;if(uiTick>=.2f){uiTick=0;Refresh();}}
  RectTransform Rect(Transform p,string name,float x,float y,float w,float h){var r=new GameObject(name,typeof(RectTransform)).GetComponent<RectTransform>();r.SetParent(p,false);r.anchorMin=r.anchorMax=new Vector2(0,1);r.pivot=new Vector2(0,1);r.anchoredPosition=new Vector2(x,-y);r.sizeDelta=new Vector2(w,h);return r;}
  Image Paint(RectTransform r,Color c){var i=r.gameObject.AddComponent<Image>();i.color=c;i.raycastTarget=false;return i;}
  RectTransform Box(Transform p,string name,float x,float y,float w,float h,Color c,Color? border=null,int bw=2){var r=Rect(p,name,x,y,w,h);Paint(r,border??c);if(border.HasValue){var fill=Rect(r,"Fill",bw,bw,w-bw*2,h-bw*2);Paint(fill,c).raycastTarget=false;}return r;}
@@ -71,7 +71,7 @@ public partial class WebGameUI:MonoBehaviour {
  RectTransform Scroll(Transform p,float x,float y,float w,float h,out ScrollRect sc){var outer=Rect(p,"Scroll",x,y,w,h);sc=outer.gameObject.AddComponent<ScrollRect>();var vp=Rect(outer,"Viewport",0,0,w,h);Paint(vp,new Color(0,0,0,0)).raycastTarget=true;vp.gameObject.AddComponent<RectMask2D>();var cr=Rect(vp,"Content",0,0,w,0);sc.viewport=vp;sc.content=cr;sc.horizontal=false;sc.movementType=ScrollRect.MovementType.Clamped;sc.scrollSensitivity=35;return cr;}
  void Build(){if(FindFirstObjectByType<EventSystem>()==null)new GameObject("EventSystem",typeof(EventSystem),typeof(InputSystemUIInputModule));var cv=new GameObject("Web Game Canvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));canvas=cv.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;canvas.pixelPerfect=false;var scaler=cv.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(480,854);scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.Expand;var backdrop=Rect(cv.transform,"Backdrop",0,0,480,854);Fill(backdrop);Paint(backdrop,C("0b101d")).raycastTarget=true;screen=Box(cv.transform,"Mobile 480 x 854",0,0,480,854,Bg);screen.anchorMin=screen.anchorMax=new Vector2(.5f,.5f);screen.pivot=new Vector2(.5f,.5f);screen.anchoredPosition=Vector2.zero;var safe=cv.AddComponent<MobileSafeArea>();safe.target=screen;safe.canvas=canvas;
  body=Box(screen,"Fixed HUD and room",0,0,480,774,C("303a54"));for(int i=0;i<35;i++){Box(body,"Grid",i*14,0,1,817,new Color(1,1,1,.025f));}for(int i=0;i<59;i++)Box(body,"Grid",0,i*14,480,1,new Color(1,1,1,.025f));
- var music=GetComponent<MiningMusic>();if(music==null)music=gameObject.AddComponent<MiningMusic>();Button(body,"설정",10,4,70,22,()=>Open("settings"),Cyan,10);Button(body,"다음 목표",88,4,90,22,()=>Open("goals"),Gold,10);Text(body,"『암호화폐 마이닝』",60,28,340,30,19,White,TextAnchor.MiddleCenter);Button(body,"▶",397,28,30,30,()=>Opening(true),Gold);Button(body,"?",436,28,30,30,Tutorial,Cyan,16);
+ var music=GetComponent<MiningMusic>();if(music==null)music=gameObject.AddComponent<MiningMusic>();Button(body,"설정",10,10,76,44,()=>Open("settings"),Cyan,14);Button(body,"다음 목표",94,10,90,44,()=>Open("goals"),Gold,12);Text(body,"암호화폐 마이닝",192,10,180,44,16,White,TextAnchor.MiddleCenter);Button(body,"▶",378,10,42,44,()=>Opening(true),Gold);Button(body,"?",428,10,42,44,Tutorial,Cyan,16);
  var hud=Box(body,"HUD",9,66,462,234,C("253150"),C("56658c"),3);var wallet=Box(hud,"Wallet",10,10,442,62,C("1b2440"),C("425078"));BuildWalletContents(wallet);
  var f=Box(hud,"Fever",10,80,442,34,C("684113"),C("f2b451"));fever=Text(f,"",5,2,432,30,12,Gold,TextAnchor.MiddleCenter);
  var cashBox=Box(hud,"Cash",10,122,218,34,Dark,C("465375"));cash=Text(cashBox,"",10,3,198,28,13);var forkBox=Box(hud,"Fork",234,122,218,34,Dark,C("465375"));ForkIcon(forkBox,10,8,17);fork=Text(forkBox,"",32,3,176,28,13,Green,TextAnchor.MiddleRight);
@@ -103,11 +103,24 @@ public partial class WebGameUI:MonoBehaviour {
   Text(intro,g.SaveNotice+"\n\n앱을 삭제하거나 데이터를 지우지 마세요. 정상 파일을 복원한 뒤 다시 시도할 수 있습니다.",40,275,400,185,17);
   Button(intro,"다시 읽기",40,500,400,45,()=>{g.Load();StopIntro();if(g.SaveBlocked)StorageIssue();else if(!g.S.running)GameOver();else Refresh();},Cyan);
  }
+ void ApplyDisplaySettings(){Application.targetFrameRate=PlayerPrefs.GetInt("mining_fps",30)==60?60:30;}
+ void VolumeCard(string title,Func<int> value,Action<int> set,Func<bool> muted,Action toggle){
+  var card=Card(title,"",144);var status=Text(card,"",10,37,392,25,12,White);
+  var mute=Button(card,"",302,7,100,28,()=>{toggle();Refresh();},Cyan,11);
+  LiveText(status,()=>muted()?"음소거 · 저장된 음량 "+value()+"%":"음량 "+value()+"% · 선택 즉시 적용");
+  LiveText(mute.GetComponentInChildren<Text>(),()=>muted()?"소리 켜기":"음소거");
+  for(int i=0;i<=4;i++){int level=i*25;var button=Button(card,level+"%",10+i*79,83,76,44,()=>{set(level);if(muted())toggle();Refresh();},Cyan,12);LiveText(button.GetComponentInChildren<Text>(),()=>value()==level?"["+level+"%]":level+"%");}
+ }
  void Settings(){
   var audio=GetComponent<MiningMusic>();
-  ActionCard("배경음악",audio.Muted?"꺼짐":"켜짐",audio.Muted?"음악 켜기":"음악 끄기",()=>{audio.Toggle();Open("settings");},Cyan,128);
-  ActionCard("효과음",audio.EffectsMuted?"꺼짐":"구매·업그레이드·계약 완료 알림",audio.EffectsMuted?"효과음 켜기":"효과음 끄기",()=>{audio.ToggleEffects();Open("settings");},Cyan,128);
-  Card("저장 상태",string.IsNullOrEmpty(g.SaveNotice)?"기기에 자동 저장 중 · 정상 백업 유지\n앱 삭제 시 진행 상황이 사라질 수 있습니다.":g.SaveNotice,116);
+  VolumeCard("배경음악",()=>audio.MusicVolume,audio.SetMusicVolume,()=>audio.Muted,audio.Toggle);
+  VolumeCard("효과음",()=>audio.EffectsVolume,audio.SetEffectsVolume,()=>audio.EffectsMuted,audio.ToggleEffects);
+  var display=Card("화면 부드러움","30FPS: 배터리 절약 · 60FPS: 더 부드러운 움직임\n기기에 따라 발열과 배터리 사용량이 달라집니다.",154,49);
+  foreach(int fps in new[]{30,60}){int choice=fps;var button=Button(display,"",fps==30?10:211,96,191,44,()=>{PlayerPrefs.SetInt("mining_fps",choice);PlayerPrefs.Save();ApplyDisplaySettings();Refresh();},Cyan);LiveText(button.GetComponentInChildren<Text>(),()=> (PlayerPrefs.GetInt("mining_fps",30)==choice?"선택됨 · ":"")+choice+"FPS");}
+  var animation=Card("팬 애니메이션","팬 회전 표시만 조절합니다. 채굴량과 온도는 동일합니다.",132,35);
+  var toggle=Button(animation,"",10,77,392,44,()=>{PlayerPrefs.SetInt("mining_fan_animation",PlayerPrefs.GetInt("mining_fan_animation",1)==1?0:1);PlayerPrefs.Save();Refresh();},Cyan);
+  LiveText(toggle.GetComponentInChildren<Text>(),()=>PlayerPrefs.GetInt("mining_fan_animation",1)==1?"팬 회전 켜짐 · 눌러서 끄기":"팬 회전 꺼짐 · 눌러서 켜기");
+  Card("저장 상태",string.IsNullOrEmpty(g.SaveNotice)?"진행 상황은 기기에 자동 저장됩니다.\n설정은 변경 즉시 저장되며 다음 실행에도 유지됩니다.\n앱 삭제 시 진행 상황과 설정이 사라질 수 있습니다.":g.SaveNotice,128);
   ActionCard("게임 안내","조작과 성장 방법을 다시 확인합니다.","튜토리얼 보기",Tutorial,Cyan,125);
   Card("게임 정보","암호화폐 마이닝 · "+Application.version+"\n가상 코인을 사용하는 채굴 경영 게임입니다.\n실제 암호화폐를 채굴하거나 현금으로 환전하지 않습니다.",120);
  }

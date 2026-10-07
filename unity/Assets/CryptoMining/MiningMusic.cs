@@ -4,12 +4,17 @@ namespace CryptoMining {
 [RequireComponent(typeof(AudioSource))]
 public class MiningMusic:MonoBehaviour {
  AudioSource source,effects;AudioClip success;
+ public int MusicVolume => Mathf.Clamp(PlayerPrefs.GetInt("mining_music_volume",100),0,100);
+ public int EffectsVolume => Mathf.Clamp(PlayerPrefs.GetInt("mining_effects_volume",100),0,100);
+ public void SetMusicVolume(int value){PlayerPrefs.SetInt("mining_music_volume",Mathf.Clamp(value,0,100));PlayerPrefs.Save();ApplyVolume();}
+ public void SetEffectsVolume(int value){PlayerPrefs.SetInt("mining_effects_volume",Mathf.Clamp(value,0,100));PlayerPrefs.Save();}
+ void ApplyVolume(){if(source!=null)source.volume=Muted?0:.18f*MusicVolume/100f;}
  public bool EffectsMuted => PlayerPrefs.GetInt("mining_effects_muted",0)==1;
  public void ToggleEffects(){PlayerPrefs.SetInt("mining_effects_muted",EffectsMuted?0:1);PlayerPrefs.Save();}
- public void Feedback(string message){if(EffectsMuted||effects==null||!(message.Contains("완료")||message.Contains("구매")||message.Contains("업그레이드")||message.Contains("보상")||message.Contains("이사")))return;effects.PlayOneShot(success,.25f);}
+ public void Feedback(string message){if(EffectsMuted||effects==null||!(message.Contains("완료")||message.Contains("구매")||message.Contains("업그레이드")||message.Contains("보상")||message.Contains("이사")))return;effects.PlayOneShot(success,.25f*EffectsVolume/100f);}
  public bool Muted => PlayerPrefs.GetInt("mining_music_muted",0)==1;
  void Start(){
-  source=GetComponent<AudioSource>();source.playOnAwake=false;source.loop=true;source.spatialBlend=0;source.volume=Muted?0:.18f;
+  source=GetComponent<AudioSource>();source.playOnAwake=false;source.loop=true;source.spatialBlend=0;ApplyVolume();
   source.clip=CreateLoop();source.Play();effects=gameObject.AddComponent<AudioSource>();effects.playOnAwake=false;effects.spatialBlend=0;var notes=new float[11025];for(int i=0;i<notes.Length;i++){float t=i/22050f;notes[i]=Mathf.Sin(2*Mathf.PI*(t<.16f?523.25f:t<.32f?659.25f:783.99f)*t)*Mathf.Sin(Mathf.PI*(t%.16f)/.16f)*.4f;}success=AudioClip.Create("장비 업그레이드",notes.Length,1,22050,false);success.SetData(notes,0);
  }
  public static AudioClip CreateLoop(){
@@ -30,7 +35,7 @@ public class MiningMusic:MonoBehaviour {
   }
   var clip=AudioClip.Create("채굴실의 밤",count,1,rate,false);clip.SetData(data,0);return clip;
  }
- public void Toggle(){PlayerPrefs.SetInt("mining_music_muted",Muted?0:1);PlayerPrefs.Save();if(source!=null)source.volume=Muted?0:.18f;}
+ public void Toggle(){PlayerPrefs.SetInt("mining_music_muted",Muted?0:1);PlayerPrefs.Save();ApplyVolume();}
  void OnDestroy(){if(success!=null)Destroy(success);if(source!=null&&source.clip!=null)Destroy(source.clip);}
 }
 }

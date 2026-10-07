@@ -14,6 +14,26 @@ public static class ReleaseLayoutAudit {
  static RectTransform CoolerCard(Canvas canvas){return canvas.transform.Find("Mobile 480 x 854/Modal/Popup/Scroll/Viewport/Content/베이퍼 챔버") as RectTransform;}
  static TMP_Text CoolerDescription(RectTransform card){foreach(var text in card.GetComponentsInChildren<TMP_Text>(true))if(text.text.Contains("°C/초")&&text.text.Contains("₩"))return text;return null;}
  static Button CoolerButton(RectTransform card){var buttons=card.GetComponentsInChildren<Button>(true);if(buttons.Length!=1)throw new Exception("Vapor chamber card must contain exactly one purchase button");return buttons[0];}
+ static void CheckSettings(WebGameUI ui,Canvas canvas){
+  string[] keys={"mining_music_volume","mining_effects_volume","mining_music_muted","mining_effects_muted","mining_fps","mining_fan_animation"};
+  var had=new bool[keys.Length];var saved=new int[keys.Length];int originalFps=Application.targetFrameRate;
+  for(int i=0;i<keys.Length;i++){had[i]=PlayerPrefs.HasKey(keys[i]);saved[i]=PlayerPrefs.GetInt(keys[i]);}
+  try{
+   foreach(var key in keys)PlayerPrefs.DeleteKey(key);
+   Call(ui,"ApplyDisplaySettings");if(Application.targetFrameRate!=30)throw new Exception("Default frame cap must be 30");
+   Call(ui,"Open","settings");
+   var root=((RectTransform)Get(ui,"modal")).Find("Popup/Scroll/Viewport/Content");
+   var music=root.Find("배경음악").GetComponentsInChildren<Button>();music[3].onClick.Invoke();
+   var audio=ui.GetComponent<MiningMusic>();if(audio.MusicVolume!=50)throw new Exception("Music button must persist 50 percent");
+   music[0].onClick.Invoke();if(!audio.Muted)throw new Exception("Mute button must mute");music[0].onClick.Invoke();if(audio.Muted||audio.MusicVolume!=50)throw new Exception("Unmute must retain chosen volume");
+   root.Find("효과음").GetComponentsInChildren<Button>()[2].onClick.Invoke();if(audio.EffectsVolume!=25)throw new Exception("Effects button must persist 25 percent");
+   root.Find("화면 부드러움").GetComponentsInChildren<Button>()[1].onClick.Invoke();if(Application.targetFrameRate!=60)throw new Exception("60 FPS choice must apply immediately");
+   root.Find("팬 애니메이션").GetComponentInChildren<Button>().onClick.Invoke();if(PlayerPrefs.GetInt("mining_fan_animation",1)!=0)throw new Exception("Animation choice must persist");
+   ui.Close();Call(ui,"Open","settings");Call(ui,"ApplyDisplaySettings");if(Application.targetFrameRate!=60||audio.MusicVolume!=50||audio.EffectsVolume!=25)throw new Exception("Reopening must retain settings");
+   var reload=new GameObject("Reloaded audio settings").AddComponent<MiningMusic>();if(reload.MusicVolume!=50||reload.EffectsVolume!=25)throw new Exception("New component must read saved settings");UnityEngine.Object.DestroyImmediate(reload.gameObject);
+   Debug.Log("SETTINGS_CHECKS_PASSED volume, mute, FPS, animation, reopen, reload");
+  }finally{ui.Close();for(int i=0;i<keys.Length;i++){if(had[i])PlayerPrefs.SetInt(keys[i],saved[i]);else PlayerPrefs.DeleteKey(keys[i]);}PlayerPrefs.Save();Application.targetFrameRate=originalFps;}
+ }
  public static void Run(){
   var host=new GameObject("Release UI checks");var g=host.AddComponent<GameManager>();GameManager.I=g;g.SaveEnabled=false;g.S=new SaveData{cash=99999999,runSeconds=20000,totalMined=99999999,propertyId=1,racksInstalled=2};g.S.items.Add(new GpuItem{uid="gpu_1",slot=0,temp=55});g.S.forkUnlocked.Add("root");
   var market=host.AddComponent<MarketManager>();MarketManager.I=market;market.Init();g.EnsureContract();var ui=host.AddComponent<WebGameUI>();Set(ui,"g",g);Set(ui,"market",market);Set(ui,"font",typeof(WebGameUI).GetMethod("CreateUiFont",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null));Call(ui,"Build");Call(ui,"Refresh");
@@ -31,6 +51,7 @@ public static class ReleaseLayoutAudit {
   SetField(g.S,"cash",25000);Call(ui,"Refresh");coolerButton.onClick.Invoke();
   if(g.RackCoolerLevel(0)!=2||g.S.coolingItems.Find(x=>x.coolerId==2)==null)throw new Exception("Vapor chamber button purchases and equips cooler tier two");
   ui.Close();Call(ui,"Refresh");
+  CheckSettings(ui,canvas);
   var camera=new GameObject("Camera",typeof(Camera)).GetComponent<Camera>();var render=new RenderTexture(1080,2400,24);camera.targetTexture=render;canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=camera;canvas.planeDistance=10;var scaler=canvas.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ConstantPixelSize;scaler.scaleFactor=2;
   var screen=(RectTransform)Get(ui,"screen");var safe=new Rect(0,90,1080,2210);screen.localScale=MobileSafeArea.Fit(safe,2);screen.anchoredPosition=(safe.center-new Vector2(540,1200))/2;
   int overflows=0;
@@ -39,7 +60,7 @@ public static class ReleaseLayoutAudit {
    screen.localScale=MobileSafeArea.Fit(new Rect(0,80,size.x,size.y-120),2);screen.anchoredPosition=new Vector2(0,20);
    foreach(var page in new[]{"settings","goals","gpu","inventory","cool","shop","fork","trade","estate"}){
     Call(ui,"Open",page);Canvas.ForceUpdateCanvases();foreach(var text in canvas.GetComponentsInChildren<TextMeshProUGUI>()){text.ForceMeshUpdate();if(text.isTextOverflowing){overflows++;Debug.Log("LAYOUT_OVERFLOW "+size+" / "+page+" / "+text.text);}}Canvas.ForceUpdateCanvases();camera.Render();camera.Render();
-    if(size.x==720&&(page=="trade"||page=="goals"||page=="shop")){RenderTexture.active=render;var shot=new Texture2D(size.x,size.y,TextureFormat.RGB24,false);shot.ReadPixels(new Rect(0,0,size.x,size.y),0,0);shot.Apply();File.WriteAllBytes(Path.GetFullPath("../audit-"+page+".png"),shot.EncodeToPNG());UnityEngine.Object.DestroyImmediate(shot);RenderTexture.active=null;}
+    if(size.x==720&&(page=="trade"||page=="goals"||page=="shop"||page=="settings")){RenderTexture.active=render;var shot=new Texture2D(size.x,size.y,TextureFormat.RGB24,false);shot.ReadPixels(new Rect(0,0,size.x,size.y),0,0);shot.Apply();File.WriteAllBytes(Path.GetFullPath("../audit-"+page+".png"),shot.EncodeToPNG());UnityEngine.Object.DestroyImmediate(shot);RenderTexture.active=null;}
     ui.HandleBack();if(Get(ui,"modal")!=null)throw new Exception("Back must close "+page);
    }
   }
