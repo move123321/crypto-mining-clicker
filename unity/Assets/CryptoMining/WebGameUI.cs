@@ -109,7 +109,16 @@ public partial class WebGameUI:MonoBehaviour {
   var mute=Button(card,"",302,7,100,28,()=>{toggle();Refresh();},Cyan,11);
   LiveText(status,()=>muted()?"음소거 · 저장된 음량 "+value()+"%":"음량 "+value()+"% · 선택 즉시 적용");
   LiveText(mute.GetComponentInChildren<Text>(),()=>muted()?"소리 켜기":"음소거");
-  for(int i=0;i<=4;i++){int level=i*25;var button=Button(card,level+"%",10+i*79,83,76,44,()=>{set(level);if(muted())toggle();Refresh();},Cyan,12);LiveText(button.GetComponentInChildren<Text>(),()=>value()==level?"["+level+"%]":level+"%");}
+  var area=Rect(card,"Volume slider",10,76,392,54);Paint(area,Color.clear).raycastTarget=true;
+  Box(area,"Track",14,21,364,12,C("394765"));
+  var fillArea=Rect(area,"Fill area",14,21,364,12);var fill=Rect(fillArea,"Fill",0,0,364,12);Paint(fill,Cyan);Fill(fill);
+  var handleArea=Rect(area,"Handle area",14,6,364,42);var handle=Rect(handleArea,"Handle",0,0,28,42);
+  handle.anchorMin=handle.anchorMax=new Vector2(0,.5f);handle.pivot=new Vector2(.5f,.5f);handle.anchoredPosition=Vector2.zero;handle.sizeDelta=new Vector2(28,0);
+  var handleImage=Paint(handle,White);handleImage.raycastTarget=true;
+  var slider=area.gameObject.AddComponent<Slider>();slider.minValue=0;slider.maxValue=100;slider.wholeNumbers=true;slider.direction=Slider.Direction.LeftToRight;
+  slider.fillRect=fill;slider.handleRect=handle;slider.targetGraphic=handleImage;slider.SetValueWithoutNotify(value());
+  slider.onValueChanged.AddListener(v=>{set(Mathf.RoundToInt(v));if(muted())toggle();Refresh();});
+  live.Add(()=>{if(slider!=null)slider.SetValueWithoutNotify(value());});
  }
  void Settings(){
   var audio=GetComponent<MiningMusic>();
@@ -120,9 +129,16 @@ public partial class WebGameUI:MonoBehaviour {
   var animation=Card("팬 애니메이션","팬 회전 표시만 조절합니다. 채굴량과 온도는 동일합니다.",132,35);
   var toggle=Button(animation,"",10,77,392,44,()=>{PlayerPrefs.SetInt("mining_fan_animation",PlayerPrefs.GetInt("mining_fan_animation",1)==1?0:1);PlayerPrefs.Save();Refresh();},Cyan);
   LiveText(toggle.GetComponentInChildren<Text>(),()=>PlayerPrefs.GetInt("mining_fan_animation",1)==1?"팬 회전 켜짐 · 눌러서 끄기":"팬 회전 꺼짐 · 눌러서 켜기");
-  Card("저장 상태",string.IsNullOrEmpty(g.SaveNotice)?"진행 상황은 기기에 자동 저장됩니다.\n설정은 변경 즉시 저장되며 다음 실행에도 유지됩니다.\n앱 삭제 시 진행 상황과 설정이 사라질 수 있습니다.":g.SaveNotice,128);
+  Card("저장 상태",string.IsNullOrEmpty(g.SaveNotice)?"진행 상황은 기기에 자동 저장됩니다.\n설정은 자동 저장되며 다음 실행에도 유지됩니다.\n앱 삭제 시 진행 상황과 설정이 사라질 수 있습니다.":g.SaveNotice,128);
   ActionCard("게임 안내","조작과 성장 방법을 다시 확인합니다.","튜토리얼 보기",Tutorial,Cyan,125);
+  ActionCard("개인정보 및 문의","개발자 muibeu · seoghunjo08@gmail.com","개인정보 안내 보기",()=>Open("privacy"),Cyan,128);
   Card("게임 정보","암호화폐 마이닝 · "+Application.version+"\n가상 코인을 사용하는 채굴 경영 게임입니다.\n실제 암호화폐를 채굴하거나 현금으로 환전하지 않습니다.",120);
+ }
+ void Privacy(){
+  Card("개발자 및 연락처","muibeu\n문의: seoghunjo08@gmail.com",100);
+  Card("기기에 저장되는 정보","게임 진행 상황과 소리·화면 설정은 기기에 저장됩니다.\n현재 버전은 회원가입, 광고, 인앱결제, 클라우드 저장 기능을 제공하지 않습니다.",140);
+  Card("데이터 삭제 및 기기 변경","앱 데이터 삭제 또는 앱 삭제 시 진행 상황과 설정이 삭제될 수 있습니다.\n다른 기기로 진행 상황이 자동 이전되지 않습니다.",140);
+  Card("이메일 문의","문의 시 보내주신 이메일 주소와 문의 내용은 답변과 문제 해결에 사용합니다.\n비밀번호나 신분증 등 민감한 정보는 보내지 마세요.",140);
  }
  void Goals(){
   var contract=g.S.contract;g.EnsureContract();contract=g.S.contract;
@@ -225,9 +241,9 @@ public partial class WebGameUI:MonoBehaviour {
  float y; RectTransform Card(string title,string detail,float h=110,float detailHeight=-1){var r=Box(content,title,0,y,412,h,Dark,C("394765"));Text(r,title,10,7,392,26,14,Green);if(!string.IsNullOrEmpty(detail))Text(r,detail,10,37,392,detailHeight>=0?detailHeight:h-44,12,White,TextAnchor.UpperLeft);y+=h+9;return r;}
  void ActionCard(string title,string detail,string label,Action a,Color? accent=null,float h=158){var r=Card(title,detail,h,h-89);Button(r,label,10,h-44,392,34,a,accent);}
  void LiveText(Text t,Func<string> f){Action a=()=>{if(t!=null)t.text=f();};live.Add(a);a();}
- void Open(string type){if(!g.S.running&&type!="trade")return;Close(false);page=type;string title=type=="gpu"?"장착 관리":type=="inventory"?"장비 보관함":type=="oc"?"오버클럭":type=="cool"?"랙 냉각 연구소":type=="shop"?"장비 상점":type=="fork"?"포크 업그레이드":type=="news"?"채굴 경제신문":type=="estate"?"부동산 · 공간 확장":type=="settings"?"설정":type=="goals"?"다음 성장 목표":"코인 거래소";
+ void Open(string type){if(!g.S.running&&type!="trade")return;Close(false);page=type;string title=type=="gpu"?"장착 관리":type=="inventory"?"장비 보관함":type=="oc"?"오버클럭":type=="cool"?"랙 냉각 연구소":type=="shop"?"장비 상점":type=="fork"?"포크 업그레이드":type=="news"?"채굴 경제신문":type=="estate"?"부동산 · 공간 확장":type=="privacy"?"개인정보 및 문의":type=="settings"?"설정":type=="goals"?"다음 성장 목표":"코인 거래소";
  modal=Box(screen,"Modal",0,0,480,854,new Color(.01f,.02f,.05f,.94f));modal.GetComponent<Image>().raycastTarget=true;var box=Box(modal,"Popup",20,type=="news"?190:32,440,type=="news"?422:746,Panel,C("56658c"),3);Text(box,title,12,8,354,35,16,Cyan);var closeButton=Button(box,"X",387,8,40,35,()=>Close(),Red,18);var closeLabel=closeButton.GetComponentInChildren<Text>();closeLabel.fontStyle=FontStyles.Bold;closeLabel.textWrappingMode=TextWrappingModes.NoWrap;closeLabel.overflowMode=TextOverflowModes.Overflow;ScrollRect sc;content=Scroll(box,14,55,412,type=="news"?352:675,out sc);y=0;
- switch(type){case "settings":Settings();break;case "goals":Goals();break;case "estate":Estate();break;case "gpu":GPU();break;case "inventory":Inventory();break;case "oc":OC();break;case "cool":Cool();break;case "shop":Shop();break;case "fork":Fork();break;case "trade":Trade();break;case "news":NewsContent();break;}content.sizeDelta=new Vector2(412,y+8);Refresh();}
+ switch(type){case "privacy":Privacy();break;case "settings":Settings();break;case "goals":Goals();break;case "estate":Estate();break;case "gpu":GPU();break;case "inventory":Inventory();break;case "oc":OC();break;case "cool":Cool();break;case "shop":Shop();break;case "fork":Fork();break;case "trade":Trade();break;case "news":NewsContent();break;}content.sizeDelta=new Vector2(412,y+8);Refresh();}
  public void Close(bool reset=true){live.Clear();if(modal!=null){modal.gameObject.SetActive(false);Destroy(modal.gameObject);}modal=null;page="";if(reset){pendingSlot=-1;equipUid=null;coolTarget=null;}}
  string Certification(){int t=g.RigTier();if(t==8)return "QUANTUM 인증 완료 · 모든 GPU 등급 해금";var n=Catalog.GPUs[t+1];return "현재 "+Catalog.GPUs[t].name+" 인증 · 다음 "+n.name+"\n운영 "+g.Duration(g.S.runSeconds)+" / "+g.Duration(g.RequiredSeconds(n))+"\n누적 채굴 "+N(g.S.totalMined)+" / "+N(n.unlockMined);}
  void GpuTile(GpuItem item,string title,string label,Action action){

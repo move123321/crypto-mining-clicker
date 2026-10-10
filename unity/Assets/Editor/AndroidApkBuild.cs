@@ -8,6 +8,22 @@ using UnityEngine;
 
 public static class AndroidApkBuild
 {
+    static bool oneStoreRelease;
+    [MenuItem("Crypto Mining/Build ONE store APK")]
+    public static void BuildOneStore()
+    {
+        var oldCustom=PlayerSettings.Android.useCustomKeystore;
+        var oldName=PlayerSettings.Android.keystoreName;
+        var oldAlias=PlayerSettings.Android.keyaliasName;
+        try { oneStoreRelease=true; Build(); }
+        finally {
+            oneStoreRelease=false;
+            PlayerSettings.Android.keystorePass=""; PlayerSettings.Android.keyaliasPass="";
+            PlayerSettings.Android.keystoreName=oldName; PlayerSettings.Android.keyaliasName=oldAlias;
+            PlayerSettings.Android.useCustomKeystore=oldCustom;
+            AssetDatabase.SaveAssets();
+        }
+    }
     [MenuItem("Crypto Mining/Build Galaxy APK")]
     public static void Build()
     {
@@ -29,7 +45,17 @@ public static class AndroidApkBuild
         PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel23;
         PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
         PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
-        PlayerSettings.Android.useCustomKeystore = false;
+        PlayerSettings.Android.useCustomKeystore = oneStoreRelease;
+        if (oneStoreRelease) {
+            var path=Environment.GetEnvironmentVariable("CRYPTO_UPLOAD_KEYSTORE");
+            var alias=Environment.GetEnvironmentVariable("CRYPTO_UPLOAD_ALIAS");
+            var password=Environment.GetEnvironmentVariable("CRYPTO_UPLOAD_PASSWORD");
+            var keyPassword=Environment.GetEnvironmentVariable("CRYPTO_UPLOAD_KEY_PASSWORD");
+            if(string.IsNullOrEmpty(path)||!File.Exists(path)||string.IsNullOrEmpty(alias)||string.IsNullOrEmpty(password)||string.IsNullOrEmpty(keyPassword))
+                throw new BuildFailedException("ONE store release requires a private signing key and CRYPTO_UPLOAD_* environment variables.");
+            PlayerSettings.Android.keystoreName=path; PlayerSettings.Android.keyaliasName=alias;
+            PlayerSettings.Android.keystorePass=password; PlayerSettings.Android.keyaliasPass=keyPassword;
+        }
         EditorUserBuildSettings.buildAppBundle = false;
         EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
         EditorUserBuildSettings.development = false;

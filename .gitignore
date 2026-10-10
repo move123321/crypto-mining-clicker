@@ -1,0 +1,7 @@
+# Private signing material must never be committed
+*.jks
+*.keystore
+*.p12
+*.pfx
+**/signing-password*
+private-keys/

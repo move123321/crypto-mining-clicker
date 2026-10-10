@@ -4,10 +4,17 @@ namespace CryptoMining {
 [RequireComponent(typeof(AudioSource))]
 public class MiningMusic:MonoBehaviour {
  AudioSource source,effects;AudioClip success;
+ bool volumeSavePending;float volumeSaveAt;
+ void ScheduleVolumeSave(){volumeSavePending=true;volumeSaveAt=Time.unscaledTime+.35f;}
+ public void FlushVolumeSettings(){if(!volumeSavePending)return;PlayerPrefs.Save();volumeSavePending=false;}
+ void Update(){if(volumeSavePending&&Time.unscaledTime>=volumeSaveAt)FlushVolumeSettings();}
+ void OnApplicationPause(bool paused){if(paused)FlushVolumeSettings();}
+ void OnApplicationQuit(){FlushVolumeSettings();}
+ void OnDisable(){FlushVolumeSettings();}
  public int MusicVolume => Mathf.Clamp(PlayerPrefs.GetInt("mining_music_volume",100),0,100);
  public int EffectsVolume => Mathf.Clamp(PlayerPrefs.GetInt("mining_effects_volume",100),0,100);
- public void SetMusicVolume(int value){PlayerPrefs.SetInt("mining_music_volume",Mathf.Clamp(value,0,100));PlayerPrefs.Save();ApplyVolume();}
- public void SetEffectsVolume(int value){PlayerPrefs.SetInt("mining_effects_volume",Mathf.Clamp(value,0,100));PlayerPrefs.Save();}
+ public void SetMusicVolume(int value){PlayerPrefs.SetInt("mining_music_volume",Mathf.Clamp(value,0,100));ScheduleVolumeSave();ApplyVolume();}
+ public void SetEffectsVolume(int value){PlayerPrefs.SetInt("mining_effects_volume",Mathf.Clamp(value,0,100));ScheduleVolumeSave();}
  void ApplyVolume(){if(source!=null)source.volume=Muted?0:.18f*MusicVolume/100f;}
  public bool EffectsMuted => PlayerPrefs.GetInt("mining_effects_muted",0)==1;
  public void ToggleEffects(){PlayerPrefs.SetInt("mining_effects_muted",EffectsMuted?0:1);PlayerPrefs.Save();}
